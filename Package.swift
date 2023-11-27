@@ -4,20 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "BBS",
+    name: "BBS-Signature",
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "BBS",
-            targets: ["BBS"]),
+        .library(name: "MijickBBS-Signature", targets: ["MijickBBS-Signature"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/attaswift/BigInt", branch: "master")
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
-        .target(
-            name: "BBS"),
-        .testTarget(
-            name: "BBSTests",
-            dependencies: ["BBS"]),
+        .target(name: "MijickBBS-Signature", dependencies: [.product(name: "BigInt", package: "BigInt")], path: "Sources"),
+        .testTarget(name: "MijickBBS-SignatureTests", dependencies: ["MijickBBS-Signature"], path: "Tests")
     ]
 )
