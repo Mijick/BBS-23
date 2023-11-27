@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "bigint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/leif-ibsen/BigInt",
+      "state" : {
+        "branch" : "master",
+        "revision" : "3fe07ec38afa732e86d4f3e867cb43b05d004941"
+      }
+    }
+  ],
+  "version" : 2
+}

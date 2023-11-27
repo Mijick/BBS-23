@@ -1,0 +1,313 @@
+//
+//  Utilities.swift of MijickBBS23
+//
+//  Created by Alina Petrovska on 30.11.2023.
+//    - Mail: alina.petrovskaya@mijick.com
+//    - GitHub: https://github.com/Mijick
+//
+//  Copyright ©2023 Mijick. Licensed under MIT License.
+
+
+import Foundation
+import BigInt
+
+class Utilities {}
+
+// MARK: - Domain Calculation
+extension Utilities {
+    static func calculateDomain(publicKey: [UInt8], generators: [Point<Fq1>], header: [UInt8], apiID: [UInt8]) throws -> BInt {
+        try precheckDomainRequirements(generators, header)
+
+        let L = generators.count - 1,
+            domainDst = getDomainDst(apiID)
+
+        let domArray = [L] + generators
+        let domOcts = try serialize(input: domArray).concatenate(with: apiID)
+        let domInput = publicKey
+            .concatenate(with: domOcts)
+            .concatenate(with: try header.count.toBytes(expectedLength: 8))
+            .concatenate(with: header)
+
+        let domain = try hashToScalar(domInput, domainDst)
+        return domain
+    }
+}
+private extension Utilities {
+    static func precheckDomainRequirements(_ points: [Point<Fq1>], _ header: [UInt8]) throws {
+        if points.count < 2 { throw Error.CalculateDomain.tooLessPoints }
+        if points.count > 2 ** 64 - 1 { throw Error.CalculateDomain.tooManyPoints }
+        if header.count > 2 ** 64 - 1 { throw Error.CalculateDomain.tooBigHeader }
+    }
+}
+private extension Utilities {
+    static func getDomainDst(_ apiID: [UInt8]) -> [UInt8] {
+        let domain = "H2S_".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: domain)
+    }
+}
+
+// MARK: - Creating Generators
+extension Utilities {
+    static func createGenerators(count: BInt, apiID: [UInt8]) throws -> [Point<Fq1>] {
+        if count > BInt(2) ** 64 - 1 { throw Error.CreateGenerators.cannotGenerateThatAmountOfGenerators }
+
+        // MARK: Parameters
+        let seedDst = getSeedDst(apiID),
+            generatorDst = getGeneratorDst(apiID),
+            generatorSeed = getGeneratorSeed(apiID)
+
+        // MARK: Variables
+        var generators: [Point<Fq1>] = []
+        var v = try ciphersuite.expandMessage.make(generatorSeed, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
+
+        // MARK: Creating Generators
+        while generators.count < count {
+            let bytes = v.concatenate(with: try BInt(generators.count + 1).toBytes(expectedLength: 8))
+            v = try ciphersuite.expandMessage.make(bytes, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
+
+            let generatorI = try ciphersuite.curveG1.hashToCurve(v, dst: generatorDst)
+            generators.append(generatorI)
+        }
+
+        return generators
+    }
+}
+private extension Utilities {
+    static func getSeedDst(_ apiID: [UInt8]) -> [UInt8] {
+        let seed = "SIG_GENERATOR_SEED_".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: seed)
+    }
+    static func getGeneratorDst(_ apiID: [UInt8]) -> [UInt8] {
+        let generator = "SIG_GENERATOR_DST_".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: generator)
+    }
+    static func getGeneratorSeed(_ apiID: [UInt8]) -> [UInt8] {
+        let generatorSeed = "MESSAGE_GENERATOR_SEED".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: generatorSeed)
+    }
+}
+
+// MARK: - Converting to Scalar
+extension Utilities {
+    static func messagesToScalars(messages: [[UInt8]], apiID: [UInt8]) throws -> [BInt] {
+        if messages.count > 2 ** 64 - 1 { throw Error.ConvertToScalar.invalidMessageLength }
+
+        let mapDst = getMapDst(apiID)
+        return try messages.map { try hashToScalar($0, mapDst) }
+    }
+    static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8]) throws -> BInt {
+        if dst.count > 255 { throw Error.ConvertToScalar.invalidDSTLength }
+
+        let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
+        return uniformBytes
+            .toInteger()
+            .mod(ciphersuite.r)
+    }
+}
+private extension Utilities {
+    static func getMapDst(_ apiID: [UInt8]) -> [UInt8] {
+        let mapDst = "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: mapDst)
+    }
+}
+
+// MARK: - Serializing
+extension Utilities {
+    static func serialize(input: [Any]) throws -> [UInt8] {
+        var octetsResult: [UInt8] = []
+
+        for element in input {
+            let elementOcts = try serializeElement(element)
+            octetsResult = octetsResult.concatenate(with: elementOcts)
+        }
+
+        return octetsResult
+    }
+}
+private extension Utilities {
+    static func serializeElement(_ element: Any) throws -> [UInt8] {
+        if let pointG1 = element as? Point<Fq1> { return try ciphersuite.curveG1.serializePoint(pointG1) }
+        if let pointG2 = element as? Point<Fq2> { return try ciphersuite.curveG2.serializePoint(pointG2) }
+        if let integer = element as? BInt { return try integer.toBytes(expectedLength: ciphersuite.octetScalarLength) }
+        if let integer = element as? Int { return try integer.toBytes(expectedLength: 8) }
+
+        throw Error.Serialization.notValidElement
+    }
+}
+
+// MARK: - Random Scalars
+extension Utilities {
+    static func calculateRandomScalars(count: Int) throws -> [BInt] {
+        try (1...count).map { _ in
+            guard let result = [UInt8]
+                .random(length: ciphersuite.expandLength)?
+                .toInteger()
+                .mod(ciphersuite.r)
+            else { throw Error.RandomScalars.unexpectedErrorDuringGeneratingRandomScalars }
+
+            return result
+        }
+    }
+    static func calculateMockedRandomScalars(count: Int) throws -> [BInt] {
+        let outLength = ciphersuite.expandLength * count,
+            v = try ciphersuite.expandMessage.make(mockedRandomScalarsSeed, dst: mockedRandomScalarsDst, expectedLengthInBytes: outLength)
+
+        return (1...count).reduce([]) {
+            let startIndex = ($1 - 1) * ciphersuite.expandLength
+            let endIndex = $1 * ciphersuite.expandLength - 1
+
+            let result = Array(v[startIndex...endIndex])
+                .toInteger()
+                .mod(ciphersuite.r)
+            return $0 + [result]
+        }
+    }
+}
+private extension Utilities {
+    static var mockedRandomScalarsSeed: [UInt8] { "332e313431353932363533353839373933323338343632363433333833323739".asHexToByteRepresentation() }
+    static var mockedRandomScalarsDst: [UInt8] { "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_MOCK_RANDOM_SCALARS_DST_".asAsciiToByteRepresentation() }
+}
+
+// MARK: - Octets to Public Key
+extension Utilities {
+    static func octetsToPublicKey(publicKey: [UInt8]) throws -> Point<Fq2> {
+        let publicKey = try ciphersuite.curveG2.deserializePoint(publicKey)
+        try checkPublicKey(publicKey)
+        return publicKey
+    }
+}
+private extension Utilities {
+    static func checkPublicKey(_ publicKey: Point<Fq2>) throws {
+        if publicKey.isAtInfinity() { throw Error.OctetsToPublicKey.publicKeyInvalid }
+    }
+}
+
+// MARK: - Signature to Octets
+extension Utilities {
+    static func signatureToOctets(signature: Signature) throws -> [UInt8] {
+        let serializedSignature = try serialize(input: [signature.A, signature.e])
+        return serializedSignature
+    }
+}
+
+// MARK: - Octets to Signature
+extension Utilities {
+    static func octetsToSignature(signatureOctets: [UInt8]) throws -> Signature {
+        try precheckSignatureOctets(signatureOctets)
+
+        let point = try deserializePoint(signatureOctets)
+        let scalar = try deserializeScalar(signatureOctets)
+
+        return (point, scalar)
+    }
+}
+private extension Utilities {
+    static func precheckSignatureOctets(_ signatureOctets: [UInt8]) throws {
+        let expectedLength = ciphersuite.octetPointLength + ciphersuite.octetScalarLength
+        if signatureOctets.count != expectedLength { throw Error.OctetsToSignature.invalidSignature }
+    }
+    static func deserializePoint(_ signatureOctets: [UInt8]) throws -> Point<Fq1> {
+        let octets = Array(signatureOctets[0..<ciphersuite.octetPointLength])
+        let point = try ciphersuite.curveG1.deserializePoint(octets)
+
+        if point.isAtInfinity() { throw Error.OctetsToSignature.invalidPoint }
+        return point
+    }
+    static func deserializeScalar(_ signatureOctets: [UInt8]) throws -> BInt {
+        let startIndex = ciphersuite.octetPointLength,
+            endIndex = startIndex + ciphersuite.octetScalarLength - 1
+
+        let scalar = Array(signatureOctets[startIndex...endIndex])
+            .toInteger()
+            .mod(ciphersuite.r)
+
+        if scalar == 0 || scalar >= ciphersuite.r { throw Error.OctetsToSignature.invalidScalar }
+        return scalar
+    }
+}
+
+// MARK: - Proof to Octets
+extension Utilities {
+    static func proofToOctets(_ proof: Proof) throws -> [UInt8] {
+        let array = getProofSerializationArray(proof)
+        return try serialize(input: array)
+    }
+}
+private extension Utilities {
+    static func getProofSerializationArray(_ proof: Proof) -> [Any] { []
+        .appending([proof.Abar, proof.Bbar, proof.D])
+        .appending([proof.e, proof.r1, proof.r3])
+        .appending(proof.m)
+        .appending([proof.challenge])
+    }
+}
+
+// MARK: - Octets to Proof
+extension Utilities {
+    static func octetsToProof(proofOctets: [UInt8]) throws -> Proof {
+        try precheckProofOctets(proofOctets)
+
+        let points = try deserializePoints(proofOctets), pointsSize = points.count * ciphersuite.octetPointLength
+        let scalars = try deserializeScalars(proofOctets, pointsSize: pointsSize), scalarsSize = scalars.count * ciphersuite.octetScalarLength
+
+        try verifyProofOutput(proofOctets, pointsSize: pointsSize, scalarsSize: scalarsSize)
+        return (points[0], points[1], points[2], scalars[0], scalars[1], scalars[2], Array(scalars[3..<scalars.count - 1]), scalars.last!)
+    }
+}
+private extension Utilities {
+    static func precheckProofOctets(_ proofOctets: [UInt8]) throws {
+        let expectedLength = 3 * ciphersuite.octetPointLength + 4 * ciphersuite.octetScalarLength
+        if proofOctets.count < expectedLength { throw Error.OctetsToProof.invalidProof }
+    }
+    static func deserializePoints(_ proofOctets: [UInt8]) throws -> [Point<Fq1>] {
+        try (0..<3).map {
+            let startIndex = $0 * ciphersuite.octetPointLength, endIndex = startIndex + ciphersuite.octetPointLength
+            let pointOctets = Array(proofOctets[startIndex..<endIndex])
+
+            let A = try ciphersuite.curveG1.deserializePoint(pointOctets)
+            try checkPoint(A)
+            return A
+        }
+    }
+    static func deserializeScalars(_ proofOctets: [UInt8], pointsSize: Int) throws -> [BInt] {
+        try stride(from: pointsSize, to: proofOctets.count - 1, by: ciphersuite.octetScalarLength).map {
+            let startIndex = $0, endIndex = startIndex + ciphersuite.octetScalarLength
+            let scalarOctets = Array(proofOctets[startIndex..<endIndex])
+
+            let scalar = scalarOctets.toInteger()
+            try checkScalar(scalar)
+            return scalar
+        }
+    }
+    static func verifyProofOutput(_ proofOctets: [UInt8], pointsSize: Int, scalarsSize: Int) throws {
+        if proofOctets.count != pointsSize + scalarsSize { throw Error.OctetsToProof.invalidProofEntry }
+    }
+}
+private extension Utilities {
+    static func checkPoint(_ A: Point<Fq1>) throws {
+        if A.isAtInfinity() { throw Error.OctetsToProof.invalidPoint }
+        if !A.isInSubgroup() { throw Error.OctetsToProof.invalidPoint }
+    }
+    static func checkScalar(_ e: BInt) throws {
+        if e == 0 { throw Error.OctetsToProof.invalidScalar }
+        if e >= ciphersuite.r { throw Error.OctetsToProof.invalidScalar }
+    }
+}
+
+// MARK: - Helpers
+private extension Utilities {
+    static var ciphersuite: CipherSuite { BBSSettings.ciphersuite }
+}
+
+
+// MARK: - Errors
+extension Utilities { enum Error {
+    enum CalculateDomain: Swift.Error { case tooLessPoints, tooManyPoints, tooBigHeader }
+    enum CreateGenerators: Swift.Error { case cannotGenerateThatAmountOfGenerators }
+    enum ConvertToScalar: Swift.Error { case invalidDSTLength, invalidMessageLength }
+    enum Serialization: Swift.Error { case notValidElement }
+    enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
+    enum OctetsToPublicKey: Swift.Error { case publicKeyInvalid }
+    enum OctetsToSignature: Swift.Error { case invalidSignature, invalidPoint, invalidScalar }
+    enum OctetsToProof: Swift.Error { case invalidProof, invalidPoint, invalidScalar, invalidProofEntry }
+}}

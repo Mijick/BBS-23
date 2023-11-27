@@ -1,0 +1,26 @@
+//
+//  Array++.swift of MijickBBS23
+//
+//  Created by Tomasz Kurylik
+//    - Twitter: https://twitter.com/tkurylik
+//    - Mail: tomasz.kurylik@mijick.com
+//    - GitHub: https://github.com/FulcrumOne
+//
+//  Copyright ©2023 Mijick. Licensed under MIT License.
+
+
+import Foundation
+
+// MARK: - Appending
+extension Array {
+    func appending(_ elements: [Element]) -> Self {
+        var array = self
+        array.append(contentsOf: elements)
+        return array
+    }
+}
+
+// MARK: - Getting
+extension Array {
+    func get(_ index: Int) -> Element? { count > index ? self[index] : nil }
+}
