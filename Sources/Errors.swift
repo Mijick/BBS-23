@@ -1,5 +1,5 @@
 //
-//  Error++.swift of BBS-Signature
+//  Errors.swift of BBS-Signature
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -11,4 +11,4 @@
 
 import Foundation
 
-extension String: Error {}
+enum I20SPError: Error { case negativeExpectedLength, tooLargeInteger }

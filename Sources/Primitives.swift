@@ -19,7 +19,7 @@ extension Primitives {
 
     /// Also known as OS2IP.
     /// Transforms a octet string into an non-negative integer. The input of this operation must be in big-endian order
-    static func bytesToInt(_ bytes: [UInt8]) -> BigUInt {
+    static func bytesToInteger(_ bytes: [UInt8]) -> BigUInt {
         let data = Data(bytes)
         return .init(data)
     }
@@ -36,18 +36,12 @@ extension Primitives {
 }
 private extension Primitives {
     static func assertIntegerToBytesRequirements(_ value: BigUInt, _ expectedLength: Int) throws {
-        if expectedLength < 0 { throw "Length of expected array of bytes can't be negative" }
-        if value >= BigUInt(256).power(expectedLength) { throw "Integer is too large" }
+        if expectedLength < 0 { throw I20SPError.negativeExpectedLength }
+        if value >= BigUInt(256).power(expectedLength) { throw I20SPError.tooLargeInteger }
     }
     static func createArrayOfExpectedLength(_ bytes: [UInt8], _ expectedLength: Int) -> [UInt8] { var bytes = bytes
         let numberOfItemsToInsert = expectedLength - bytes.count
-
-        switch numberOfItemsToInsert {
-            case let x where x > 0: for _ in 0..<numberOfItemsToInsert { bytes.insert(0, at: 0) }
-            case let x where x < 0: bytes.removeLast(abs(x))
-            default: break
-        }
-        
+        for _ in 0..<numberOfItemsToInsert { bytes.insert(0, at: 0) }
         return bytes
     }
 }
