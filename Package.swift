@@ -13,6 +13,6 @@ let package = Package(
     ],
     targets: [
         .target(name: "MijickBBS-Signature", dependencies: [.product(name: "BigInt", package: "BigInt")], path: "Sources"),
-        .testTarget(name: "MijickBBS-SignatureTests", dependencies: ["MijickBBS-Signature"], path: "Tests")
+        .testTarget(name: "MijickBBS-SignatureTests", dependencies: ["MijickBBS-Signature", .product(name: "BigInt", package: "BigInt")], path: "Tests")
     ]
 )
