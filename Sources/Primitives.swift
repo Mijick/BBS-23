@@ -11,7 +11,6 @@
 
 import Foundation
 import BigInt
-import CommonCrypto
 
 class Primitives { private init() {} }
 
@@ -44,14 +43,5 @@ private extension Primitives {
         let numberOfItemsToInsert = expectedLength - bytes.count
         for _ in 0..<numberOfItemsToInsert { bytes.insert(0, at: 0) }
         return bytes
-    }
-}
-
-// MARK: - Hashing Methods
-extension Primitives {
-    static func sha256(_ bytes: [UInt8]) -> [UInt8] { let data = Data(bytes)
-        var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
-        data.withUnsafeBytes { _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash) }
-        return hash
     }
 }
