@@ -17,7 +17,7 @@ final class BLS12_381_SHA_256Tests: XCTestCase {}
 // MARK: - Expanding Message Tests
 extension BLS12_381_SHA_256Tests {
     func testExpandMessage_1() throws {
-        let bytes = "".toByteRepresentation()
+        let bytes = "".asAsciiToByteRepresentation()
         let lengthInBytes = 32
 
         let result = try BLS12_381_SHA_256()
@@ -27,7 +27,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_2() throws {
-        let bytes = "abc".toByteRepresentation()
+        let bytes = "abc".asAsciiToByteRepresentation()
         let lengthInBytes = 32
 
         let result = try BLS12_381_SHA_256()
@@ -37,7 +37,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_3() throws {
-        let bytes = "abcdef0123456789".toByteRepresentation()
+        let bytes = "abcdef0123456789".asAsciiToByteRepresentation()
         let lengthInBytes = 32
 
         let result = try BLS12_381_SHA_256()
@@ -47,7 +47,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_4() throws {
-        let bytes = "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq".toByteRepresentation()
+        let bytes = "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq".asAsciiToByteRepresentation()
         let lengthInBytes = 32
 
         let result = try BLS12_381_SHA_256()
@@ -57,7 +57,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_5() throws {
-        let bytes = "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".toByteRepresentation()
+        let bytes = "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".asAsciiToByteRepresentation()
         let lengthInBytes = 32
 
         let result = try BLS12_381_SHA_256()
@@ -67,7 +67,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_6() throws {
-        let bytes = "".toByteRepresentation()
+        let bytes = "".asAsciiToByteRepresentation()
         let lengthInBytes = 128
 
         let result = try BLS12_381_SHA_256()
@@ -77,7 +77,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_7() throws {
-        let bytes = "abc".toByteRepresentation()
+        let bytes = "abc".asAsciiToByteRepresentation()
         let lengthInBytes = 128
 
         let result = try BLS12_381_SHA_256()
@@ -87,7 +87,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_8() throws {
-        let bytes = "abcdef0123456789".toByteRepresentation()
+        let bytes = "abcdef0123456789".asAsciiToByteRepresentation()
         let lengthInBytes = 128
 
         let result = try BLS12_381_SHA_256()
@@ -97,7 +97,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_9() throws {
-        let bytes = "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq".toByteRepresentation()
+        let bytes = "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq".asAsciiToByteRepresentation()
         let lengthInBytes = 128
 
         let result = try BLS12_381_SHA_256()
@@ -107,7 +107,7 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
     func testExpandMessage_10() throws {
-        let bytes = "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".toByteRepresentation()
+        let bytes = "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".asAsciiToByteRepresentation()
         let lengthInBytes = 128
 
         let result = try BLS12_381_SHA_256()
@@ -118,5 +118,5 @@ extension BLS12_381_SHA_256Tests {
     }
 }
 private extension BLS12_381_SHA_256Tests {
-    var domainSeparationTag: [UInt8] { "QUUX-V01-CS02-with-expander-SHA256-128".toByteRepresentation() }
+    var domainSeparationTag: [UInt8] { "QUUX-V01-CS02-with-expander-SHA256-128".asAsciiToByteRepresentation() }
 }

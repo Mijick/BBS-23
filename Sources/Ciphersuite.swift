@@ -18,7 +18,7 @@ protocol Ciphersuite {
     var octetScalarLength: Int { get }
     var octetPointLength: Int { get }
     var expandLength: Int { get }
-    var p1: Int { get }
+    var p1: [UInt8] { get }
 
     // MARK: Methods
     func expandMessage(_ bytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
