@@ -36,12 +36,19 @@ extension Primitives {
 }
 private extension Primitives {
     static func assertIntegerToBytesRequirements(_ value: BigUInt, _ expectedLength: Int) throws {
-        if expectedLength < 0 { throw I20SPError.negativeExpectedLength }
-        if value >= BigUInt(256).power(expectedLength) { throw I20SPError.tooLargeInteger }
+        if expectedLength < 0 { throw Error.I20SP.negativeExpectedLength }
+        if value >= BigUInt(256).power(expectedLength) { throw Error.I20SP.tooLargeInteger }
     }
     static func createArrayOfExpectedLength(_ bytes: [UInt8], _ expectedLength: Int) -> [UInt8] { var bytes = bytes
         let numberOfItemsToInsert = expectedLength - bytes.count
         for _ in 0..<numberOfItemsToInsert { bytes.insert(0, at: 0) }
         return bytes
     }
+}
+
+
+// MARK: - Errors
+fileprivate typealias Error = PrimitivesError
+enum PrimitivesError {
+    enum I20SP: Swift.Error { case negativeExpectedLength, tooLargeInteger }
 }

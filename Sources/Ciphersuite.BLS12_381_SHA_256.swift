@@ -23,31 +23,24 @@ struct BLS12_381_SHA_256: Ciphersuite {
 extension BLS12_381_SHA_256 {
     func expandMessage(_ bytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
         let helperBytesArraySize = calculateHelperBytesArraySize(expectedLengthInBytes)
+
         try assertExpandMessageRequirements(expectedLengthInBytes, domainSeparationTag, helperBytesArraySize)
 
-
-        // 3 - DOBRZE OBLICZA
-        let a = try Primitives.integerToBytes(value: .init(domainSeparationTag.count), expectedLength: 1)
-        let dst_prime = domainSeparationTag.concatenate(with: a)
-
-
-        // 4
+        let dstPrime = try calculateDomainSeparationTagPrime(domainSeparationTag)
         let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hashOutputSizeInBytes)
-
-        // 5
-        let l_i_b_str = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
+        let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
 
 
         // 6
         let b = try Primitives.integerToBytes(value: 0, expectedLength: 1)
-        let msg_prime = zPad.concatenate(with: bytes).concatenate(with: l_i_b_str).concatenate(with: b).concatenate(with: dst_prime)
+        let msg_prime = zPad.concatenate(with: bytes).concatenate(with: expectedLengthBytes).concatenate(with: b).concatenate(with: dstPrime)
 
         // 7
         let b_0 = hashData(msg_prime)
 
         // 8
         let c = try Primitives.integerToBytes(value: 1, expectedLength: 1)
-        let d = b_0.concatenate(with: c).concatenate(with: dst_prime)
+        let d = b_0.concatenate(with: c).concatenate(with: dstPrime)
         let b_1 = hashData(d)
 
 
@@ -56,7 +49,7 @@ extension BLS12_381_SHA_256 {
         for i in (0...helperBytesArraySize) {
             let xor = b_0.xor(array[i])
             let e = try Primitives.integerToBytes(value: .init(i + 2), expectedLength: 1)
-            let zzz = xor.concatenate(with: e).concatenate(with: dst_prime)
+            let zzz = xor.concatenate(with: e).concatenate(with: dstPrime)
             let b_i = hashData(zzz)
             array.append(b_i)
         }
@@ -84,6 +77,10 @@ private extension BLS12_381_SHA_256 {
         if expectedLengthInBytes > 65535 { throw Error.ExpandMessage.expectedLengthTooLarge }
         if domainSeparationTag.count > 255 { throw Error.ExpandMessage.domainSeperationTagTooBig }
         if helperBytesArraySize > 255 { throw Error.ExpandMessage.helperArrayTooBig }
+    }
+    func calculateDomainSeparationTagPrime(_ domainSeparationTag: [UInt8]) throws -> [UInt8] {
+        let bytes = try Primitives.integerToBytes(value: .init(domainSeparationTag.count), expectedLength: 1)
+        return domainSeparationTag.concatenate(with: bytes)
     }
 }
 private extension BLS12_381_SHA_256 {
@@ -116,11 +113,8 @@ private extension BLS12_381_SHA_256 {
 }
 
 
-
-
-
-// DO ZROBIENIA:
-// 1. Zastąpić Primitives za pomocą Extensions
-
-
+// MARK: - Errors
 fileprivate typealias Error = BLS12_381_SHA_256Error
+enum BLS12_381_SHA_256Error {
+    enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
+}
