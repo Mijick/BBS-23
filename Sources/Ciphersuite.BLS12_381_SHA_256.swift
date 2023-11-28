@@ -30,35 +30,24 @@ extension BLS12_381_SHA_256 {
         let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hashOutputSizeInBytes)
         let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
         let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)
+        let hashedMessagePrime = hashData(messagePrime)
 
-        // 7
-        let b_0 = hashData(messagePrime)
+        var helperBytesArray = try createHelperBytesArray(hashedMessagePrime, dstPrime)
 
-        // 8
-        let c = try Primitives.integerToBytes(value: 1, expectedLength: 1)
-        let d = b_0.concatenate(with: c).concatenate(with: dstPrime)
-        let b_1 = hashData(d)
-
-
-        // 9
-        var array: [[UInt8]] = [b_1]
         for i in (0...helperBytesArraySize) {
-            let xor = b_0.xor(array[i])
+            let xor = hashedMessagePrime.xor(helperBytesArray[i])
             let e = try Primitives.integerToBytes(value: .init(i + 2), expectedLength: 1)
             let zzz = xor.concatenate(with: e).concatenate(with: dstPrime)
             let b_i = hashData(zzz)
-            array.append(b_i)
+            helperBytesArray.append(b_i)
         }
 
 
         // 10
-        let uniformBytes = array.reduce([]) { $0.concatenate(with: $1) }
+        let uniformBytes = helperBytesArray.reduce([]) { $0.concatenate(with: $1) }
 
         // 11
         return .init(uniformBytes[0...expectedLengthInBytes - 1])
-
-
-        // dodać sprawdzanie czy lengthInBytes != 0
     }
 }
 private extension BLS12_381_SHA_256 {
@@ -85,6 +74,15 @@ private extension BLS12_381_SHA_256 {
             .concatenate(with: expectedLengthBytes)
             .concatenate(with: bytes)
             .concatenate(with: dstPrime)
+    }
+    func createHelperBytesArray(_ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws -> [[UInt8]] {
+        let byte = try Primitives.integerToBytes(value: 1, expectedLength: 1)
+        let firstByte = hashedMessagePrime
+            .concatenate(with: byte)
+            .concatenate(with: dstPrime)
+
+        let hashedFirstByte = hashData(firstByte)
+        return [hashedFirstByte]
     }
 }
 private extension BLS12_381_SHA_256 {
