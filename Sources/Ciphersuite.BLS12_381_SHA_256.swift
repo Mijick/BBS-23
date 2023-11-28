@@ -33,20 +33,9 @@ extension BLS12_381_SHA_256 {
         let hashedMessagePrime = hashData(messagePrime)
 
         var helperBytesArray = try createHelperBytesArray(hashedMessagePrime, dstPrime)
+        try populateHelperBytesArray(&helperBytesArray, helperBytesArraySize, hashedMessagePrime, dstPrime)
 
-        for i in (0...helperBytesArraySize) {
-            let xor = hashedMessagePrime.xor(helperBytesArray[i])
-            let e = try Primitives.integerToBytes(value: .init(i + 2), expectedLength: 1)
-            let zzz = xor.concatenate(with: e).concatenate(with: dstPrime)
-            let b_i = hashData(zzz)
-            helperBytesArray.append(b_i)
-        }
-
-
-        // 10
         let uniformBytes = helperBytesArray.reduce([]) { $0.concatenate(with: $1) }
-
-        // 11
         return .init(uniformBytes[0...expectedLengthInBytes - 1])
     }
 }
@@ -84,9 +73,16 @@ private extension BLS12_381_SHA_256 {
         let hashedFirstByte = hashData(firstByte)
         return [hashedFirstByte]
     }
-}
-private extension BLS12_381_SHA_256 {
+    func populateHelperBytesArray(_ helperBytesArray: inout [[UInt8]], _ expectedSize: Int, _ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws { for index in 0...expectedSize {
+        let indexBytes = try Primitives.integerToBytes(value: .init(index + 2), expectedLength: 1)
+        let xorResult = hashedMessagePrime.xor(helperBytesArray[index])
+        let byte = xorResult
+            .concatenate(with: indexBytes)
+            .concatenate(with: dstPrime)
 
+        let hashedByte = hashData(byte)
+        helperBytesArray.append(hashedByte)
+    }}
 }
 
 
