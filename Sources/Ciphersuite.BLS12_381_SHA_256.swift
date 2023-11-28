@@ -85,21 +85,20 @@ private extension BLS12_381_SHA_256 {
     }}
 }
 
-
-
+// MARK: - Point to Octets
 extension BLS12_381_SHA_256 {
-    func pointToOctets_g1() {
+    func pointToOctets_g1(_ point: [UInt8]) -> [UInt8] {
         fatalError()
     }
-    func pointToOctets_g2() {
+    func pointToOctets_g2(_ point: [UInt8]) -> [UInt8] { pointToOctets_g1(point) }
+}
+
+// MARK: - Octets to Point
+extension BLS12_381_SHA_256 {
+    func octetsToPoint_g1(_ bytes: [UInt8]) -> [UInt8] {
         fatalError()
     }
-    func octetsToPoint_g1() {
-        fatalError()
-    }
-    func octetsToPoint_g2() {
-        fatalError()
-    }
+    func octetsToPoint_g2(_ bytes: [UInt8]) -> [UInt8] { octetsToPoint_g1(bytes) }
 }
 
 // MARK: - Hashing

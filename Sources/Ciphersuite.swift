@@ -22,10 +22,10 @@ protocol Ciphersuite {
 
     // MARK: Methods
     func expandMessage(_ bytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
-    func pointToOctets_g1()
-    func pointToOctets_g2()
-    func octetsToPoint_g1()
-    func octetsToPoint_g2()
+    func pointToOctets_g1(_ point: [UInt8]) -> [UInt8]
+    func pointToOctets_g2(_ point: [UInt8]) -> [UInt8]
+    func octetsToPoint_g1(_ bytes: [UInt8]) -> [UInt8]
+    func octetsToPoint_g2(_ bytes: [UInt8]) -> [UInt8]
 
     func hashData(_ bytes: [UInt8]) -> [UInt8]
 }
