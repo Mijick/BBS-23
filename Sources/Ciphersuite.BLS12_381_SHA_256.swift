@@ -21,7 +21,7 @@ struct BLS12_381_SHA_256: Ciphersuite {
 
 // MARK: - Expanding Message
 extension BLS12_381_SHA_256 {
-    func expandMessage(_ bytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
+    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
         let helperBytesArraySize = calculateHelperBytesArraySize(expectedLengthInBytes)
 
         try assertExpandMessageRequirements(expectedLengthInBytes, domainSeparationTag, helperBytesArraySize)
@@ -29,14 +29,10 @@ extension BLS12_381_SHA_256 {
         let dstPrime = try calculateDomainSeparationTagPrime(domainSeparationTag)
         let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hashOutputSizeInBytes)
         let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
-
-
-        // 6
-        let b = try Primitives.integerToBytes(value: 0, expectedLength: 1)
-        let msg_prime = zPad.concatenate(with: bytes).concatenate(with: expectedLengthBytes).concatenate(with: b).concatenate(with: dstPrime)
+        let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)
 
         // 7
-        let b_0 = hashData(msg_prime)
+        let b_0 = hashData(messagePrime)
 
         // 8
         let c = try Primitives.integerToBytes(value: 1, expectedLength: 1)
@@ -81,6 +77,14 @@ private extension BLS12_381_SHA_256 {
     func calculateDomainSeparationTagPrime(_ domainSeparationTag: [UInt8]) throws -> [UInt8] {
         let bytes = try Primitives.integerToBytes(value: .init(domainSeparationTag.count), expectedLength: 1)
         return domainSeparationTag.concatenate(with: bytes)
+    }
+    func calculateMessageBytesPrime(_ messageBytes: [UInt8], _ dstPrime: [UInt8], _ zPad: [UInt8], _ expectedLengthBytes: [UInt8]) throws -> [UInt8] {
+        let bytes = try Primitives.integerToBytes(value: 0, expectedLength: 1)
+        return zPad
+            .concatenate(with: messageBytes)
+            .concatenate(with: expectedLengthBytes)
+            .concatenate(with: bytes)
+            .concatenate(with: dstPrime)
     }
 }
 private extension BLS12_381_SHA_256 {
