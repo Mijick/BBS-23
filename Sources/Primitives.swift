@@ -49,9 +49,9 @@ private extension Primitives {
 
 // MARK: - Hashing Methods
 extension Primitives {
-    static func sha256(_ data: Data) -> Data {
+    static func sha256(_ bytes: [UInt8]) -> [UInt8] { let data = Data(bytes)
         var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
         data.withUnsafeBytes { _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash) }
-        return .init(hash)
+        return hash
     }
 }

@@ -21,11 +21,11 @@ protocol Ciphersuite {
     var p1: Int { get }
 
     // MARK: Methods
-    func expandMessage(message: [UInt8], dst: [UInt8], lengthInBytes: Int) -> [UInt8]
+    func expandMessage(message: [UInt8], dst: [UInt8], lengthInBytes: Int) throws -> [UInt8]
     func pointToOctets_g1()
     func pointToOctets_g2()
     func octetsToPoint_g1()
     func octetsToPoint_g2()
 
-    func hashData(_ data: Data) -> Data
+    func hashData(_ bytes: [UInt8]) -> [UInt8]
 }

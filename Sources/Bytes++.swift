@@ -1,5 +1,5 @@
 //
-//  Array<UInt8>++.swift of
+//  Bytes++.swift of
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -11,7 +11,13 @@
 
 import Foundation
 
+// MARK: - Operations
 extension [UInt8] {
+    func xor(_ key: [UInt8]) -> [UInt8] {
+        var array = self
+        for i in 0..<count { array[i] ^= key[i % key.count] }
+        return array
+    }
     func concatenate(with bytes: [UInt8]) -> [UInt8] {
         let data1 = Data(self), data2 = Data(bytes)
 
@@ -19,5 +25,14 @@ extension [UInt8] {
         mutableData.append(data1)
         mutableData.append(data2)
         return .init(mutableData)
+    }
+}
+
+// MARK: - Converting to Hex
+extension Array where Element == UInt8 {
+    func toHexRepresentation() -> String {
+        var hexString: String = ""
+        for byte in self { hexString.append(String(format:"%02X", byte)) }
+        return hexString.lowercased()
     }
 }
