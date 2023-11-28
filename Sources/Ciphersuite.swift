@@ -21,7 +21,7 @@ protocol Ciphersuite {
     var p1: Int { get }
 
     // MARK: Methods
-    func expandMessage(message: [UInt8], dst: [UInt8], lengthInBytes: Int) throws -> [UInt8]
+    func expandMessage(_ bytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
     func pointToOctets_g1()
     func pointToOctets_g2()
     func octetsToPoint_g1()
