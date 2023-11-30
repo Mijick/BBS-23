@@ -21,7 +21,7 @@ extension Utilities {
         let number = Primitives.bytesToInteger(uniformBytes)
         let r = Primitives.bytesToInteger(ciphersuite.r)
         
-        return mod(number.tooBigInt(), modulus: r.tooBigInt())
+        return mod(.init(number), modulus: .init(r))
     }
 }
 private extension Utilities {
@@ -31,11 +31,6 @@ private extension Utilities {
         guard mod >= 0 else { fatalError("NEGATIVE VALUE") }
         return mod
     }
-}
-
-// MARK: Helpers
-fileprivate extension BigUInt {
-    func tooBigInt() -> BigInt { BigInt(sign: .plus, magnitude: self) }
 }
 
 // MARK: - Errors

@@ -9,15 +9,9 @@
 
 import Foundation
 import BigInt
+@testable import MijickBBS_Signature
 
 // MARK: Helpers
 extension BigInt {
-    func toHashString(radix: Int) -> String {
-        let hexData = String(self, radix: radix)
-        
-        switch sign {
-            case .minus: return "1" + hexData
-            case .plus: return "0" + hexData
-        }
-    }
+    func toHexString() -> String { BigUInt(self).serialize().bytes.toHexRepresentation() }
 }
