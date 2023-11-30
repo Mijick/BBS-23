@@ -17,6 +17,8 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let octetPointLength: Int = 48
     let expandLength: Int = 48
     let p1: [UInt8] = "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9".asHexToByteRepresentation()
+    let r: [UInt8] = "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001".asHexToByteRepresentation()
+    let dst: String = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_H2S_"
 }
 
 // MARK: - Expanding Message

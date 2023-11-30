@@ -1,0 +1,43 @@
+//
+//  Utilities.swift of BBS-Signature
+//
+//  Created by Alina Petrovska on 30.11.2023.
+//    - Mail: alina.petrovskaya@mijick.com
+//    - GitHub: https://github.com/Mijick
+//
+//  Copyright ©2023 Mijick. Licensed under MIT License.
+
+
+import Foundation
+import BigInt
+
+class Utilities { private init() {} }
+
+// MARK: Converting to scalar
+extension Utilities {
+    static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: Ciphersuite) throws -> BigInt {
+        guard dst.count * 8 > 255 else { throw Error.invalidDSTLength }
+        let uniformBytes = try ciphersuite.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
+        let number = Primitives.bytesToInteger(uniformBytes)
+        let r = Primitives.bytesToInteger(ciphersuite.r)
+        
+        return mod(number.tooBigInt(), modulus: r.tooBigInt())
+    }
+}
+private extension Utilities {
+    static func mod(_ number: BigInt, modulus: BigInt) -> BigInt {
+        var mod = number % modulus
+        if mod < 0 {  mod = mod + modulus }
+        guard mod >= 0 else { fatalError("NEGATIVE VALUE") }
+        return mod
+    }
+}
+
+// MARK: Helpers
+fileprivate extension BigUInt {
+    func tooBigInt() -> BigInt { BigInt(sign: .plus, magnitude: self) }
+}
+
+// MARK: - Errors
+fileprivate typealias Error = UtilitiesError
+enum UtilitiesError: Swift.Error { case invalidDSTLength }
