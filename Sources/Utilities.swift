@@ -21,7 +21,7 @@ extension Utilities {
         let number = Primitives.bytesToInteger(uniformBytes)
         let r = Primitives.bytesToInteger(ciphersuite.r)
         
-        return mod(number.tooBigInt(), modulus: r.tooBigInt())
+        return mod(.init(number), modulus: .init(r))
     }
     static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BigInt] {
         let maxMSGLength = BigInt(pow(2.0, 64) - 1)
@@ -40,11 +40,6 @@ private extension Utilities {
         
         return mod
     }
-}
-
-// MARK: Helpers
-fileprivate extension BigUInt {
-    func tooBigInt() -> BigInt { BigInt(sign: .plus, magnitude: self) }
 }
 
 // MARK: - Errors

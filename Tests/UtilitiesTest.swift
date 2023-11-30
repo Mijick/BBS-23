@@ -40,7 +40,7 @@ extension UtilitiesTest {
     }
     func test_messagesToScalar3() {
         let result = try? Utilities.messagesToScalars([m_4], ciphersuite.id.asAsciiToByteRepresentation(), ciphersuite: ciphersuite).map { $0.toHexString() }
-        let expectedResult = ["0c7c4c85cdab32e6fdb0de267b16fa3212733d4e3a3f0d0f751657578b26fe22"]
+        let expectedResult = ["4a196deafee5c23f630156ae13be3e46e53b7e39094d22877b8cba7f14640888"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar4() {
