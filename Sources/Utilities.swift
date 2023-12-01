@@ -23,16 +23,25 @@ extension Utilities {
         
         return mod(.init(number), modulus: .init(r))
     }
+    static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BigInt] {
+        let maxMSGLength = BigInt(pow(2.0, 64) - 1)
+        guard messages.count <= maxMSGLength else { throw Error.invalidMessageLength }
+        let map_dst = apiId.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
+        
+        return try messages.map { try hashToScalar($0, map_dst, ciphersuite) }
+    }
 }
+
 private extension Utilities {
     static func mod(_ number: BigInt, modulus: BigInt) -> BigInt {
         var mod = number % modulus
         if mod < 0 {  mod = mod + modulus }
         guard mod >= 0 else { fatalError("NEGATIVE VALUE") }
+        
         return mod
     }
 }
 
 // MARK: - Errors
 fileprivate typealias Error = UtilitiesError
-enum UtilitiesError: Swift.Error { case invalidDSTLength }
+enum UtilitiesError: Swift.Error { case invalidDSTLength, invalidMessageLength }
