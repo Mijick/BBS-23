@@ -19,7 +19,7 @@ extension Utilities {
         guard dst.count * 8 > 255 else { throw Error.invalidDSTLength }
         let uniformBytes = try ciphersuite.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
-        let r = Primitives.bytesToInteger(ciphersuite.r)
+        let r = Primitives.bytesToInteger(ciphersuite.primeOrder)
         
         return mod(.init(number), modulus: .init(r))
     }
