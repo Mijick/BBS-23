@@ -10,6 +10,7 @@
 
 
 import Foundation
+import BigInt
 
 struct BLS12_381_SHA_256: Ciphersuite {
     let id: String = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_"
@@ -18,7 +19,11 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let expandLength: Int = 48
     let p1: [UInt8] = "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9".asHexToByteRepresentation()
     let primeOrder: [UInt8] = "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001".asHexToByteRepresentation()
-    let domainSeparationTag: String = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_H2S_"
+
+
+    let p: BigUInt = Primitives.bytesToInteger("0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab".asHexToByteRepresentation())
+    let m: Int = 1
+    let L: Int = 64
 }
 
 // MARK: - Expanding Message
@@ -87,6 +92,79 @@ private extension BLS12_381_SHA_256 {
     }}
 }
 
+// MARK: - Hashing to Curve
+extension BLS12_381_SHA_256 {
+    func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint {
+        let fieldElements = try hashToField(bytes, 2)
+
+        let point1 = mapToCurve(fieldElements[0]), point2 = mapToCurve(fieldElements[1])
+        let point3 = point1 + point2
+
+        let resultPoint = clearCofactor(point3)
+        return resultPoint
+    }
+}
+private extension BLS12_381_SHA_256 {
+    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [[BigUInt]] {
+        // 1
+        let lengthInBytes = count * m * L
+
+        // 2
+        let uniformBytes = try expandMessage(bytes, domainSeparationTag: domainSeparationTagG1, expectedLengthInBytes: lengthInBytes)
+
+
+        var arrayI: [[BigUInt]] = []
+
+        // 3
+        for i in 0..<count {
+            var arrayJ: [BigUInt] = []
+
+
+            // 4
+            for j in 0..<m {
+
+                // 5
+                let elementOffset = L * (j + i * m)
+
+                // 6
+                let tv = Array(uniformBytes[elementOffset..<elementOffset + L])
+
+                // 7
+                let e_j = Primitives.bytesToInteger(tv) % p
+
+                arrayJ.append(e_j)
+            }
+
+            // 8
+            let u_i = Array(arrayJ[0..<m])
+            arrayI.append(u_i)
+
+
+
+        }
+
+        let res = Array(arrayI[0..<count])
+        print(res)
+        //print(res.first!.first!.toHexString())
+
+        if res.first!.first!.toHexString() == "0ba14bd907ad64a016293ee7c2d276b8eae71f25a4b941eece7b0d89f17f75cb3ae5438a614fb61d6835ad59f29c564f" {
+            print("JEST")
+        }
+
+
+        return res
+    }
+    func mapToCurve(_ element: Any) -> CurvePoint {
+        fatalError()
+    }
+    func clearCofactor(_ point: CurvePoint) -> CurvePoint {
+        fatalError()
+    }
+}
+private extension BLS12_381_SHA_256 {
+    var domainSeparationTagG1: [UInt8] { "QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SSWU_RO_".asAsciiToByteRepresentation() }
+}
+
 // MARK: - Point to Octets
 extension BLS12_381_SHA_256 {
     func pointToOctets_g1(_ point: [UInt8]) -> [UInt8] {
@@ -116,4 +194,10 @@ private extension BLS12_381_SHA_256 {
 fileprivate typealias Error = BLS12_381_SHA_256Error
 enum BLS12_381_SHA_256Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
+}
+
+
+
+extension BigUInt {
+    func toHexString() -> String { [UInt8](serialize()).toHexRepresentation() }
 }
