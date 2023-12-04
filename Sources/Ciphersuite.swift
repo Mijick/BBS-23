@@ -12,7 +12,6 @@
 import Foundation
 
 protocol Ciphersuite {
-    
     // MARK: Attributes
     var id: String { get }
     var octetScalarLength: Int { get }
@@ -20,10 +19,10 @@ protocol Ciphersuite {
     var expandLength: Int { get }
     var p1: [UInt8] { get }
     var primeOrder: [UInt8] { get }
-    var domainSeparationTag: String { get }
 
     // MARK: Methods
     func expandMessage(_ bytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
+    func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint
     func pointToOctets_g1(_ point: [UInt8]) -> [UInt8]
     func pointToOctets_g2(_ point: [UInt8]) -> [UInt8]
     func octetsToPoint_g1(_ bytes: [UInt8]) -> [UInt8]

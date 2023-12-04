@@ -1,5 +1,5 @@
 //
-//  BigInt++.swift of BBS-Signature
+//  BigUInt++.swift of BBS-Signature
 //
 //  Created by Alina Petrovska on 30.11.2023.
 //    - Mail: alina.petrovskaya@mijick.com
