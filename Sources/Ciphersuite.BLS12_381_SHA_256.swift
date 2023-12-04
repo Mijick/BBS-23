@@ -156,23 +156,27 @@ private extension BLS12_381_SHA_256 {
     func mapToCurve(_ element: BigUInt) -> CurvePoint {
         let element = BigInt(element)
 
-        var tv1 = element.power(2) + g(Z)
+        // 1
+        var tv1 = element.power(2) * g(Z)
+
+        // 2
         let tv2 = 1 + tv1
+
+        // 3
         tv1 = 1 - tv1
 
         // 4
         let tv3 = inv0(tv1 * tv2)
 
         // 5
-
         //  y^2 = g(x) = x^3 + A * x + B
         // y^2 = x^3 + 4
-        let a = g(Z) * (3 * Z.power(2)) * -1
+        let a = -g(Z) * (3 * Z.power(2))
         var tv4 = sqrt(a)
 
 
-        // 6 - PRAWDOPODOBNIE NIE DZIAŁA
-        if tv4.sign == .minus { tv4 *= -1 }
+        // 6
+        if sgn0(tv4) == 1 { tv4 = -tv4 }
 
         // 7
         let tv5 = element * tv1 * tv3 * tv4
@@ -181,10 +185,10 @@ private extension BLS12_381_SHA_256 {
         let tv6 = -4 * g(Z) / (3 * Z.power(2))
 
         // 9
-        let x1 = Z * (-1) / 2 - tv5
+        let x1 = -Z / 2 - tv5
 
         // 10
-        let x2 = Z * (-1) / 2 + tv5
+        let x2 = -Z / 2 + tv5
 
         // 11
         let x3 = Z + tv6 * (tv2.power(2) * tv3).power(2)
