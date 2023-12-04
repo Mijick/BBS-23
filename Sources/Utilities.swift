@@ -13,32 +13,22 @@ import BigInt
 
 class Utilities { private init() {} }
 
-// MARK: Converting to scalar
+// MARK: - Converting to scalar
 extension Utilities {
-    static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: Ciphersuite) throws -> BigInt {
+    static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: Ciphersuite) throws -> BigUInt {
         guard dst.count * 8 > 255 else { throw Error.invalidDSTLength }
         let uniformBytes = try ciphersuite.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
         let r = Primitives.bytesToInteger(ciphersuite.primeOrder)
         
-        return mod(.init(number), modulus: .init(r))
+        return number % r
     }
-    static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BigInt] {
+    static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BigUInt] {
         let maxMSGLength = BigInt(pow(2.0, 64) - 1)
         guard messages.count <= maxMSGLength else { throw Error.invalidMessageLength }
         let map_dst = apiId.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
         
         return try messages.map { try hashToScalar($0, map_dst, ciphersuite) }
-    }
-}
-
-private extension Utilities {
-    static func mod(_ number: BigInt, modulus: BigInt) -> BigInt {
-        var mod = number % modulus
-        if mod < 0 {  mod = mod + modulus }
-        guard mod >= 0 else { fatalError("NEGATIVE VALUE") }
-        
-        return mod
     }
 }
 

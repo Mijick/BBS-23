@@ -12,6 +12,6 @@ import BigInt
 @testable import MijickBBS_Signature
 
 // MARK: Helpers
-extension BigInt {
-    func toHexString() -> String { BigUInt(self).serialize().bytes.toHexRepresentation() }
+extension BigUInt {
+    func toHexString() -> String { serialize().bytes.toHexRepresentation() }
 }
