@@ -24,6 +24,7 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let p: BigUInt = Primitives.bytesToInteger("0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab".asHexToByteRepresentation())
     let m: Int = 1
     let L: Int = 64
+    let Z: BigInt = 11
 }
 
 // MARK: - Expanding Message
@@ -105,7 +106,7 @@ extension BLS12_381_SHA_256 {
     }
 }
 private extension BLS12_381_SHA_256 {
-    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [[BigUInt]] {
+    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BigUInt] {
         // 1
         let lengthInBytes = count * m * L
 
@@ -150,13 +151,113 @@ private extension BLS12_381_SHA_256 {
         }
 
 
-        return res
+        return Array(res.joined())
     }
-    func mapToCurve(_ element: Any) -> CurvePoint {
-        fatalError()
+    func mapToCurve(_ element: BigUInt) -> CurvePoint {
+        let element = BigInt(element)
+
+        var tv1 = element.power(2) + g(Z)
+        let tv2 = 1 + tv1
+        tv1 = 1 - tv1
+
+        // 4
+        let tv3 = inv0(tv1 * tv2)
+
+        // 5
+
+        //  y^2 = g(x) = x^3 + A * x + B
+        // y^2 = x^3 + 4
+        let a = g(Z) * (3 * Z.power(2)) * -1
+        var tv4 = sqrt(a)
+
+
+        // 6 - PRAWDOPODOBNIE NIE DZIAŁA
+        if tv4.sign == .minus { tv4 *= -1 }
+
+        // 7
+        let tv5 = element * tv1 * tv3 * tv4
+
+        // 8
+        let tv6 = -4 * g(Z) / (3 * Z.power(2))
+
+        // 9
+        let x1 = Z * (-1) / 2 - tv5
+
+        // 10
+        let x2 = Z * (-1) / 2 + tv5
+
+        // 11
+        let x3 = Z + tv6 * (tv2.power(2) * tv3).power(2)
+
+        print("x1: \(x1.toHexString())\n", "x2: \(x2.toHexString())\n", "x3: \(x3.toHexString())\n")
+
+        
+        if x1.toHexString() == "11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe" {
+            print("TAK KURWA JESTAAAA")
+        } else if x2.toHexString() == "11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe" {
+            print("TAK KURWA JESTAAAA")
+        } else if x3.toHexString() == "11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe" {
+            print("TAK KURWA JESTAAAA")
+        }
+
+
+        // 12
+        var x: BigInt = 0, y: BigInt = 0
+
+
+        if isSquare(g(x1)) {
+            x = x1
+            y = g(x1).squareRoot()
+        }
+
+
+        // 13
+        else if isSquare(g(x2)) {
+            x = x2
+            y = g(x2).squareRoot()
+        }
+
+        // 14
+        else {
+            x = x3
+            y = g(x3).squareRoot()
+        }
+
+        // 15
+        if element.sign != y.sign { y = -y }
+
+        print(x1, x2, x3)
+
+        // 16
+        return .init(x: x, y: y)
     }
     func clearCofactor(_ point: CurvePoint) -> CurvePoint {
         fatalError()
+    }
+}
+private extension BLS12_381_SHA_256 {
+    func g(_ value: BigInt) -> BigInt {
+        BigInt(value).power(3) + 4
+    }
+
+
+    func inv0(_ value: BigInt) -> BigInt {
+        let po = Primitives.bytesToInteger(primeOrder)
+        return value.power(BigInt(po) - 2, modulus: BigInt(po))
+    }
+    func sgn0(_ x: BigInt) -> BigInt {
+        x.modulus(2)
+    }
+    func sqrt(_ x: BigInt) -> BigInt {
+        let q = Primitives.bytesToInteger(primeOrder)
+        let c1 = (q+1) / 4
+
+        return x.power(BigInt(c1), modulus: 4)
+    }
+
+
+    func isSquare(_ x: BigInt) -> Bool {
+        false
     }
 }
 private extension BLS12_381_SHA_256 {
@@ -197,5 +298,9 @@ enum BLS12_381_SHA_256Error {
 
 
 extension BigUInt {
+    func toHexString() -> String { [UInt8](serialize()).toHexRepresentation() }
+}
+
+extension BigInt {
     func toHexString() -> String { [UInt8](serialize()).toHexRepresentation() }
 }

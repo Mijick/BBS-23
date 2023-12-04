@@ -13,8 +13,8 @@ import Foundation
 import BigInt
 
 struct CurvePoint {
-    let x: BigUInt
-    let y: BigUInt
+    let x: BigInt
+    let y: BigInt
 }
 
 // MARK: - Point Addition
