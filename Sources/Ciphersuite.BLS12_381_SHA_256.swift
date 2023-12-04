@@ -136,16 +136,14 @@ private extension BLS12_381_SHA_256 {
             }
 
             // 8
-            let u_i = Array(arrayJ[0..<m])
+            let u_i = arrayJ
             arrayI.append(u_i)
 
 
 
         }
 
-        let res = Array(arrayI[0..<count])
-        print(res)
-        //print(res.first!.first!.toHexString())
+        let res = arrayI
 
         if res.first!.first!.toHexString() == "0ba14bd907ad64a016293ee7c2d276b8eae71f25a4b941eece7b0d89f17f75cb3ae5438a614fb61d6835ad59f29c564f" {
             print("JEST")
