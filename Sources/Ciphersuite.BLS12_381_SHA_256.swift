@@ -173,21 +173,21 @@ extension BLS12_381_SHA_256 {
         let gz = g(Z)
 
 
-        // 1
-        var tv1 = (element * element * gz).mod(po)
+        // 1 - DZIAŁA
+        var tv1 = (element.expMod(.init(2), po) * gz).mod(po)
 
-        print(tv1, "CHUJ \n\n")
-
-        // 2
+        // 2 - DZIAŁA
         let tv2 = 1 + tv1
 
-        // 3
-        tv1 = 1 - tv1
 
-        // 4
+        // 3 - DZIAŁA
+        tv1 = (1 - tv1).mod(po)
+
+
+        // 4 - DZIAŁA
         let tv3 = inv0(tv1 * tv2)
 
-        // 5
+        // 5 - DZIAŁA
         //  y^2 = g(x) = x^3 + A * x + B
         // y^2 = x^3 + 4
         let a = (-gz * (3 * Z * Z))
@@ -196,6 +196,9 @@ extension BLS12_381_SHA_256 {
 
         // 6
         if sgn0(tv4) == 1 { tv4.negate() }
+
+        print("\n\n")
+        print(tv4, "CHUJ \n\n")
 
         // 7
         let tv5 = element * tv1 * tv3 * tv4
