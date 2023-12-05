@@ -113,10 +113,6 @@ extension BLS12_381_SHA_256 {
         let resultPoint = clearCofactor(point3)
 
 
-
-        print(resultPoint.x.asString(radix: 16, uppercase: false))
-
-
         return resultPoint
     }
 }
@@ -194,28 +190,25 @@ extension BLS12_381_SHA_256 {
         var tv4 = sqrt(a)
 
 
-        // 6
-        if sgn0(tv4) == 1 { tv4.negate() }
+        // 6 DZIAŁA
+        if sgn0(tv4) == 1 { tv4 = (0 - tv4).mod(po) }
 
-        print("\n\n")
-        print(tv4, "CHUJ \n\n")
+        // 7 DZIAŁA
+        let tv5 = (element * tv1 * tv3 * tv4).mod(po)
 
-        // 7
-        let tv5 = element * tv1 * tv3 * tv4
+        // 8 DZIAŁA
+        let tv6 = (-4 * gz * inv0(3 * Z * Z)).mod(po)
 
-        // 8
-        let tv6 = -4 * gz / (3 * Z * Z)
+        // 9 DZIAŁA
+        let x1 = ((-Z / 2) - tv5).mod(po)
 
-        // 9
-        let x1 = (-Z / 2) - tv5
+        // 10 DZIAŁA
+        let x2 = ((-Z / 2) + tv5).mod(po)
 
-        // 10
-        let x2 = (-Z / 2) + tv5
+        // 11 DZIAŁA
+        let x3 = (Z + tv6 * (tv2 * tv2 * tv3).expMod(.init(2), po)).mod(po)
 
-        // 11
-        let x3 = Z + tv6 * (tv2 * tv2 * tv3).expMod(.init(2), po)
-
-        print("x1: \(x1.mod(po).asString(radix: 16))\n", "x2: \(x2.mod(po).asString(radix: 16))\n", "x3: \(x3.mod(po).asString(radix: 16))\n")
+//        print("x1: \(x1.mod(po).asString(radix: 16))\n", "x2: \(x2.mod(po).asString(radix: 16))\n", "x3: \(x3.mod(po).asString(radix: 16))\n")
 
 
 
@@ -241,8 +234,8 @@ extension BLS12_381_SHA_256 {
             y = sqrt(g(x3))
         }
 
-        // 15
-        if sgn0(element) != sgn0(y) { y = -y }
+        // 15 DZIALA
+        if sgn0(element) != sgn0(y) { y = (0 - y).mod(po) }
 
         // 16
 
