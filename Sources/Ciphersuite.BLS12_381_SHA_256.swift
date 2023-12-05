@@ -24,7 +24,7 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let p: BigUInt = Primitives.bytesToInteger("0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab".asHexToByteRepresentation())
     let m: Int = 1
     let L: Int = 64
-    let Z: BInt = .init(-3)
+    let Z: BInt = .init("1A0111EA397FE69A4B1BA7B6434BACD764774B84F38512BF6730D2A0F6B0F6241EABFFFEB153FFFFB9FEFFFFFFFFAAA8", radix: 16)!
 }
 
 // MARK: - Expanding Message
@@ -120,7 +120,7 @@ extension BLS12_381_SHA_256 {
         return resultPoint
     }
 }
-private extension BLS12_381_SHA_256 {
+extension BLS12_381_SHA_256 {
     func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BigUInt] {
         // 1
         let lengthInBytes = count * m * L
@@ -172,8 +172,11 @@ private extension BLS12_381_SHA_256 {
         let element = BInt(element.toHexString(), radix: 16)!
         let gz = g(Z)
 
+
         // 1
-        var tv1 = element * element * gz
+        var tv1 = (element * element * gz).mod(po)
+
+        print(tv1, "CHUJ \n\n")
 
         // 2
         let tv2 = 1 + tv1
@@ -240,7 +243,7 @@ private extension BLS12_381_SHA_256 {
 
         // 16
 
-        return .init(x: x, y: y)
+        return .init(x: x.mod(po), y: y.mod(po))
     }
     func clearCofactor(_ point: CurvePoint) -> CurvePoint {
         let hEff = BInt("d201000000010001", radix: 16)!
@@ -249,7 +252,7 @@ private extension BLS12_381_SHA_256 {
 }
  extension BLS12_381_SHA_256 {
     func g(_ value: BInt) -> BInt {
-        value * value * value + 4
+        (value * value * value + 4).mod(po)
     }
 
 
@@ -274,8 +277,8 @@ private extension BLS12_381_SHA_256 {
         x.mod(.init(2))
     }
     func sqrt(_ x: BInt) -> BInt {
-//        let c = (po + 1) / 4
-//        return x.expMod(c, po)
+        let c = (po + 1) / 4
+        return x.expMod(c, po)
 
 
 
