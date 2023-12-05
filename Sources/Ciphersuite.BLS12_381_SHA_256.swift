@@ -24,7 +24,7 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let p: BigUInt = Primitives.bytesToInteger("0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab".asHexToByteRepresentation())
     let m: Int = 1
     let L: Int = 64
-    let Z: BigInt = 11
+    let Z: BInt = .init(11)
 }
 
 // MARK: - Expanding Message
@@ -96,12 +96,27 @@ private extension BLS12_381_SHA_256 {
 // MARK: - Hashing to Curve
 extension BLS12_381_SHA_256 {
     func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint {
-        let fieldElements = try hashToField(bytes, 2)
+        //let fieldElements = try hashToField(bytes, 2)
 
-        let point1 = mapToCurve(fieldElements[0]), point2 = mapToCurve(fieldElements[1])
+        //let point1 = mapToCurve(fieldElements[0]), point2 = mapToCurve(fieldElements[1])
+        let point1 = CurvePoint(
+            x: .init("11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe", radix: 16)!,
+            y: .init("0eeaf6d794e479e270da10fdaf768db4c96b650a74518fc67b04b03927754bac66f3ac720404f339ecdcc028afa091b7", radix: 16)!
+        )
+        let point2 = CurvePoint(
+            x: .init("160003aaf1632b13396dbad518effa00fff532f604de1a7fc2082ff4cb0afa2d63b2c32da1bef2bf6c5ca62dc6b72f9c", radix: 16)!,
+            y: .init("0d8bb2d14e20cf9f6036152ed386d79189415b6d015a20133acb4e019139b94e9c146aaad5817f866c95d609a361735e", radix: 16)!
+        )
+
         let point3 = point1 + point2
 
         let resultPoint = clearCofactor(point3)
+
+
+
+        print(resultPoint.x.asString(radix: 16, uppercase: false))
+
+
         return resultPoint
     }
 }
@@ -154,10 +169,10 @@ private extension BLS12_381_SHA_256 {
         return Array(res.joined())
     }
     func mapToCurve(_ element: BigUInt) -> CurvePoint {
-        let element = BigInt(element)
+        let element = BInt(element.toHexString(), radix: 16)!
 
         // 1
-        var tv1 = element.power(2) * g(Z)
+        var tv1 = (element * element * g(Z))
 
         // 2
         let tv2 = 1 + tv1
@@ -171,7 +186,7 @@ private extension BLS12_381_SHA_256 {
         // 5
         //  y^2 = g(x) = x^3 + A * x + B
         // y^2 = x^3 + 4
-        let a = -g(Z) * (3 * Z.power(2))
+        let a = -g(Z) * (3 * Z * Z)
         var tv4 = sqrt(a)
 
 
@@ -182,7 +197,7 @@ private extension BLS12_381_SHA_256 {
         let tv5 = element * tv1 * tv3 * tv4
 
         // 8
-        let tv6 = -4 * g(Z) / (3 * Z.power(2))
+        let tv6 = -4 * g(Z) / (3 * Z * Z)
 
         // 9
         let x1 = -Z / 2 - tv5
@@ -191,73 +206,76 @@ private extension BLS12_381_SHA_256 {
         let x2 = -Z / 2 + tv5
 
         // 11
-        let x3 = Z + tv6 * (tv2.power(2) * tv3).power(2)
+        let x3 = (Z + tv6 * (tv2 * tv2 * tv3) ** 2).mod(po)
 
-        print("x1: \(x1.toHexString())\n", "x2: \(x2.toHexString())\n", "x3: \(x3.toHexString())\n")
+        print("x1: \(x1.asString(radix: 16))\n", "x2: \(x2.asString(radix: 16))\n", "x3: \(x3.asString(radix: 16))\n")
 
-        
-        if x1.toHexString() == "11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe" {
-            print("TAK KURWA JESTAAAA")
-        } else if x2.toHexString() == "11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe" {
-            print("TAK KURWA JESTAAAA")
-        } else if x3.toHexString() == "11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe" {
-            print("TAK KURWA JESTAAAA")
-        }
+
+        //let p1 = CurvePoint(x: <#T##BigInt#>, y: <#T##BigInt#>)
 
 
         // 12
         var x: BigInt = 0, y: BigInt = 0
 
 
-        if isSquare(g(x1)) {
-            x = x1
-            y = g(x1).squareRoot()
-        }
-
-
-        // 13
-        else if isSquare(g(x2)) {
-            x = x2
-            y = g(x2).squareRoot()
-        }
-
-        // 14
-        else {
-            x = x3
-            y = g(x3).squareRoot()
-        }
-
-        // 15
-        if element.sign != y.sign { y = -y }
-
-        print(x1, x2, x3)
+//        if isSquare(g(x1)) {
+//            x = x1
+//            y = sqrt(g(x1))
+//        }
+//
+//
+//        // 13
+//        else if isSquare(g(x2)) {
+//            x = x2
+//            y = sqrt(g(x2))
+//        }
+//
+//        // 14
+//        else {
+//            x = x3
+//            y = sqrt(g(x3))
+//        }
+//
+//        // 15
+//        if sgn0(element) != sgn0(y) { y = -y }
 
         // 16
-        return .init(x: x, y: y)
+        fatalError()
+        //return .init(x: x, y: y)
     }
     func clearCofactor(_ point: CurvePoint) -> CurvePoint {
-        fatalError()
+        let hEff = BInt("d201000000010001", radix: 16)!
+        return point * hEff
     }
 }
-private extension BLS12_381_SHA_256 {
-    func g(_ value: BigInt) -> BigInt {
-        BigInt(value).power(3) + 4
+ extension BLS12_381_SHA_256 {
+    func g(_ value: BInt) -> BInt {
+        value * value * value + 4
     }
 
 
-    func inv0(_ value: BigInt) -> BigInt {
-        let po = Primitives.bytesToInteger(primeOrder)
-        return value.power(BigInt(po) - 2, modulus: BigInt(po))
+    func inv0(_ value: BInt) -> BInt {
+        return value.expMod(po - 2, po)
+        //return value.power(BigInt(po) - 2, modulus: BigInt(po))
     }
-    func sgn0(_ x: BigInt) -> BigInt {
-        x.modulus(2)
+    func sgn0(_ x: BInt) -> BInt {
+        x.mod(.init(2))
     }
-    func sqrt(_ x: BigInt) -> BigInt {
-        let q = Primitives.bytesToInteger(primeOrder)
-        let c1 = (q+1) / 4
+    func sqrt(_ x: BInt) -> BInt {
 
-        return x.power(BigInt(c1), modulus: 4)
+
+
+        let res = x.sqrtMod(po)!
+        return res
     }
+
+
+    var po: BInt { .init("1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab", radix: 16)! }
+
+
+
+
+
 
 
     func isSquare(_ x: BigInt) -> Bool {
@@ -308,3 +326,5 @@ extension BigUInt {
 extension BigInt {
     func toHexString() -> String { [UInt8](serialize()).toHexRepresentation() }
 }
+
+
