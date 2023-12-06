@@ -302,15 +302,3 @@ fileprivate typealias Error = BLS12_381_SHA_256Error
 enum BLS12_381_SHA_256Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
 }
-
-
-
-extension BigUInt {
-    func toHexString() -> String { [UInt8](serialize()).toHexRepresentation() }
-}
-
-extension BigInt {
-    func toHexString() -> String { [UInt8](serialize()).toHexRepresentation() }
-}
-
-
