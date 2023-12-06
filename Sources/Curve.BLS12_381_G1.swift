@@ -103,7 +103,7 @@ private extension Curve.BLS12_381_G1 {
         (value * value * value + 4).mod(p)
     }
     func inv0(_ x: BInt) -> BInt {
-        x.expMod(p - 2, p)
+        x.modInverse(p)
     }
     func sgn0(_ x: BInt) -> BInt {
         x.mod(.init(2))

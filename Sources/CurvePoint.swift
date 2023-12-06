@@ -22,11 +22,6 @@ struct CurvePoint {
 extension CurvePoint {
     static func +(lhs: Self, rhs: Self) -> CurvePoint {
         addPoint(lhs, to: rhs)
-//        let a = (rhs.y - lhs.y) / (rhs.x - lhs.x)
-//
-//        let x = a * a - lhs.x - rhs.x
-//        let y = a * (lhs.x - x) - lhs.y
-//        return .init(x: x, y: y)
     }
 }
 
@@ -42,75 +37,29 @@ extension CurvePoint {
 }
 private extension CurvePoint {
     func double() -> CurvePoint {
-        let λ = modInverseP(3 * (x * x), 2 * y)
+        let λ = (3 * x * x) * (2 * y).modInverse(curve.p)
 
-        let x3 = modP { λ * λ - 2 * x }
-        let y3 = modP { λ * (x - x3) - y }
+        let x3 = λ * λ - 2 * x
+        let y3 = λ * (x - x3) - y
 
-        return CurvePoint(x: x3, y: y3, curve: curve)
+        return CurvePoint(x: x3.mod(curve.p), y: y3.mod(curve.p), curve: curve)
     }
 }
 
 
 
 func addPoint(_ p1: CurvePoint, to p2: CurvePoint) -> CurvePoint {
-    let λ = modInverseP(p2.y - p1.y, p2.x - p1.x)
-    let x3 = modP { λ * λ - p1.x - p2.x }
-    let y3 = modP { λ * (p1.x - x3) - p1.y }
-    return CurvePoint(x: x3, y: y3, curve: p1.curve)
+    let p = Cipher.BLS12_381_SHA_256().curve.p
+
+
+
+
+
+    let λ = (p2.y - p1.y) * (p2.x - p1.x).modInverse(p)
+    let x3 = λ * λ - p1.x - p2.x
+    let y3 = λ * (p1.x - x3) - p1.y
+    return CurvePoint(x: x3.mod(p), y: y3.mod(p), curve: p1.curve)
 }
-///  modInverseP
-func modInverseP(_ v: BInt, _ w: BInt) -> BInt {
-    return modularInverse(v, w, mod: Cipher.BLS12_381_SHA_256().curve.p)
-}
-
-func modularInverse(_ x: BInt, _ y: BInt, mod: BInt) -> BInt {
-    let x = x > 0 ? x : x + mod
-    let y = y > 0 ? y : y + mod
-
-    let inverse = extendedEuclideanAlgorithm(z: y, a: mod)
-
-    var result = (inverse * x) % mod
-
-    let zero = BInt(0)
-    if result < zero {
-        result = result + mod
-    }
-
-    return result
-}
-
-private func extendedEuclideanAlgorithm(z: BInt, a: BInt) -> BInt {
-    var i = a
-    var j = z
-    var y1 = BInt(1)
-    var y2 = BInt(0)
-
-    let zero = BInt(0)
-    while j > zero {
-        let (quotient, remainder) = division(i, j)
-
-        let y = y2 - y1 * quotient
-
-        i = j
-        j = remainder
-        y2 = y1
-        y1 = y
-    }
-
-    return y2 % a
-}
-
-func division(_ a: BInt, _ b: BInt) -> (quotient: BInt, remainder: BInt) {
-    return (a / b, a % b)
-}
-
-/// modP
-func modP(_ expression: () -> BInt) -> BInt {
-    expression().mod(Cipher.BLS12_381_SHA_256().curve.p)
-    //return mod(expression(), modulus: P)
-}
-
 
 
 extension CurvePoint: Equatable {
