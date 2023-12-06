@@ -229,25 +229,9 @@ extension BLS12_381_SHA_256 {
     func g(_ value: BInt) -> BInt {
         (value * value * value + 4).mod(p)
     }
-
-
     func inv0(_ x: BInt) -> BInt {
-        if x == 0 { return .init(0) }
-
-        let (_, inv, _) = extendedGcd(x, p)
-        return (inv % p + p) % p
+        x.expMod(p - 2, p)
     }
-
-
-     func extendedGcd(_ a: BInt, _ b: BInt) -> (BInt, BInt, BInt) {
-         if a == 0 { return (b, .init(0), .init(1)) }
-
-        let (gcd, x, y) = extendedGcd(b % a, a)
-        return (gcd, y - (b / a) * x, x)
-     }
-
-
-
     func sgn0(_ x: BInt) -> BInt {
         x.mod(.init(2))
     }
