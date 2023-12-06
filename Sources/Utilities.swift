@@ -25,7 +25,7 @@ extension Utilities {
         return number % r
     }
     static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BInt] {
-        let maxMSGLength = BigUInt(pow(2.0, 64) - 1)
+        let maxMSGLength = BInt(2) ** 64 - 1
         guard messages.count <= maxMSGLength else { throw Error.invalidMessageLength }
         let map_dst = apiId.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
         
