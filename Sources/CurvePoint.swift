@@ -15,6 +15,7 @@ import BigInt
 struct CurvePoint {
     let x: BInt
     let y: BInt
+    let curve: CurveSuite
 }
 
 // MARK: - Point Addition
@@ -32,7 +33,7 @@ extension CurvePoint {
 // MARK: - Point x Scalar
 extension CurvePoint {
     static func *(lhs: Self, rhs: BInt) -> CurvePoint {
-        if rhs == 0 { return .zero }
+        if rhs == 0 { return .init(x: 0, y: 0, curve: lhs.curve) }
         if rhs == 1 { return lhs }
         if rhs % 2 == 1 { return lhs + lhs * (rhs - 1) }
 
@@ -46,12 +47,8 @@ private extension CurvePoint {
         let x3 = modP { λ * λ - 2 * x }
         let y3 = modP { λ * (x - x3) - y }
 
-        return CurvePoint(x: x3, y: y3)
+        return CurvePoint(x: x3, y: y3, curve: curve)
     }
-}
-
-extension CurvePoint {
-    static var zero: Self { .init(x: .init(0), y: .init(0)) }
 }
 
 
@@ -60,7 +57,7 @@ func addPoint(_ p1: CurvePoint, to p2: CurvePoint) -> CurvePoint {
     let λ = modInverseP(p2.y - p1.y, p2.x - p1.x)
     let x3 = modP { λ * λ - p1.x - p2.x }
     let y3 = modP { λ * (p1.x - x3) - p1.y }
-    return CurvePoint(x: x3, y: y3)
+    return CurvePoint(x: x3, y: y3, curve: p1.curve)
 }
 ///  modInverseP
 func modInverseP(_ v: BInt, _ w: BInt) -> BInt {

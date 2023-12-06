@@ -94,7 +94,7 @@ extension Curve.BLS12_381_G1 {
 
         // 16
 
-        return .init(x: x.mod(p), y: y.mod(p))
+        return .init(x: x.mod(p), y: y.mod(p), curve: self)
     }
 
 }
