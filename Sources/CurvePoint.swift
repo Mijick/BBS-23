@@ -18,50 +18,45 @@ struct CurvePoint {
     let curve: CurveSuite
 }
 
+// MARK: - Comparing Points
+extension CurvePoint: Equatable {
+    static func == (lhs: CurvePoint, rhs: CurvePoint) -> Bool { lhs.x == rhs.x && lhs.y == rhs.y }
+}
+
 // MARK: - Point Addition
 extension CurvePoint {
-    static func +(lhs: Self, rhs: Self) -> CurvePoint {
-        addPoint(lhs, to: rhs)
+    static func +(p1: Self, p2: Self) -> CurvePoint {
+        let curve = p1.curve, p = curve.p
+        let λ = (p2.y - p1.y) * (p2.x - p1.x).modInverse(p)
+
+        let x3 = λ * λ - p1.x - p2.x
+        let y3 = λ * (p1.x - x3) - p1.y
+        return CurvePoint(x: x3.mod(p), y: y3.mod(p), curve: curve)
     }
 }
 
 // MARK: - Point x Scalar
 extension CurvePoint {
-    static func *(lhs: Self, rhs: BInt) -> CurvePoint {
-        if rhs == 0 { return .init(x: 0, y: 0, curve: lhs.curve) }
-        if rhs == 1 { return lhs }
-        if rhs % 2 == 1 { return lhs + lhs * (rhs - 1) }
+    static func *(point: Self, scalar: BInt) -> CurvePoint {
+        if scalar == 0 { return .init(x: 0, y: 0, curve: point.curve) }
+        if scalar == 1 { return point }
+        if scalar % 2 == 1 { return point + point * (scalar - 1) }
 
-        return lhs.double() * (rhs / 2)
+        return point.double() * (scalar / 2)
     }
 }
 private extension CurvePoint {
     func double() -> CurvePoint {
-        let λ = (3 * x * x) * (2 * y).modInverse(curve.p)
+        let λ = (3 * x * x) * (2 * y).modInverse(p)
 
         let x3 = λ * λ - 2 * x
         let y3 = λ * (x - x3) - y
 
-        return CurvePoint(x: x3.mod(curve.p), y: y3.mod(curve.p), curve: curve)
+        return CurvePoint(x: x3.mod(p), y: y3.mod(p), curve: curve)
     }
 }
 
-
-
-func addPoint(_ p1: CurvePoint, to p2: CurvePoint) -> CurvePoint {
-    let p = Cipher.BLS12_381_SHA_256().curve.p
-
-
-
-
-
-    let λ = (p2.y - p1.y) * (p2.x - p1.x).modInverse(p)
-    let x3 = λ * λ - p1.x - p2.x
-    let y3 = λ * (p1.x - x3) - p1.y
-    return CurvePoint(x: x3.mod(p), y: y3.mod(p), curve: p1.curve)
-}
-
-
-extension CurvePoint: Equatable {
-    static func == (lhs: CurvePoint, rhs: CurvePoint) -> Bool { lhs.x == rhs.x && lhs.y == rhs.y }
+// MARK: - Helpers
+private extension CurvePoint {
+    var p: BInt { curve.p }
 }
