@@ -252,13 +252,7 @@ extension BLS12_381_SHA_256 {
         x.mod(.init(2))
     }
     func sqrt(_ x: BInt) -> BInt {
-        let c = (p + 1) / 4
-        return x.expMod(c, p)
-
-
-
-        let res = x.sqrtMod(p)!
-        return res
+        x.sqrtMod(p)!
     }
 
     func isSquare(_ x: BInt) -> Bool {
