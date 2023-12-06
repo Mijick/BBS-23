@@ -17,102 +17,98 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let octetScalarLength: Int = 32
     let octetPointLength: Int = 48
     let expandLength: Int = 48
-    let p1: [UInt8] = "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9".asHexToByteRepresentation()
-    let primeOrder: [UInt8] = "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001".asHexToByteRepresentation()
-
-
-    let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
-    let m: Int = 1
-    let L: Int = 64
-    let Z: BInt = .init(hex: "1A0111EA397FE69A4B1BA7B6434BACD764774B84F38512BF6730D2A0F6B0F6241EABFFFEB153FFFFB9FEFFFFFFFFAAA8")
+    let p1: BInt = .init(hex: "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9")
+    let primeOrder: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
+    let curve: Curve.BLS12_381_G1 = .init()
 }
 
-// MARK: - Expanding Message
+
+// MARK: - Point to Octets
 extension BLS12_381_SHA_256 {
-    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
-        let helperBytesArraySize = calculateHelperBytesArraySize(expectedLengthInBytes)
-
-        try assertExpandMessageRequirements(expectedLengthInBytes, domainSeparationTag, helperBytesArraySize)
-
-        let dstPrime = try calculateDomainSeparationTagPrime(domainSeparationTag)
-        let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hashOutputSizeInBytes)
-        let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
-        let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)
-        let hashedMessagePrime = hashData(messagePrime)
-
-        var helperBytesArray = try createHelperBytesArray(hashedMessagePrime, dstPrime)
-        try populateHelperBytesArray(&helperBytesArray, helperBytesArraySize, hashedMessagePrime, dstPrime)
-
-        let uniformBytes = helperBytesArray.reduce([]) { $0.concatenate(with: $1) }
-        return .init(uniformBytes[0...expectedLengthInBytes - 1])
+    func pointToOctets(_ point: [UInt8]) -> [UInt8] {
+        fatalError()
     }
 }
-private extension BLS12_381_SHA_256 {
-    func calculateHelperBytesArraySize(_ expectedLengthInBytes: Int) -> Int {
-        let expectedLengthInBytes = Double(expectedLengthInBytes), hashOutputSizeInBytes = Double(hashOutputSizeInBytes)
 
-        let result = expectedLengthInBytes / hashOutputSizeInBytes
-        return .init(ceil(result))
-    }
-    func assertExpandMessageRequirements(_ expectedLengthInBytes: Int, _ domainSeparationTag: [UInt8], _ helperBytesArraySize: Int) throws {
-        if expectedLengthInBytes <= 0 { throw Error.ExpandMessage.expectedLengthMustBePositive }
-        if expectedLengthInBytes > 65535 { throw Error.ExpandMessage.expectedLengthTooLarge }
-        if domainSeparationTag.count > 255 { throw Error.ExpandMessage.domainSeperationTagTooBig }
-        if helperBytesArraySize > 255 { throw Error.ExpandMessage.helperArrayTooBig }
-    }
-    func calculateDomainSeparationTagPrime(_ domainSeparationTag: [UInt8]) throws -> [UInt8] {
-        let bytes = try Primitives.integerToBytes(value: .init(domainSeparationTag.count), expectedLength: 1)
-        return domainSeparationTag.concatenate(with: bytes)
-    }
-    func calculateMessageBytesPrime(_ messageBytes: [UInt8], _ dstPrime: [UInt8], _ zPad: [UInt8], _ expectedLengthBytes: [UInt8]) throws -> [UInt8] {
-        let bytes = try Primitives.integerToBytes(value: 0, expectedLength: 1)
-        return zPad
-            .concatenate(with: messageBytes)
-            .concatenate(with: expectedLengthBytes)
-            .concatenate(with: bytes)
-            .concatenate(with: dstPrime)
-    }
-    func createHelperBytesArray(_ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws -> [[UInt8]] {
-        let byte = try Primitives.integerToBytes(value: 1, expectedLength: 1)
-        let firstByte = hashedMessagePrime
-            .concatenate(with: byte)
-            .concatenate(with: dstPrime)
-
-        let hashedFirstByte = hashData(firstByte)
-        return [hashedFirstByte]
-    }
-    func populateHelperBytesArray(_ helperBytesArray: inout [[UInt8]], _ expectedSize: Int, _ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws { for index in 0...expectedSize {
-        let indexBytes = try Primitives.integerToBytes(value: .init(index + 2), expectedLength: 1)
-        let xorResult = hashedMessagePrime.xor(helperBytesArray[index])
-        let byte = xorResult
-            .concatenate(with: indexBytes)
-            .concatenate(with: dstPrime)
-
-        let hashedByte = hashData(byte)
-        helperBytesArray.append(hashedByte)
-    }}
-}
-
-// MARK: - Hashing to Curve
+// MARK: - Octets to Point
 extension BLS12_381_SHA_256 {
+    func octetsToPoint(_ bytes: [UInt8]) -> [UInt8] {
+        fatalError()
+    }
+}
+
+
+
+
+
+
+
+protocol CurveSuite {
+    // MARK: Attributes
+
+    /// Domain separation tag for a curve
+    var dst: String { get }
+
+    /// Curve is defined by: y^2 = x^3 + Ax + B
+    var A: BInt { get }
+
+    /// Curve is defined by: y^2 = x^3 + Ax + B
+    var B: BInt { get }
+
+    /// Characteristic of the field F
+    var p: BInt { get }
+
+    /// Extension degree of the field F
+    var m: Int { get }
+
+    /// Length parameter for hashToField method
+    var L: Int { get }
+
+    /// A non-zero element of F
+    var Z: BInt { get }
+
+    /// Scalar parameter for clearCofactor method
+    var hEff: BInt { get }
+
+    /// Input block size of hashData, measured in byte. For example, for SHA-256, size = 64
+    var hashOutputSizeInBytes: Int { get }
+
+
+    // MARK: Methods
+
+    /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
+    func mapToCurve(_ element: BInt) -> CurvePoint
+
+    /// Expands a byte string and domain separation tag into a uniformly random byte string
+    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
+
+    /// Hashes bytes
+    func hashData(_ bytes: [UInt8]) -> [UInt8]
+}
+
+// MARK: - Helpers
+extension CurveSuite {
+
+    /// Encodes a byte string to a point in G
     func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint {
         let fieldElements = try hashToField(bytes, 2)
 
-        let point1 = mapToCurve(fieldElements[0]), point2 = mapToCurve(fieldElements[1])
-        let point3 = point1 + point2
+        let point1 = mapToCurve(fieldElements[0])
+        let point2 = mapToCurve(fieldElements[1])
 
+        let point3 = point1 + point2
         let resultPoint = clearCofactor(point3)
         return resultPoint
     }
+
+    /// Function that defines the curve
+    func f(_ x: BInt) -> BInt { x ** 3 + A * x + B }
 }
-extension BLS12_381_SHA_256 {
+private extension CurveSuite {
+    /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
     func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BInt] {
-        // 1
         let lengthInBytes = count * m * L
-
-        // 2
-        let uniformBytes = try expandMessage(bytes, domainSeparationTag: domainSeparationTagG1, expectedLengthInBytes: lengthInBytes)
-
+        let uniformBytes = try expandMessage(bytes, domainSeparationTag: dst.asAsciiToByteRepresentation(), expectedLengthInBytes: lengthInBytes)
 
         var arrayI: [[BInt]] = []
 
@@ -123,17 +119,11 @@ extension BLS12_381_SHA_256 {
 
             // 4
             for j in 0..<m {
-
-                // 5
                 let elementOffset = L * (j + i * m)
+                let temp = Array(uniformBytes[elementOffset..<elementOffset + L])
+                let element = Primitives.bytesToInteger(temp) % p
 
-                // 6
-                let tv = Array(uniformBytes[elementOffset..<elementOffset + L])
-
-                // 7
-                let e_j = Primitives.bytesToInteger(tv) % p
-
-                arrayJ.append(e_j)
+                arrayJ.append(element)
             }
 
             // 8
@@ -147,8 +137,36 @@ extension BLS12_381_SHA_256 {
         let res = arrayI
         return Array(res.joined())
     }
-    func mapToCurve(_ element: BInt) -> CurvePoint {
-        let gz = g(Z)
+
+    /// Sends any point on the curve E to the subgroup G of E
+    func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
+}
+
+
+
+
+
+
+
+enum Curve {}
+
+
+
+extension Curve { struct BLS12_381_G1: CurveSuite {
+    let dst: String = "QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SSWU_RO_"
+    let A: BInt = 0
+    let B: BInt = 4
+    let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
+    let m: Int = 1
+    let L: Int = 64
+    let Z: BInt = .init(hex: "1A0111EA397FE69A4B1BA7B6434BACD764774B84F38512BF6730D2A0F6B0F6241EABFFFEB153FFFFB9FEFFFFFFFFAAA8")
+    let hEff: BInt = .init(hex: "d201000000010001")
+}}
+
+// MARK: - Mapping To Curve
+extension Curve.BLS12_381_G1 {
+    func mapToCurve(_ element: BigInt.BInt) -> CurvePoint {
+        let gz = f(Z)
 
 
         // 1 - DZIAŁA
@@ -195,22 +213,22 @@ extension BLS12_381_SHA_256 {
         var x: BInt = .init(0), y: BInt = .init(0)
 
 
-        if isSquare(g(x1)) {
+        if isSquare(f(x1)) {
             x = x1
-            y = sqrt(g(x1))
+            y = sqrt(f(x1))
         }
 
 
         // 13
-        else if isSquare(g(x2)) {
+        else if isSquare(f(x2)) {
             x = x2
-            y = sqrt(g(x2))
+            y = sqrt(f(x2))
         }
 
         // 14
         else {
             x = x3
-            y = sqrt(g(x3))
+            y = sqrt(f(x3))
         }
 
         // 15 DZIALA
@@ -220,12 +238,9 @@ extension BLS12_381_SHA_256 {
 
         return .init(x: x.mod(p), y: y.mod(p))
     }
-    func clearCofactor(_ point: CurvePoint) -> CurvePoint {
-        let hEff = BInt(hex: "d201000000010001")
-        return point * hEff
-    }
+
 }
- extension BLS12_381_SHA_256 {
+private extension Curve.BLS12_381_G1 {
     func g(_ value: BInt) -> BInt {
         (value * value * value + 4).mod(p)
     }
@@ -245,35 +260,87 @@ extension BLS12_381_SHA_256 {
         return false
     }
 }
-private extension BLS12_381_SHA_256 {
-    var domainSeparationTagG1: [UInt8] { "QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SSWU_RO_".asAsciiToByteRepresentation() }
+private extension Curve.BLS12_381_G1 {
+
 }
 
-// MARK: - Point to Octets
-extension BLS12_381_SHA_256 {
-    func pointToOctets(_ point: [UInt8]) -> [UInt8] {
-        fatalError()
+// MARK: - Expanding Message
+extension Curve.BLS12_381_G1 {
+    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
+        let helperBytesArraySize = calculateHelperBytesArraySize(expectedLengthInBytes)
+
+        try assertExpandMessageRequirements(expectedLengthInBytes, domainSeparationTag, helperBytesArraySize)
+
+        let dstPrime = try calculateDomainSeparationTagPrime(domainSeparationTag)
+        let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hashOutputSizeInBytes)
+        let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
+        let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)
+        let hashedMessagePrime = hashData(messagePrime)
+
+        var helperBytesArray = try createHelperBytesArray(hashedMessagePrime, dstPrime)
+        try populateHelperBytesArray(&helperBytesArray, helperBytesArraySize, hashedMessagePrime, dstPrime)
+
+        let uniformBytes = helperBytesArray.reduce([]) { $0.concatenate(with: $1) }
+        return .init(uniformBytes[0...expectedLengthInBytes - 1])
     }
 }
+private extension Curve.BLS12_381_G1 {
+    func calculateHelperBytesArraySize(_ expectedLengthInBytes: Int) -> Int {
+        let expectedLengthInBytes = Double(expectedLengthInBytes), hashOutputSizeInBytes = Double(hashOutputSizeInBytes)
 
-// MARK: - Octets to Point
-extension BLS12_381_SHA_256 {
-    func octetsToPoint(_ bytes: [UInt8]) -> [UInt8] {
-        fatalError()
+        let result = expectedLengthInBytes / hashOutputSizeInBytes
+        return .init(ceil(result))
     }
+    func assertExpandMessageRequirements(_ expectedLengthInBytes: Int, _ domainSeparationTag: [UInt8], _ helperBytesArraySize: Int) throws {
+        if expectedLengthInBytes <= 0 { throw Error.ExpandMessage.expectedLengthMustBePositive }
+        if expectedLengthInBytes > 65535 { throw Error.ExpandMessage.expectedLengthTooLarge }
+        if domainSeparationTag.count > 255 { throw Error.ExpandMessage.domainSeperationTagTooBig }
+        if helperBytesArraySize > 255 { throw Error.ExpandMessage.helperArrayTooBig }
+    }
+    func calculateDomainSeparationTagPrime(_ domainSeparationTag: [UInt8]) throws -> [UInt8] {
+        let bytes = try Primitives.integerToBytes(value: .init(domainSeparationTag.count), expectedLength: 1)
+        return domainSeparationTag.concatenate(with: bytes)
+    }
+    func calculateMessageBytesPrime(_ messageBytes: [UInt8], _ dstPrime: [UInt8], _ zPad: [UInt8], _ expectedLengthBytes: [UInt8]) throws -> [UInt8] {
+        let bytes = try Primitives.integerToBytes(value: 0, expectedLength: 1)
+        return zPad
+            .concatenate(with: messageBytes)
+            .concatenate(with: expectedLengthBytes)
+            .concatenate(with: bytes)
+            .concatenate(with: dstPrime)
+    }
+    func createHelperBytesArray(_ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws -> [[UInt8]] {
+        let byte = try Primitives.integerToBytes(value: 1, expectedLength: 1)
+        let firstByte = hashedMessagePrime
+            .concatenate(with: byte)
+            .concatenate(with: dstPrime)
+
+        let hashedFirstByte = hashData(firstByte)
+        return [hashedFirstByte]
+    }
+    func populateHelperBytesArray(_ helperBytesArray: inout [[UInt8]], _ expectedSize: Int, _ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws { for index in 0...expectedSize {
+        let indexBytes = try Primitives.integerToBytes(value: .init(index + 2), expectedLength: 1)
+        let xorResult = hashedMessagePrime.xor(helperBytesArray[index])
+        let byte = xorResult
+            .concatenate(with: indexBytes)
+            .concatenate(with: dstPrime)
+
+        let hashedByte = hashData(byte)
+        helperBytesArray.append(hashedByte)
+    }}
 }
 
 // MARK: - Hashing
-extension BLS12_381_SHA_256 {
+extension Curve.BLS12_381_G1 {
     func hashData(_ bytes: [UInt8]) -> [UInt8] { Hash.sha256(bytes) }
 }
-private extension BLS12_381_SHA_256 {
+extension Curve.BLS12_381_G1 {
     var hashOutputSizeInBytes: Int { 64 }
 }
 
 
 // MARK: - Errors
-fileprivate typealias Error = BLS12_381_SHA_256Error
-enum BLS12_381_SHA_256Error {
+fileprivate typealias Error = BLS12_381_G1Error
+enum BLS12_381_G1Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
 }

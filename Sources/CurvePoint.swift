@@ -64,7 +64,7 @@ func addPoint(_ p1: CurvePoint, to p2: CurvePoint) -> CurvePoint {
 }
 ///  modInverseP
 func modInverseP(_ v: BInt, _ w: BInt) -> BInt {
-    return modularInverse(v, w, mod: BLS12_381_SHA_256().p)
+    return modularInverse(v, w, mod: BLS12_381_SHA_256().curve.p)
 }
 
 func modularInverse(_ x: BInt, _ y: BInt, mod: BInt) -> BInt {
@@ -110,7 +110,7 @@ func division(_ a: BInt, _ b: BInt) -> (quotient: BInt, remainder: BInt) {
 
 /// modP
 func modP(_ expression: () -> BInt) -> BInt {
-    expression().mod(BLS12_381_SHA_256().p)
+    expression().mod(BLS12_381_SHA_256().curve.p)
     //return mod(expression(), modulus: P)
 }
 

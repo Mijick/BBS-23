@@ -9,22 +9,23 @@
 //  Copyright ©2023 Mijick. Licensed under MIT License.
 
 
-import Foundation
+import BigInt
 
 protocol Ciphersuite {
+    
     // MARK: Attributes
     var id: String { get }
     var octetScalarLength: Int { get }
     var octetPointLength: Int { get }
     var expandLength: Int { get }
-    var p1: [UInt8] { get }
-    var primeOrder: [UInt8] { get }
+    var p1: BInt { get }
+    var primeOrder: BInt { get }
+    var curve: C { get }
 
     // MARK: Methods
-    func expandMessage(_ bytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
-    func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint
     func pointToOctets(_ point: [UInt8]) -> [UInt8]
     func octetsToPoint(_ bytes: [UInt8]) -> [UInt8]
 
-    func hashData(_ bytes: [UInt8]) -> [UInt8]
+    // MARK: - Generic Types
+    associatedtype C: CurveSuite
 }

@@ -85,7 +85,7 @@ extension UtilitiesTest {
 }
 
 private extension UtilitiesTest {
-    var ciphersuite: Ciphersuite { BLS12_381_SHA_256() }
+    var ciphersuite: any Ciphersuite { BLS12_381_SHA_256() }
     var m_1: [UInt8] { "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02".asHexToByteRepresentation() }
     var m_2: [UInt8] { "c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80".asHexToByteRepresentation() }
     var m_3: [UInt8] { "7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73".asHexToByteRepresentation() }
