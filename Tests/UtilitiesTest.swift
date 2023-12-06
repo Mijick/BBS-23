@@ -18,16 +18,16 @@ final class UtilitiesTest: XCTestCase {}
     
 // MARK: - Hash to Scalar
 extension UtilitiesTest {
-    func test_hashToScalar() {
+    func test_hashToScalar() throws {
         let msg = "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02".asHexToByteRepresentation()
 
-        let result = try? Utilities.hashToScalar(msg, dst, ciphersuite).toHexString()
+        let result = try Utilities.hashToScalar(msg, dst, ciphersuite).toHexString()
         let expectedResult = "0f90cbee27beb214e6545becb8404640d3612da5d6758dffeccd77ed7169807c"
         XCTAssertEqual(result, expectedResult)
     }
 }
 private extension UtilitiesTest {
-    var dst: [UInt8] { "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_H2S_".asHexToByteRepresentation() }
+    var dst: [UInt8] { "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_H2S_".asAsciiToByteRepresentation() }
 }
 
 // MARK: - Messages to Scalar

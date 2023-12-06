@@ -17,11 +17,12 @@ class Utilities { private init() {} }
 extension Utilities {
     static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: Ciphersuite) throws -> BigUInt {
         guard dst.count * 8 > 255 else { throw Error.invalidDSTLength }
+        
         let uniformBytes = try ciphersuite.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
         let r = Primitives.bytesToInteger(ciphersuite.primeOrder)
         
-        return number % r
+        return BigUInt((number % r).asString(radix: 16), radix: 16)!
     }
     static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BigUInt] {
         let maxMSGLength = BigUInt(pow(2.0, 64) - 1)

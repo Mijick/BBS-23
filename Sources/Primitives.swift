@@ -19,9 +19,9 @@ extension Primitives {
 
     /// Also known as OS2IP.
     /// Transforms a octet string into an non-negative integer. The input of this operation must be in big-endian order
-    static func bytesToInteger(_ bytes: [UInt8]) -> BigUInt {
-        let data = Data(bytes)
-        return .init(data)
+    static func bytesToInteger(_ bytes: [UInt8]) -> BInt {
+        let hexRepresentation = bytes.toHexRepresentation()
+        return .init(hex: hexRepresentation)
     }
 
     /// Also known as I20SP.

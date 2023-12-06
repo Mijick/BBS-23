@@ -60,27 +60,27 @@ extension PrimitivesTests {
 extension PrimitivesTests {
     func test_OS2IP_1() {
         let value = Primitives.bytesToInteger([255])
-        let expectedValue: BigUInt = 255
+        let expectedValue: BInt = .init(255)
         XCTAssertEqual(value, expectedValue)
     }
     func test_OS2IP_2() {
         let value = Primitives.bytesToInteger([1, 1])
-        let expectedValue: BigUInt = 257
+        let expectedValue: BInt = .init(257)
         XCTAssertEqual(value, expectedValue)
     }
     func test_OS2IP_3() {
         let value = Primitives.bytesToInteger([0, 0, 0, 23])
-        let expectedValue: BigUInt = 23
+        let expectedValue: BInt = .init(23)
         XCTAssertEqual(value, expectedValue)
     }
     func test_OS2IP_4() {
         let value = Primitives.bytesToInteger([0, 0, 4, 217])
-        let expectedValue: BigUInt = 1241
+        let expectedValue: BInt = .init(1241)
         XCTAssertEqual(value, expectedValue)
     }
     func test_OS2IP_5() {
         let value = Primitives.bytesToInteger([0, 0, 0, 0, 0, 15, 162, 19])
-        let expectedValue: BigUInt = 1024531
+        let expectedValue: BInt = .init(1024531)
         XCTAssertEqual(value, expectedValue)
     }
 }

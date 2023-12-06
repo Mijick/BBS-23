@@ -21,10 +21,10 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let primeOrder: [UInt8] = "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001".asHexToByteRepresentation()
 
 
-    let p: BigUInt = Primitives.bytesToInteger("0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab".asHexToByteRepresentation())
+    let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
     let m: Int = 1
     let L: Int = 64
-    let Z: BInt = .init("1A0111EA397FE69A4B1BA7B6434BACD764774B84F38512BF6730D2A0F6B0F6241EABFFFEB153FFFFB9FEFFFFFFFFAAA8", radix: 16)!
+    let Z: BInt = .init(hex: "1A0111EA397FE69A4B1BA7B6434BACD764774B84F38512BF6730D2A0F6B0F6241EABFFFEB153FFFFB9FEFFFFFFFFAAA8")
 }
 
 // MARK: - Expanding Message
@@ -106,7 +106,7 @@ extension BLS12_381_SHA_256 {
     }
 }
 extension BLS12_381_SHA_256 {
-    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BigUInt] {
+    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BInt] {
         // 1
         let lengthInBytes = count * m * L
 
@@ -114,11 +114,11 @@ extension BLS12_381_SHA_256 {
         let uniformBytes = try expandMessage(bytes, domainSeparationTag: domainSeparationTagG1, expectedLengthInBytes: lengthInBytes)
 
 
-        var arrayI: [[BigUInt]] = []
+        var arrayI: [[BInt]] = []
 
         // 3
         for i in 0..<count {
-            var arrayJ: [BigUInt] = []
+            var arrayJ: [BInt] = []
 
 
             // 4
@@ -145,28 +145,21 @@ extension BLS12_381_SHA_256 {
         }
 
         let res = arrayI
-
-        if res.first!.first!.toHexString() == "0ba14bd907ad64a016293ee7c2d276b8eae71f25a4b941eece7b0d89f17f75cb3ae5438a614fb61d6835ad59f29c564f" {
-            print("JEST")
-        }
-
-
         return Array(res.joined())
     }
-    func mapToCurve(_ element: BigUInt) -> CurvePoint {
-        let element = BInt(element.toHexString(), radix: 16)!
+    func mapToCurve(_ element: BInt) -> CurvePoint {
         let gz = g(Z)
 
 
         // 1 - DZIAŁA
-        var tv1 = (element.expMod(.init(2), po) * gz).mod(po)
+        var tv1 = (element.expMod(.init(2), p) * gz).mod(p)
 
         // 2 - DZIAŁA
         let tv2 = 1 + tv1
 
 
         // 3 - DZIAŁA
-        tv1 = (1 - tv1).mod(po)
+        tv1 = (1 - tv1).mod(p)
 
 
         // 4 - DZIAŁA
@@ -180,25 +173,22 @@ extension BLS12_381_SHA_256 {
 
 
         // 6 DZIAŁA
-        if sgn0(tv4) == 1 { tv4 = (0 - tv4).mod(po) }
+        if sgn0(tv4) == 1 { tv4 = (0 - tv4).mod(p) }
 
         // 7 DZIAŁA
-        let tv5 = (element * tv1 * tv3 * tv4).mod(po)
+        let tv5 = (element * tv1 * tv3 * tv4).mod(p)
 
         // 8 DZIAŁA
-        let tv6 = (-4 * gz * inv0(3 * Z * Z)).mod(po)
+        let tv6 = (-4 * gz * inv0(3 * Z * Z)).mod(p)
 
         // 9 DZIAŁA
-        let x1 = ((-Z / 2) - tv5).mod(po)
+        let x1 = ((-Z / 2) - tv5).mod(p)
 
         // 10 DZIAŁA
-        let x2 = ((-Z / 2) + tv5).mod(po)
+        let x2 = ((-Z / 2) + tv5).mod(p)
 
         // 11 DZIAŁA
-        let x3 = (Z + tv6 * (tv2 * tv2 * tv3).expMod(.init(2), po)).mod(po)
-
-//        print("x1: \(x1.mod(po).asString(radix: 16))\n", "x2: \(x2.mod(po).asString(radix: 16))\n", "x3: \(x3.mod(po).asString(radix: 16))\n")
-
+        let x3 = (Z + tv6 * (tv2 * tv2 * tv3).expMod(.init(2), p)).mod(p)
 
 
         // 12
@@ -224,28 +214,28 @@ extension BLS12_381_SHA_256 {
         }
 
         // 15 DZIALA
-        if sgn0(element) != sgn0(y) { y = (0 - y).mod(po) }
+        if sgn0(element) != sgn0(y) { y = (0 - y).mod(p) }
 
         // 16
 
-        return .init(x: x.mod(po), y: y.mod(po))
+        return .init(x: x.mod(p), y: y.mod(p))
     }
     func clearCofactor(_ point: CurvePoint) -> CurvePoint {
-        let hEff = BInt("d201000000010001", radix: 16)!
+        let hEff = BInt(hex: "d201000000010001")
         return point * hEff
     }
 }
  extension BLS12_381_SHA_256 {
     func g(_ value: BInt) -> BInt {
-        (value * value * value + 4).mod(po)
+        (value * value * value + 4).mod(p)
     }
 
 
     func inv0(_ x: BInt) -> BInt {
         if x == 0 { return .init(0) }
 
-        let (_, inv, _) = extendedGcd(x, po)
-        return (inv % po + po) % po
+        let (_, inv, _) = extendedGcd(x, p)
+        return (inv % p + p) % p
     }
 
 
@@ -262,26 +252,17 @@ extension BLS12_381_SHA_256 {
         x.mod(.init(2))
     }
     func sqrt(_ x: BInt) -> BInt {
-        let c = (po + 1) / 4
-        return x.expMod(c, po)
+        let c = (p + 1) / 4
+        return x.expMod(c, p)
 
 
 
-        let res = x.sqrtMod(po)!
+        let res = x.sqrtMod(p)!
         return res
     }
 
-
-    var po: BInt { .init("1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab", radix: 16)! }
-
-
-
-
-
-
-
     func isSquare(_ x: BInt) -> Bool {
-        let a =  x.expMod((po - 1) / 2, po)
+        let a =  x.expMod((p - 1) / 2, p)
 
         if a == 0 || a == 1 { return true }
         return false
