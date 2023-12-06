@@ -15,16 +15,16 @@ class Utilities { private init() {} }
 
 // MARK: - Converting to scalar
 extension Utilities {
-    static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: Ciphersuite) throws -> BigUInt {
+    static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: Ciphersuite) throws -> BInt {
         guard dst.count * 8 > 255 else { throw Error.invalidDSTLength }
         
         let uniformBytes = try ciphersuite.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
         let r = Primitives.bytesToInteger(ciphersuite.primeOrder)
         
-        return BigUInt((number % r).asString(radix: 16), radix: 16)!
+        return number % r
     }
-    static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BigUInt] {
+    static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: Ciphersuite) throws -> [BInt] {
         let maxMSGLength = BigUInt(pow(2.0, 64) - 1)
         guard messages.count <= maxMSGLength else { throw Error.invalidMessageLength }
         let map_dst = apiId.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
