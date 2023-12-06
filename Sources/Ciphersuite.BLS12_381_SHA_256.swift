@@ -99,20 +99,9 @@ extension BLS12_381_SHA_256 {
         let fieldElements = try hashToField(bytes, 2)
 
         let point1 = mapToCurve(fieldElements[0]), point2 = mapToCurve(fieldElements[1])
-//        let point1 = CurvePoint(
-//            x: .init("11a3cce7e1d90975990066b2f2643b9540fa40d6137780df4e753a8054d07580db3b7f1f03396333d4a359d1fe3766fe", radix: 16)!,
-//            y: .init("0eeaf6d794e479e270da10fdaf768db4c96b650a74518fc67b04b03927754bac66f3ac720404f339ecdcc028afa091b7", radix: 16)!
-//        )
-//        let point2 = CurvePoint(
-//            x: .init("160003aaf1632b13396dbad518effa00fff532f604de1a7fc2082ff4cb0afa2d63b2c32da1bef2bf6c5ca62dc6b72f9c", radix: 16)!,
-//            y: .init("0d8bb2d14e20cf9f6036152ed386d79189415b6d015a20133acb4e019139b94e9c146aaad5817f866c95d609a361735e", radix: 16)!
-//        )
-
         let point3 = point1 + point2
 
         let resultPoint = clearCofactor(point3)
-
-
         return resultPoint
     }
 }

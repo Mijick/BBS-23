@@ -124,3 +124,8 @@ func doublePoint(_ p: CurvePoint) -> CurvePoint {
 
     return CurvePoint(x: x3, y: y3)
 }
+
+
+extension CurvePoint: Equatable {
+    public static func == (lhs: CurvePoint, rhs: CurvePoint) -> Bool { lhs.x == rhs.x && lhs.y == rhs.y }
+}
