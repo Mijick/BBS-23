@@ -20,7 +20,7 @@ struct CurvePoint {
 
 // MARK: - Comparing Points
 extension CurvePoint: Equatable {
-    static func == (lhs: CurvePoint, rhs: CurvePoint) -> Bool { lhs.x == rhs.x && lhs.y == rhs.y }
+    static func == (p1: CurvePoint, p2: CurvePoint) -> Bool { p1.x == p2.x && p1.y == p2.y }
 }
 
 // MARK: - Point Addition
