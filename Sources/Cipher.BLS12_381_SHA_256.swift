@@ -1,5 +1,5 @@
 //
-//  Ciphersuite.BLS12_381_SHA_256.swift of BBS-Signature
+//  Cipher.BLS12_381_SHA_256.swift of BBS-Signature
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -12,7 +12,7 @@
 import Foundation
 import BigInt
 
-struct BLS12_381_SHA_256: Ciphersuite {
+extension Cipher { struct BLS12_381_SHA_256: CipherSuite {
     let id: String = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_"
     let octetScalarLength: Int = 32
     let octetPointLength: Int = 48
@@ -20,18 +20,18 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let p1: BInt = .init(hex: "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9")
     let primeOrder: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
     let curve: CurveSuite = Curve.BLS12_381_G1()
-}
+}}
 
 
 // MARK: - Point to Octets
-extension BLS12_381_SHA_256 {
+extension Cipher.BLS12_381_SHA_256 {
     func pointToOctets(_ point: [UInt8]) -> [UInt8] {
         fatalError()
     }
 }
 
 // MARK: - Octets to Point
-extension BLS12_381_SHA_256 {
+extension Cipher.BLS12_381_SHA_256 {
     func octetsToPoint(_ bytes: [UInt8]) -> [UInt8] {
         fatalError()
     }
@@ -43,104 +43,6 @@ extension BLS12_381_SHA_256 {
 
 
 
-protocol CurveSuite {
-    // MARK: Attributes
-
-    /// Domain separation tag for a curve
-    var dst: String { get }
-
-    /// Curve is defined by: y^2 = x^3 + Ax + B
-    var A: BInt { get }
-
-    /// Curve is defined by: y^2 = x^3 + Ax + B
-    var B: BInt { get }
-
-    /// Characteristic of the field F
-    var p: BInt { get }
-
-    /// Extension degree of the field F
-    var m: Int { get }
-
-    /// Length parameter for hashToField method
-    var L: Int { get }
-
-    /// A non-zero element of F
-    var Z: BInt { get }
-
-    /// Scalar parameter for clearCofactor method
-    var hEff: BInt { get }
-
-    /// Input block size of hashData, measured in byte. For example, for SHA-256, size = 64
-    var hashOutputSizeInBytes: Int { get }
-
-
-    // MARK: Methods
-
-    /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
-    func mapToCurve(_ element: BInt) -> CurvePoint
-
-    /// Expands a byte string and domain separation tag into a uniformly random byte string
-    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
-
-    /// Hashes bytes
-    func hashData(_ bytes: [UInt8]) -> [UInt8]
-}
-
-// MARK: - Helpers
-extension CurveSuite {
-
-    /// Encodes a byte string to a point in G
-    func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint {
-        let fieldElements = try hashToField(bytes, 2)
-
-        let point1 = mapToCurve(fieldElements[0])
-        let point2 = mapToCurve(fieldElements[1])
-
-        let point3 = point1 + point2
-        let resultPoint = clearCofactor(point3)
-        return resultPoint
-    }
-
-    /// Function that defines the curve
-    func f(_ x: BInt) -> BInt { x ** 3 + A * x + B }
-}
-private extension CurveSuite {
-    /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
-    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BInt] {
-        let lengthInBytes = count * m * L
-        let uniformBytes = try expandMessage(bytes, domainSeparationTag: dst.asAsciiToByteRepresentation(), expectedLengthInBytes: lengthInBytes)
-
-        var arrayI: [[BInt]] = []
-
-        // 3
-        for i in 0..<count {
-            var arrayJ: [BInt] = []
-
-
-            // 4
-            for j in 0..<m {
-                let elementOffset = L * (j + i * m)
-                let temp = Array(uniformBytes[elementOffset..<elementOffset + L])
-                let element = Primitives.bytesToInteger(temp) % p
-
-                arrayJ.append(element)
-            }
-
-            // 8
-            let u_i = arrayJ
-            arrayI.append(u_i)
-
-
-
-        }
-
-        let res = arrayI
-        return Array(res.joined())
-    }
-
-    /// Sends any point on the curve E to the subgroup G of E
-    func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
-}
 
 
 
@@ -148,7 +50,8 @@ private extension CurveSuite {
 
 
 
-enum Curve {}
+
+
 
 
 
@@ -184,9 +87,7 @@ extension Curve.BLS12_381_G1 {
         let tv3 = inv0(tv1 * tv2)
 
         // 5 - DZIAŁA
-        //  y^2 = g(x) = x^3 + A * x + B
-        // y^2 = x^3 + 4
-        let a = (-gz * (3 * Z * Z))
+        let a = (-gz * (3 * Z * Z + 4 * A))
         var tv4 = sqrt(a)
 
 
@@ -197,7 +98,7 @@ extension Curve.BLS12_381_G1 {
         let tv5 = (element * tv1 * tv3 * tv4).mod(p)
 
         // 8 DZIAŁA
-        let tv6 = (-4 * gz * inv0(3 * Z * Z)).mod(p)
+        let tv6 = (-4 * gz * inv0(3 * Z * Z + 4 * A)).mod(p)
 
         // 9 DZIAŁA
         let x1 = ((-Z / 2) - tv5).mod(p)

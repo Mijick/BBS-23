@@ -1,0 +1,112 @@
+//
+//  Curve.swift of BBS-Signature
+//
+//  Created by Tomasz Kurylik
+//    - Twitter: https://twitter.com/tkurylik
+//    - Mail: tomasz.kurylik@mijick.com
+//    - GitHub: https://github.com/FulcrumOne
+//
+//  Copyright ©2023 Mijick. Licensed under MIT License.
+
+
+import BigInt
+
+enum Curve {}
+protocol CurveSuite {
+    // MARK: Attributes
+
+    /// Domain separation tag for a curve
+    var dst: String { get }
+
+    /// Curve is defined by: y^2 = x^3 + Ax + B
+    var A: BInt { get }
+
+    /// Curve is defined by: y^2 = x^3 + Ax + B
+    var B: BInt { get }
+
+    /// Characteristic of the field F
+    var p: BInt { get }
+
+    /// Extension degree of the field F
+    var m: Int { get }
+
+    /// Length parameter for hashToField method
+    var L: Int { get }
+
+    /// A non-zero element of F
+    var Z: BInt { get }
+
+    /// Scalar parameter for clearCofactor method
+    var hEff: BInt { get }
+
+    /// Input block size of hashData, measured in byte. For example, for SHA-256, size = 64
+    var hashOutputSizeInBytes: Int { get }
+
+
+    // MARK: Methods
+
+    /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
+    func mapToCurve(_ element: BInt) -> CurvePoint
+
+    /// Expands a byte string and domain separation tag into a uniformly random byte string
+    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
+
+    /// Hashes bytes
+    func hashData(_ bytes: [UInt8]) -> [UInt8]
+}
+
+// MARK: - Helpers
+extension CurveSuite {
+
+    /// Encodes a byte string to a point in G
+    func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint {
+        let fieldElements = try hashToField(bytes, 2)
+
+        let point1 = mapToCurve(fieldElements[0])
+        let point2 = mapToCurve(fieldElements[1])
+
+        let point3 = point1 + point2
+        let resultPoint = clearCofactor(point3)
+        return resultPoint
+    }
+
+    /// Function that defines the curve
+    func f(_ x: BInt) -> BInt { x ** 3 + A * x + B }
+}
+private extension CurveSuite {
+    /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
+    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BInt] {
+        let lengthInBytes = count * m * L
+        let uniformBytes = try expandMessage(bytes, domainSeparationTag: dst.asAsciiToByteRepresentation(), expectedLengthInBytes: lengthInBytes)
+
+        var arrayI: [[BInt]] = []
+
+        // 3
+        for i in 0..<count {
+            var arrayJ: [BInt] = []
+
+
+            // 4
+            for j in 0..<m {
+                let elementOffset = L * (j + i * m)
+                let temp = Array(uniformBytes[elementOffset..<elementOffset + L])
+                let element = Primitives.bytesToInteger(temp) % p
+
+                arrayJ.append(element)
+            }
+
+            // 8
+            let u_i = arrayJ
+            arrayI.append(u_i)
+
+
+
+        }
+
+        let res = arrayI
+        return Array(res.joined())
+    }
+
+    /// Sends any point on the curve E to the subgroup G of E
+    func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
+}

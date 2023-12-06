@@ -1,5 +1,5 @@
 //
-//  Ciphersuite.swift of BBS-Signature
+//  Cipher.swift of BBS-Signature
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -11,8 +11,8 @@
 
 import BigInt
 
-protocol Ciphersuite {
-    
+enum Cipher {}
+protocol CipherSuite {
     // MARK: Attributes
     var id: String { get }
     var octetScalarLength: Int { get }
