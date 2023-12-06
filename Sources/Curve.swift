@@ -84,6 +84,8 @@ private extension CurveSuite {
     /// Sends any point on the curve E to the subgroup G of E
     func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
 }
+
+// MARK: - Hash to Field Helpers
 private extension CurveSuite {
     func createUniformBytesArray(_ bytes: [UInt8], _ count: Int) throws -> [UInt8] { try expandMessage(
         bytes,
