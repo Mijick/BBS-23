@@ -15,3 +15,7 @@ extension BInt {
     init(decimal value: String) { self.init(value, radix: 10)! }
     init(hex value: String) { self.init(value, radix: 16)! }
 }
+
+extension BInt: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: Int) { self.init(value) }
+}
