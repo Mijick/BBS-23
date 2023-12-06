@@ -41,12 +41,12 @@ extension CurvePoint {
 }
 private extension CurvePoint {
     func double() -> CurvePoint {
-        return doublePoint(self)
-        let a = (3 * x * x) / (2 * y)
+        let λ = modInverseP(3 * (x * x), 2 * y)
 
-        let newX = a * a - 2 * x
-        let newY = a * (x - newX) - y
-        return .init(x: newX, y: newY)
+        let x3 = modP { λ * λ - 2 * x }
+        let y3 = modP { λ * (x - x3) - y }
+
+        return CurvePoint(x: x3, y: y3)
     }
 }
 
@@ -116,16 +116,6 @@ func modP(_ expression: () -> BInt) -> BInt {
 
 
 
-func doublePoint(_ p: CurvePoint) -> CurvePoint {
-    let λ = modInverseP(3 * (p.x * p.x), 2 * p.y)
-
-    let x3 = modP { λ * λ - 2 * p.x }
-    let y3 = modP { λ * (p.x - x3) - p.y }
-
-    return CurvePoint(x: x3, y: y3)
-}
-
-
 extension CurvePoint: Equatable {
-    public static func == (lhs: CurvePoint, rhs: CurvePoint) -> Bool { lhs.x == rhs.x && lhs.y == rhs.y }
+    static func == (lhs: CurvePoint, rhs: CurvePoint) -> Bool { lhs.x == rhs.x && lhs.y == rhs.y }
 }
