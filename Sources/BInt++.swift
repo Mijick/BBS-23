@@ -9,7 +9,7 @@
 //  Copyright ©2023 Mijick. Licensed under MIT License.
 
 
-import Foundation
+import BigInt
 
 extension BInt {
     init(decimal value: String) { self.init(value, radix: 10)! }
