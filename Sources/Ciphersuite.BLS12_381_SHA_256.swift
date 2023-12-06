@@ -19,7 +19,7 @@ struct BLS12_381_SHA_256: Ciphersuite {
     let expandLength: Int = 48
     let p1: BInt = .init(hex: "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9")
     let primeOrder: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
-    let curve: Curve.BLS12_381_G1 = .init()
+    let curve: CurveSuite = Curve.BLS12_381_G1()
 }
 
 

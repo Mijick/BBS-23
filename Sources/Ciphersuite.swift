@@ -20,12 +20,9 @@ protocol Ciphersuite {
     var expandLength: Int { get }
     var p1: BInt { get }
     var primeOrder: BInt { get }
-    var curve: C { get }
+    var curve: CurveSuite { get }
 
     // MARK: Methods
     func pointToOctets(_ point: [UInt8]) -> [UInt8]
     func octetsToPoint(_ bytes: [UInt8]) -> [UInt8]
-
-    // MARK: - Generic Types
-    associatedtype C: CurveSuite
 }

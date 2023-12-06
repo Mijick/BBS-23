@@ -1,5 +1,5 @@
 //
-//  BLS12_381_SHA_256Tests.swift of BBS-Signature
+//  BLS12_381_G1_Tests.swift of BBS-Signature
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -12,10 +12,10 @@
 import XCTest
 @testable import MijickBBS_Signature
 
-final class BLS12_381_SHA_256Tests: XCTestCase {}
+final class BLS12_381_G1_Tests: XCTestCase {}
 
 // MARK: - Expanding Message
-extension BLS12_381_SHA_256Tests {
+extension BLS12_381_G1_Tests {
     func testExpandMessage_1() throws {
         let bytes = "".asAsciiToByteRepresentation()
         let lengthInBytes = 32
@@ -117,12 +117,12 @@ extension BLS12_381_SHA_256Tests {
         XCTAssertEqual(result, expectedResult)
     }
 }
-private extension BLS12_381_SHA_256Tests {
+private extension BLS12_381_G1_Tests {
     var domainSeparationTag: [UInt8] { "QUUX-V01-CS02-with-expander-SHA256-128".asAsciiToByteRepresentation() }
 }
 
 // MARK: - Hasing to Curve
-extension BLS12_381_SHA_256Tests {
+extension BLS12_381_G1_Tests {
     func test_hashToCurve_1() {
         let bytes = "".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
@@ -186,6 +186,6 @@ extension BLS12_381_SHA_256Tests {
 }
 
 // MARK: - Helpers
-private extension BLS12_381_SHA_256Tests {
+private extension BLS12_381_G1_Tests {
     var curve: CurveSuite { Curve.BLS12_381_G1() }
 }
