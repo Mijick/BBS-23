@@ -57,7 +57,6 @@ protocol CurveSuite {
 
 // MARK: - Helpers
 extension CurveSuite {
-
     /// Encodes a byte string to a point in G
     func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint {
         let fieldElements = try hashToField(bytes, 2)
@@ -76,37 +75,38 @@ extension CurveSuite {
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
     func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [BInt] {
-        let lengthInBytes = count * m * L
-        let uniformBytes = try expandMessage(bytes, domainSeparationTag: dst.asAsciiToByteRepresentation(), expectedLengthInBytes: lengthInBytes)
+        let uniformBytes = try createUniformBytesArray(bytes, count)
+        
+        let listOfElements = createListOfElements(uniformBytes, count)
+        return .init(listOfElements.joined())
+    }
 
-        var arrayI: [[BInt]] = []
+    /// Sends any point on the curve E to the subgroup G of E
+    func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
+}
+private extension CurveSuite {
+    func createUniformBytesArray(_ bytes: [UInt8], _ count: Int) throws -> [UInt8] { try expandMessage(
+        bytes,
+        domainSeparationTag: dst.asAsciiToByteRepresentation(),
+        expectedLengthInBytes: count * m * L
+    )}
+    func createListOfElements(_ uniformBytes: [UInt8], _ count: Int) -> [[BInt]] {
+        var listOfElements: [[BInt]] = []
 
-        // 3
         for i in 0..<count {
-            var arrayJ: [BInt] = []
+            var tempArray: [BInt] = []
 
-
-            // 4
             for j in 0..<m {
                 let elementOffset = L * (j + i * m)
                 let temp = Array(uniformBytes[elementOffset..<elementOffset + L])
                 let element = Primitives.bytesToInteger(temp) % p
 
-                arrayJ.append(element)
+                tempArray.append(element)
             }
 
-            // 8
-            let u_i = arrayJ
-            arrayI.append(u_i)
-
-
-
+            listOfElements.append(tempArray)
         }
 
-        let res = arrayI
-        return Array(res.joined())
+        return listOfElements
     }
-
-    /// Sends any point on the curve E to the subgroup G of E
-    func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
 }
