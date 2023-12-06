@@ -238,7 +238,6 @@ extension BLS12_381_SHA_256 {
     func sqrt(_ x: BInt) -> BInt {
         x.sqrtMod(p)!
     }
-
     func isSquare(_ x: BInt) -> Bool {
         let a =  x.expMod((p - 1) / 2, p)
 
@@ -252,18 +251,16 @@ private extension BLS12_381_SHA_256 {
 
 // MARK: - Point to Octets
 extension BLS12_381_SHA_256 {
-    func pointToOctets_g1(_ point: [UInt8]) -> [UInt8] {
+    func pointToOctets(_ point: [UInt8]) -> [UInt8] {
         fatalError()
     }
-    func pointToOctets_g2(_ point: [UInt8]) -> [UInt8] { pointToOctets_g1(point) }
 }
 
 // MARK: - Octets to Point
 extension BLS12_381_SHA_256 {
-    func octetsToPoint_g1(_ bytes: [UInt8]) -> [UInt8] {
+    func octetsToPoint(_ bytes: [UInt8]) -> [UInt8] {
         fatalError()
     }
-    func octetsToPoint_g2(_ bytes: [UInt8]) -> [UInt8] { octetsToPoint_g1(bytes) }
 }
 
 // MARK: - Hashing
