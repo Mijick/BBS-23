@@ -35,13 +35,13 @@ extension Curve.BLS12_381_G1 {
         // MARK: Temp Values
         let tv1 = 1 - c2
         let tv2 = 1 + c2
-        let tv3 = inv0(tv1 * tv2)
+        let tv3 = multiplicativeInverse(tv1 * tv2)
 
-        var tv4 = sqrt(-c1 * c3)
-        if sgn0(tv4) == 1 { tv4 = (0 - tv4) }
+        var tv4 = squareRoot(-c1 * c3)
+        if isNegative(tv4) { tv4 = -tv4 }
 
         let tv5 = (u * tv1 * tv3 * tv4)
-        let tv6 = -4 * c1 * inv0(c3)
+        let tv6 = -4 * c1 * multiplicativeInverse(c3)
 
         
         let x = {
@@ -55,8 +55,8 @@ extension Curve.BLS12_381_G1 {
             return x3
         }()
 
-        var y = sqrt(f(x))
-        if sgn0(u) != sgn0(y) { y.negate() }
+        var y = squareRoot(f(x))
+        if isNegative(u) != isNegative(y) { y.negate() }
 
         return .init(x: x.mod(p), y: y.mod(p), curve: self)
     }
@@ -71,9 +71,9 @@ private extension Curve.BLS12_381_G1 {
 
 
 private extension Curve.BLS12_381_G1 {
-    func inv0(_ x: BInt) -> BInt { x.modInverse(p) }
-    func sgn0(_ x: BInt) -> BInt { x.mod(2) }
-    func sqrt(_ x: BInt) -> BInt { x.sqrtMod(p)! }
+    func multiplicativeInverse(_ x: BInt) -> BInt { x.modInverse(p) }
+    func squareRoot(_ x: BInt) -> BInt { x.sqrtMod(p)! }
+    func isNegative(_ x: BInt) -> Bool { x.mod(2) == 1 }
     func isSquare(_ x: BInt) -> Bool {
         let a =  x.expMod((p - 1) / 2, p)
 
