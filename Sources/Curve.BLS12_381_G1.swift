@@ -30,41 +30,40 @@ extension Curve.BLS12_381_G1 {
 
 
         // 1 - DZIAŁA
-        var tv1 = (element.expMod(.init(2), p) * gz).mod(p)
+        var tv1 = (element.expMod(.init(2), p) * gz)
 
         // 2 - DZIAŁA
         let tv2 = 1 + tv1
 
 
         // 3 - DZIAŁA
-        tv1 = (1 - tv1).mod(p)
+        tv1 = (1 - tv1)
 
 
         // 4 - DZIAŁA
         let tv3 = inv0(tv1 * tv2)
 
         // 5 - DZIAŁA
-        let a = (-gz * (3 * Z * Z + 4 * A))
-        var tv4 = sqrt(a)
+        var tv4 = sqrt(-gz * (3 * Z * Z + 4 * A))
 
 
         // 6 DZIAŁA
-        if sgn0(tv4) == 1 { tv4 = (0 - tv4).mod(p) }
+        if sgn0(tv4) == 1 { tv4 = (0 - tv4) }
 
         // 7 DZIAŁA
-        let tv5 = (element * tv1 * tv3 * tv4).mod(p)
+        let tv5 = (element * tv1 * tv3 * tv4)
 
         // 8 DZIAŁA
-        let tv6 = (-4 * gz * inv0(3 * Z * Z + 4 * A)).mod(p)
+        let tv6 = (-4 * gz * inv0(3 * Z * Z + 4 * A))
 
         // 9 DZIAŁA
-        let x1 = ((-Z / 2) - tv5).mod(p)
+        let x1 = ((-Z / 2) - tv5)
 
         // 10 DZIAŁA
-        let x2 = ((-Z / 2) + tv5).mod(p)
+        let x2 = ((-Z / 2) + tv5)
 
         // 11 DZIAŁA
-        let x3 = (Z + tv6 * (tv2 * tv2 * tv3).expMod(.init(2), p)).mod(p)
+        let x3 = (Z + tv6 * (tv2 * tv2 * tv3).expMod(.init(2), p))
 
 
         // 12
@@ -90,7 +89,7 @@ extension Curve.BLS12_381_G1 {
         }
 
         // 15 DZIALA
-        if sgn0(element) != sgn0(y) { y = (0 - y).mod(p) }
+        if sgn0(element) != sgn0(y) { y = (0 - y) }
 
         // 16
 
@@ -99,9 +98,6 @@ extension Curve.BLS12_381_G1 {
 
 }
 private extension Curve.BLS12_381_G1 {
-    func g(_ value: BInt) -> BInt {
-        (value * value * value + 4).mod(p)
-    }
     func inv0(_ x: BInt) -> BInt {
         x.modInverse(p)
     }
