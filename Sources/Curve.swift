@@ -46,7 +46,7 @@ protocol CurveSuite {
     // MARK: Methods
 
     /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
-    func mapToCurve(_ element: BInt) -> CurvePoint
+    func mapToCurve(_ u: BInt) -> CurvePoint
 
     /// Expands a byte string and domain separation tag into a uniformly random byte string
     func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]

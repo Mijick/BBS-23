@@ -25,13 +25,13 @@ extension Curve { struct BLS12_381_G1: CurveSuite {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
-    func mapToCurve(_ element: BigInt.BInt) -> CurvePoint {
+    func mapToCurve(_ u: BInt) -> CurvePoint {
         let c1 = f(Z),
             c2 = 3 * Z * Z + 4 * A,
             c3 = -Z / 2
 
 
-        var tv1 = element * element * c1
+        var tv1 = u * u * c1
         let tv2 = 1 + tv1
         tv1 = 1 - tv1
 
@@ -41,7 +41,7 @@ extension Curve.BLS12_381_G1 {
 
         if sgn0(tv4) == 1 { tv4 = (0 - tv4) }
 
-        let tv5 = (element * tv1 * tv3 * tv4)
+        let tv5 = (u * tv1 * tv3 * tv4)
 
         let tv6 = -4 * c1 * inv0(c2)
 
@@ -73,7 +73,7 @@ extension Curve.BLS12_381_G1 {
         }
 
         // 15 DZIALA
-        if sgn0(element) != sgn0(y) { y = (0 - y) }
+        if sgn0(u) != sgn0(y) { y = (0 - y) }
 
         // 16
 
@@ -82,15 +82,9 @@ extension Curve.BLS12_381_G1 {
 
 }
 private extension Curve.BLS12_381_G1 {
-    func inv0(_ x: BInt) -> BInt {
-        x.modInverse(p)
-    }
-    func sgn0(_ x: BInt) -> BInt {
-        x.mod(.init(2))
-    }
-    func sqrt(_ x: BInt) -> BInt {
-        x.sqrtMod(p)!
-    }
+    func inv0(_ x: BInt) -> BInt { x.modInverse(p) }
+    func sgn0(_ x: BInt) -> BInt { x.mod(2) }
+    func sqrt(_ x: BInt) -> BInt { x.sqrtMod(p)! }
     func isSquare(_ x: BInt) -> Bool {
         let a =  x.expMod((p - 1) / 2, p)
 
