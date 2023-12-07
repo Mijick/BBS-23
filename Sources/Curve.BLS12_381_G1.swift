@@ -32,18 +32,15 @@ extension Curve.BLS12_381_G1 {
             c3 = 3 * Z * Z + 4 * A,
             c4 = -Z / 2
 
-        // MARK: Temp Values
+        // MARK: Temporary Values
         let tv1 = 1 - c2
         let tv2 = 1 + c2
         let tv3 = multiplicativeInverse(tv1 * tv2)
-
-        var tv4 = squareRoot(-c1 * c3)
-        if isNegative(tv4) { tv4 = -tv4 }
-
-        let tv5 = (u * tv1 * tv3 * tv4)
+        let tv4 = abs(squareRoot(-c1 * c3))
+        let tv5 = u * tv1 * tv3 * tv4
         let tv6 = -4 * c1 * multiplicativeInverse(c3)
 
-        
+        // MARK: Calculating x and y
         let x = {
             let x1 = c4 - tv5
             if isSquare(f(x1)) { return x1 }
@@ -63,7 +60,8 @@ extension Curve.BLS12_381_G1 {
 
 }
 private extension Curve.BLS12_381_G1 {
-    
+
+
 }
 private extension Curve.BLS12_381_G1 {
 
@@ -71,6 +69,7 @@ private extension Curve.BLS12_381_G1 {
 
 
 private extension Curve.BLS12_381_G1 {
+    func abs(_ x: BInt) -> BInt { isNegative(x) ? -x : x }
     func multiplicativeInverse(_ x: BInt) -> BInt { x.modInverse(p) }
     func squareRoot(_ x: BInt) -> BInt { x.sqrtMod(p)! }
     func isNegative(_ x: BInt) -> Bool { x.mod(2) == 1 }
