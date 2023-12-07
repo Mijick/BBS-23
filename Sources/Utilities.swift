@@ -23,10 +23,9 @@ extension Utilities {
         return number % ciphersuite.primeOrder
     }
     static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: CipherSuite) throws -> [BInt] {
-        let maxMSGLength = BInt(2) ** 64 - 1
-        guard messages.count <= maxMSGLength else { throw Error.invalidMessageLength }
+        guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.invalidMessageLength }
+
         let map_dst = apiId.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
-        
         return try messages.map { try hashToScalar($0, map_dst, ciphersuite) }
     }
 }
