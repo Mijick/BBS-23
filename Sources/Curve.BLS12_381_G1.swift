@@ -45,37 +45,20 @@ extension Curve.BLS12_381_G1 {
 
         let tv6 = -4 * c1 * inv0(c2)
 
-        let x1 = c3 - tv5
-        let x2 = c3 + tv5
-        let x3 = Z + tv6 * (tv2 * tv2 * tv3) ** 2
+        
+        let x = {
+            let x1 = c3 - tv5
+            if isSquare(f(x1)) { return x1 }
 
+            let x2 = c3 + tv5
+            if isSquare(f(x2)) { return x2 }
 
-        // 12
-        var x: BInt = .init(0), y: BInt = .init(0)
+            let x3 = Z + tv6 * (tv2 * tv2 * tv3) ** 2
+            return x3
+        }()
 
-
-        if isSquare(f(x1)) {
-            x = x1
-            y = sqrt(f(x1))
-        }
-
-
-        // 13
-        else if isSquare(f(x2)) {
-            x = x2
-            y = sqrt(f(x2))
-        }
-
-        // 14
-        else {
-            x = x3
-            y = sqrt(f(x3))
-        }
-
-        // 15 DZIALA
-        if sgn0(u) != sgn0(y) { y = (0 - y) }
-
-        // 16
+        var y = sqrt(f(x))
+        if sgn0(u) != sgn0(y) { y.negate() }
 
         return .init(x: x.mod(p), y: y.mod(p), curve: self)
     }
