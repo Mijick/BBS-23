@@ -26,44 +26,28 @@ extension Curve { struct BLS12_381_G1: CurveSuite {
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
     func mapToCurve(_ element: BigInt.BInt) -> CurvePoint {
-        let gz = f(Z)
+        let c1 = f(Z),
+            c2 = 3 * Z * Z + 4 * A,
+            c3 = -Z / 2
 
 
-        // 1 - DZIAŁA
-        var tv1 = (element.expMod(.init(2), p) * gz)
-
-        // 2 - DZIAŁA
+        var tv1 = element * element * c1
         let tv2 = 1 + tv1
+        tv1 = 1 - tv1
 
-
-        // 3 - DZIAŁA
-        tv1 = (1 - tv1)
-
-
-        // 4 - DZIAŁA
         let tv3 = inv0(tv1 * tv2)
-
-        // 5 - DZIAŁA
-        var tv4 = sqrt(-gz * (3 * Z * Z + 4 * A))
+        var tv4 = sqrt(-c1 * c2)
 
 
-        // 6 DZIAŁA
         if sgn0(tv4) == 1 { tv4 = (0 - tv4) }
 
-        // 7 DZIAŁA
         let tv5 = (element * tv1 * tv3 * tv4)
 
-        // 8 DZIAŁA
-        let tv6 = (-4 * gz * inv0(3 * Z * Z + 4 * A))
+        let tv6 = -4 * c1 * inv0(c2)
 
-        // 9 DZIAŁA
-        let x1 = ((-Z / 2) - tv5)
-
-        // 10 DZIAŁA
-        let x2 = ((-Z / 2) + tv5)
-
-        // 11 DZIAŁA
-        let x3 = (Z + tv6 * (tv2 * tv2 * tv3).expMod(.init(2), p))
+        let x1 = c3 - tv5
+        let x2 = c3 + tv5
+        let x3 = Z + tv6 * (tv2 * tv2 * tv3) ** 2
 
 
         // 12
