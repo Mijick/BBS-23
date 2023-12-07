@@ -41,13 +41,9 @@ extension Curve.BLS12_381_G1 {
 
         // MARK: Calculating x and y
         let x = calculateX(tv2, tv3, tv5, tv6)
-
-        var y = squareRoot(f(x))
-        if isNegative(u) != isNegative(y) { y.negate() }
-
+        let y = calculateY(x, u)
         return .init(x: x.mod(p), y: y.mod(p), curve: self)
     }
-
 }
 private extension Curve.BLS12_381_G1 {
     func calculateX(_ tv2: BInt, _ tv3: BInt, _ tv5: BInt, _ tv6: BInt) -> BInt {
@@ -60,15 +56,11 @@ private extension Curve.BLS12_381_G1 {
         let x3 = Z + tv6 * (tv2 * tv2 * tv3) ** 2
         return x3
     }
-
-
-
+    func calculateY(_ x: BInt, _ u: BInt) -> BInt {
+        let y1 = squareRoot(f(x))
+        return isNegative(u) == isNegative(y1) ? y1 : -y1
+    }
 }
-private extension Curve.BLS12_381_G1 {
-
-}
-
-
 private extension Curve.BLS12_381_G1 {
     func abs(_ x: BInt) -> BInt { isNegative(x) ? -x : x }
     func multiplicativeInverse(_ x: BInt) -> BInt { x.modInverse(p) }
