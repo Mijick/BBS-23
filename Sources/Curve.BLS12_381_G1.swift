@@ -78,9 +78,6 @@ private extension Curve.BLS12_381_G1 {
         return a == 0 || a == 1
     }
 }
-private extension Curve.BLS12_381_G1 {
-
-}
 
 // MARK: - Expanding Message
 extension Curve.BLS12_381_G1 {
@@ -161,12 +158,4 @@ extension Curve.BLS12_381_G1 {
 fileprivate typealias Error = BLS12_381_G1Error
 enum BLS12_381_G1Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
-}
-
-
-
-
-
-extension BInt {
-    func negate(if value: Bool) -> BInt { value ? -self : self }
 }
