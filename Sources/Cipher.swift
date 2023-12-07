@@ -23,6 +23,6 @@ protocol CipherSuite {
     var curve: CurveSuite { get }
 
     // MARK: Methods
-    func pointToOctets(_ point: [UInt8]) -> [UInt8]
-    func octetsToPoint(_ bytes: [UInt8]) -> [UInt8]
+    func pointToOctets(_ point: CurvePoint) -> [UInt8]
+    func octetsToPoint(_ bytes: [UInt8]) -> CurvePoint
 }

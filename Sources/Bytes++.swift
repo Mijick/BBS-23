@@ -18,6 +18,16 @@ extension [UInt8] {
         for i in 0..<count { array[i] ^= key[i % key.count] }
         return array
     }
+    func and(_ key: [UInt8]) -> [UInt8] {
+        var array = self
+        for i in 0..<count { array[i] &= key[i % key.count] }
+        return array
+    }
+    func or(_ key: [UInt8]) -> [UInt8] {
+        var array = self
+        for i in 0..<count { array[i] |= key[i % key.count] }
+        return array
+    }
     func concatenate(with bytes: [UInt8]) -> [UInt8] {
         let data1 = Data(self), data2 = Data(bytes)
 

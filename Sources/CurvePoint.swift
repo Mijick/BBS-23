@@ -18,6 +18,29 @@ struct CurvePoint {
     let curve: CurveSuite
 }
 
+// MARK: - Point On Curve
+extension CurvePoint {
+    func isOnBasicCurve() -> Bool {
+        fatalError()
+    }
+    func isOnPrimeCurve() -> Bool {
+        fatalError()
+    }
+}
+
+// MARK: - Point At Infinity
+extension CurvePoint {
+    func isAtInfinity() -> Bool {
+        isAtInfinityOnBasicCurve() || isAtInfinityOnPrimeCurve()
+    }
+    func isAtInfinityOnBasicCurve() -> Bool {
+        fatalError()
+    }
+    func isAtInfinityOnPrimeCurve() -> Bool {
+        fatalError()
+    }
+}
+
 // MARK: - Comparing Points
 extension CurvePoint: Equatable {
     static func == (p1: CurvePoint, p2: CurvePoint) -> Bool { p1.x == p2.x && p1.y == p2.y }
