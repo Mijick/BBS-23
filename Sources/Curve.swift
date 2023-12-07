@@ -18,11 +18,17 @@ protocol CurveSuite {
     /// Domain separation tag for a curve
     var dst: String { get }
 
-    /// Curve is defined by: y^2 = x^3 + Ax + B
+    /// Basic curve defined by: y^2 = x^3 + Ax + B
     var A: BInt { get }
 
-    /// Curve is defined by: y^2 = x^3 + Ax + B
+    /// Basic curve defined by: y^2 = x^3 + Ax + B
     var B: BInt { get }
+
+    /// Prime curve is defined by: yʹ^2 = xʹ^3 + Aʹxʹ + Bʹ
+    var Aʹ: BInt { get }
+
+    /// Prime curve is defined by: yʹ^2 = xʹ^3 + Aʹxʹ + Bʹ
+    var Bʹ: BInt { get }
 
     /// Characteristic of the field F
     var p: BInt { get }
