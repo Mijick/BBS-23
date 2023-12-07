@@ -26,31 +26,29 @@ extension Curve { struct BLS12_381_G1: CurveSuite {
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
     func mapToCurve(_ u: BInt) -> CurvePoint {
+        // MARK: Pre-calculated
         let c1 = f(Z),
-            c2 = 3 * Z * Z + 4 * A,
-            c3 = -Z / 2
+            c2 = u * u * c1,
+            c3 = 3 * Z * Z + 4 * A,
+            c4 = -Z / 2
 
-
-        var tv1 = u * u * c1
-        let tv2 = 1 + tv1
-        tv1 = 1 - tv1
-
+        // MARK: Temp Values
+        let tv1 = 1 - c2
+        let tv2 = 1 + c2
         let tv3 = inv0(tv1 * tv2)
-        var tv4 = sqrt(-c1 * c2)
 
-
+        var tv4 = sqrt(-c1 * c3)
         if sgn0(tv4) == 1 { tv4 = (0 - tv4) }
 
         let tv5 = (u * tv1 * tv3 * tv4)
-
-        let tv6 = -4 * c1 * inv0(c2)
+        let tv6 = -4 * c1 * inv0(c3)
 
         
         let x = {
-            let x1 = c3 - tv5
+            let x1 = c4 - tv5
             if isSquare(f(x1)) { return x1 }
 
-            let x2 = c3 + tv5
+            let x2 = c4 + tv5
             if isSquare(f(x2)) { return x2 }
 
             let x3 = Z + tv6 * (tv2 * tv2 * tv3) ** 2
@@ -64,6 +62,14 @@ extension Curve.BLS12_381_G1 {
     }
 
 }
+private extension Curve.BLS12_381_G1 {
+    
+}
+private extension Curve.BLS12_381_G1 {
+
+}
+
+
 private extension Curve.BLS12_381_G1 {
     func inv0(_ x: BInt) -> BInt { x.modInverse(p) }
     func sgn0(_ x: BInt) -> BInt { x.mod(2) }
@@ -158,4 +164,12 @@ extension Curve.BLS12_381_G1 {
 fileprivate typealias Error = BLS12_381_G1Error
 enum BLS12_381_G1Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
+}
+
+
+
+
+
+extension BInt {
+    func negate(if value: Bool) -> BInt { value ? -self : self }
 }
