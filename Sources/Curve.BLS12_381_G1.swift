@@ -75,9 +75,7 @@ private extension Curve.BLS12_381_G1 {
     func isNegative(_ x: BInt) -> Bool { x.mod(2) == 1 }
     func isSquare(_ x: BInt) -> Bool {
         let a =  x.expMod((p - 1) / 2, p)
-
-        if a == 0 || a == 1 { return true }
-        return false
+        return a == 0 || a == 1
     }
 }
 private extension Curve.BLS12_381_G1 {
