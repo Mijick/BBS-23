@@ -22,6 +22,6 @@ protocol CipherSuite {
     var curve: CurveSuite { get }
 
     // MARK: Methods
-    func pointToOctets(_ point: CurvePoint) -> [UInt8]
-    func octetsToPoint(_ bytes: [UInt8]) -> CurvePoint
+    func serializePoint(_ point: CurvePoint) throws -> [UInt8]
+    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint
 }
