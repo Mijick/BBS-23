@@ -33,6 +33,9 @@ protocol CurveSuite {
     /// Characteristic of the field F
     var p: BInt { get }
 
+    /// Order of G1 and G2
+    var r: BInt { get }
+
     /// Extension degree of the field F
     var m: Int { get }
 

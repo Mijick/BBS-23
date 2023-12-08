@@ -20,7 +20,7 @@ extension Utilities {
         
         let uniformBytes = try ciphersuite.curve.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
-        return number % ciphersuite.primeOrder
+        return number % ciphersuite.curve.r
     }
     static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: CipherSuite) throws -> [BInt] {
         guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.invalidMessageLength }

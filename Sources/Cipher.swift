@@ -19,7 +19,6 @@ protocol CipherSuite {
     var octetPointLength: Int { get }
     var expandLength: Int { get }
     var p1: BInt { get }
-    var primeOrder: BInt { get }
     var curve: CurveSuite { get }
 
     // MARK: Methods
