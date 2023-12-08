@@ -14,31 +14,31 @@ import BigInt
 
 struct CurvePoint {
     let x: BInt
-    let y: BInt
+    let y: BInt!
     let curve: CurveSuite
+}
+
+// MARK: - Initialisers
+extension CurvePoint {
+    init(x: BInt, y: BInt, curve: CurveSuite) {
+        self.x = x
+        self.y = y
+        self.curve = curve
+    }
+    init(x: BInt, curve: CurveSuite) {
+        self.x = x
+        self.y = curve.f(x).sqrtMod(curve.p)
+        self.curve = curve
+    }
 }
 
 // MARK: - Point On Curve
 extension CurvePoint {
-    func isOnBasicCurve() -> Bool {
-        fatalError()
+    func isOnCurve() -> Bool {
+        let y² = curve.f(x)
+        return y == y².sqrtMod(p)
     }
-    func isOnPrimeCurve() -> Bool {
-        fatalError()
-    }
-}
-
-// MARK: - Point At Infinity
-extension CurvePoint {
-    func isAtInfinity() -> Bool {
-        isAtInfinityOnBasicCurve() || isAtInfinityOnPrimeCurve()
-    }
-    func isAtInfinityOnBasicCurve() -> Bool {
-        fatalError()
-    }
-    func isAtInfinityOnPrimeCurve() -> Bool {
-        fatalError()
-    }
+    func isAtInfinity() -> Bool { y == nil }
 }
 
 // MARK: - Comparing Points
@@ -49,6 +49,8 @@ extension CurvePoint: Equatable {
 // MARK: - Point Addition
 extension CurvePoint {
     static func +(p1: Self, p2: Self) -> CurvePoint {
+        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: 0, y: nil, curve: p1.curve) }
+
         let curve = p1.curve, p = curve.p
         let λ = (p2.y - p1.y) * (p2.x - p1.x).modInverse(p)
 
@@ -61,6 +63,7 @@ extension CurvePoint {
 // MARK: - Point x Scalar
 extension CurvePoint {
     static func *(point: Self, scalar: BInt) -> CurvePoint {
+        if point.isAtInfinity() { return .init(x: 0, y: nil, curve: point.curve) }
         if scalar == 0 { return .init(x: 0, y: 0, curve: point.curve) }
         if scalar == 1 { return point }
         if scalar % 2 == 1 { return point + point * (scalar - 1) }
