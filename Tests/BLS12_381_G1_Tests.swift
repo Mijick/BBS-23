@@ -14,6 +14,18 @@ import XCTest
 
 final class BLS12_381_G1_Tests: XCTestCase {}
 
+// MARK: - Point Serialization & Deserialization
+extension BLS12_381_G1_Tests {
+    func testSerialization_1() throws {
+        let bytes = "b301803f8b5ac4a1133581fc676dfedc60d891dd5fa99028805e5ea5b08d3491af75d0707adab3b70c1a6a580217bf85".asHexToByteRepresentation()
+
+        let deserializedPoint = try curve.deserializePoint(bytes)
+        let serializedPoint = try Curve.BLS12_381_G1().serializePoint(deserializedPoint)
+
+        XCTAssertEqual(bytes, serializedPoint)
+    }
+}
+
 // MARK: - Expanding Message
 extension BLS12_381_G1_Tests {
     func testExpandMessage_1() throws {

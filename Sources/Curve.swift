@@ -54,6 +54,12 @@ protocol CurveSuite {
 
     // MARK: Methods
 
+    /// Returns the canonical representation of the point P for the selected subgroup
+    func serializePoint(_ point: CurvePoint) throws -> [UInt8]
+
+    /// Returns the point P in the subgroup corresponding to the canonical representation
+    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint
+
     /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
     func mapToCurve(_ u: BInt) -> CurvePoint
 

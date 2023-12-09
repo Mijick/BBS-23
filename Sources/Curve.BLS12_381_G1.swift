@@ -26,6 +26,68 @@ extension Curve { struct BLS12_381_G1: CurveSuite {
     let hEff: BInt = .init(hex: "d201000000010001")
 }}
 
+// MARK: - Point Serialization
+extension Curve.BLS12_381_G1 {
+    func serializePoint(_ point: CurvePoint) throws -> [UInt8] {
+        switch point.isAtInfinity() {
+            case true: return try serializePointAtInfinity()
+            case false: return try serializeRegularPoint(point)
+        }
+    }
+}
+private extension Curve.BLS12_381_G1 {
+    func serializePointAtInfinity() throws -> [UInt8] {
+        var result = try Primitives.integerToBytes(value: 0, expectedLength: 48)
+        result[0] = serializationInfinityFlag
+        return result
+    }
+    func serializeRegularPoint(_ point: CurvePoint) throws -> [UInt8] {
+        var result = try Primitives.integerToBytes(value: point.x, expectedLength: 48)
+        result[0] += serializationCompressionFlag
+        result[0] += calculateSerializationYFlag(point.y)
+        return result
+    }
+}
+private extension Curve.BLS12_381_G1 {
+    func calculateSerializationYFlag(_ y: BInt) -> UInt8 { y > (-y).mod(r) ? 32 : 0 }
+}
+private extension Curve.BLS12_381_G1 {
+    var serializationInfinityFlag: UInt8 { 192 }
+    var serializationYFlag: UInt8 { 32 }
+    var serializationCompressionFlag: UInt8 { 128 }
+}
+
+// MARK: - Octets to Point
+extension Curve.BLS12_381_G1 {
+    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint {
+        if bytes.count != 48 { fatalError() }
+
+        // Checks infinity flag
+        if bytes[0] & 64 != 0 {
+            fatalError()
+        }
+
+
+        let yFlag = (bytes[0] & 32) > 0
+
+        var bytes = bytes
+        bytes[0] = bytes[0] & 31
+
+        let x = Primitives.bytesToInteger(bytes)
+        let point = CurvePoint(x: x, curve: self)
+        return point
+
+        // sprawdzanie jednego
+
+
+
+
+
+
+
+    }
+}
+
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
     func mapToCurve(_ u: BInt) -> CurvePoint {
@@ -154,4 +216,5 @@ extension Curve.BLS12_381_G1 {
 fileprivate typealias Error = BLS12_381_G1Error
 enum BLS12_381_G1Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
+    enum Deserialization: Swift.Error {  }
 }

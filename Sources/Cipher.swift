@@ -20,8 +20,4 @@ protocol CipherSuite {
     var expandLength: Int { get }
     var p1: BInt { get }
     var curve: CurveSuite { get }
-
-    // MARK: Methods
-    func serializePoint(_ point: CurvePoint) throws -> [UInt8]
-    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint
 }
