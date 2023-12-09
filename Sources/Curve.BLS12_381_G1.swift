@@ -60,31 +60,46 @@ private extension Curve.BLS12_381_G1 {
 // MARK: - Octets to Point
 extension Curve.BLS12_381_G1 {
     func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint {
-        if bytes.count != 48 { fatalError() }
+        if bytes.count != 48 { throw Error.Deserialization.invalidSize }
 
         // Checks infinity flag
         if bytes[0] & 64 != 0 {
-            fatalError()
+            if bytes[0] & 63 != 0 {
+                throw Error.Deserialization.invalidPoint
+            }
+
+            for byte in bytes.dropFirst() {
+                if byte != 0 {
+                    throw Error.Deserialization.invalidPoint
+                }
+            }
+
+            return .init(x: 0, y: nil, curve: self)
         }
 
 
-        let yFlag = (bytes[0] & 32) > 0
+        let yFlag = (bytes[0] & serializationYFlag) > 0
 
         var bytes = bytes
         bytes[0] = bytes[0] & 31
 
         let x = Primitives.bytesToInteger(bytes)
-        let point = CurvePoint(x: x, curve: self)
+
+
+        if x >= p { throw Error.Deserialization.invalidPoint }
+
+
+
+        var point = CurvePoint(x: x, curve: self)
+        if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
+
+        
+        if (point.y > (-point.y).mod(r)) != yFlag {
+            point.y.negate()
+        }
+
+
         return point
-
-        // sprawdzanie jednego
-
-
-
-
-
-
-
     }
 }
 
@@ -216,5 +231,5 @@ extension Curve.BLS12_381_G1 {
 fileprivate typealias Error = BLS12_381_G1Error
 enum BLS12_381_G1Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
-    enum Deserialization: Swift.Error {  }
+    enum Deserialization: Swift.Error { case invalidSize, invalidPoint }
 }

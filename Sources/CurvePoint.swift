@@ -13,8 +13,8 @@ import Foundation
 import BigInt
 
 struct CurvePoint {
-    let x: BInt
-    let y: BInt!
+    var x: BInt
+    var y: BInt!
     let curve: CurveSuite
 }
 
