@@ -121,61 +121,33 @@ struct Value {
     var imaginary: BInt?
 }
 
-extension Value {
+// MARK: - Initialisers
+extension Value: ExpressibleByArrayLiteral {
     init(_ realValue: BInt) { self.real = realValue }
-    init?(_ realValue: BInt?) { guard let realValue else { return nil }
-        self.real = realValue
-    }
+    init?(_ realValue: BInt?) { guard let realValue else { return nil }; self.real = realValue }
+    init(arrayLiteral elements: BInt...) { self.real = elements.get(0) ?? 0; self.imaginary = elements.get(1) }
 }
 
+// MARK: - Comparing Values
 extension Value: Equatable {
     static func ==(v1: Self, v2: Self) -> Bool { v1.real == v2.real && v1.imaginary == v2.imaginary }
 }
 
+// MARK: - Arithmetic Operations
 extension Value {
     static func +(v1: Self, v2: Self) -> Self { .init(real: v1.real + v2.real, imaginary: v1.imaginary + v2.imaginary) }
     static func -(v1: Self, v2: Self) -> Self { .init(real: v1.real - v2.real, imaginary: v1.imaginary - v2.imaginary) }
     static func *(v1: Self, v2: Self) -> Self { .init(real: v1.real * v2.real, imaginary: v1.imaginary * v2.imaginary) }
+
     static func *(v1: Self, v2: BInt) -> Self { .init(real: v1.real * v2, imaginary: v1.imaginary) }
     static func *(v1: BInt, v2: Self) -> Self { .init(real: v1 * v2.real, imaginary: v2.imaginary) }
+
+    static prefix func -(x: Self) -> Self { .init(real: -x.real, imaginary: -x.imaginary) }
 }
 
-
-
-
+// MARK: - Others
 extension Value {
     func modInverse(_ m: BInt) -> Value { .init(real: real.modInverse(m), imaginary: imaginary?.modInverse(m)) }
     func mod(_ x: BInt) -> Value { .init(real: real.mod(x), imaginary: imaginary?.mod(x)) }
     func sqrtMod(_ p: BInt) -> Value { .init(real: real.sqrtMod(p)!, imaginary: imaginary?.sqrtMod(p)!) }
-}
-
-
-extension Value {
-    static prefix func -(x: Self) -> Self { .init(real: -x.real, imaginary: -x.imaginary) }
-}
-
-
-
-extension Value: ExpressibleByArrayLiteral {
-    init(arrayLiteral elements: BInt...) {
-        self.real = elements.get(0) ?? 0
-        self.imaginary = elements.get(1)
-    }
-}
-
-
-
-fileprivate extension Array {
-    func get(_ index: Int) -> Element? { count > index ? self[index] : nil }
-}
-
-
-extension BInt? {
-    static func *(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! * v2! }
-    static func +(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! + v2! }
-    static func -(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! - v2! }
-
-}
-extension BInt? {
-    static prefix func -(x: BInt?) -> BInt? { x == nil ? nil : -x! }
 }
