@@ -57,50 +57,53 @@ private extension Curve.BLS12_381_G1 {
     var serializationCompressionFlag: UInt8 { 128 }
 }
 
-// MARK: - Octets to Point
+// MARK: - Point Deserialization
 extension Curve.BLS12_381_G1 {
     func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint {
-        if bytes.count != 48 { throw Error.Deserialization.invalidSize }
+        try precheckPoint(bytes)
 
-        // Checks infinity flag
-        if bytes[0] & 64 != 0 {
-            if bytes[0] & 63 != 0 {
-                throw Error.Deserialization.invalidPoint
-            }
-
-            for byte in bytes.dropFirst() {
-                if byte != 0 {
-                    throw Error.Deserialization.invalidPoint
-                }
-            }
-
-            return .init(x: 0, y: nil, self)
+        switch isPointAtInfinity(bytes) {
+            case true: return try deserializePointAtInfinity(bytes)
+            case false: return try deserializeRegularPoint(bytes)
         }
-
-
+    }
+}
+private extension Curve.BLS12_381_G1 {
+    func deserializePointAtInfinity(_ bytes: [UInt8]) throws -> CurvePoint {
+        try checkPointAtInfinity(bytes)
+        return .init(x: 0, y: nil, self)
+    }
+    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> CurvePoint {  var bytes = bytes
         let yFlag = (bytes[0] & serializationYFlag) > 0
 
-        var bytes = bytes
+
         bytes[0] = bytes[0] & 31
 
         let x = Primitives.bytesToInteger(bytes)
-
-
         if x >= p { throw Error.Deserialization.invalidPoint }
-
 
 
         var point = CurvePoint(x: x, self)
         if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
 
-        
         if (point.y > (-point.y).mod(r)) != yFlag {
             point.y.negate()
         }
 
-
         return point
     }
+}
+private extension Curve.BLS12_381_G1 {
+    func precheckPoint(_ bytes: [UInt8]) throws {
+        if bytes.count != 48 { throw Error.Deserialization.invalidSize }
+    }
+    func checkPointAtInfinity(_ bytes: [UInt8]) throws {
+        if bytes[0] & 63 != 0 { throw Error.Deserialization.invalidPoint }
+        for byte in bytes.dropFirst() { if byte != 0 { throw Error.Deserialization.invalidPoint } }
+    }
+}
+private extension Curve.BLS12_381_G1 {
+    func isPointAtInfinity(_ bytes: [UInt8]) -> Bool { bytes[0] & 64 != 0 }
 }
 
 // MARK: - Mapping To Curve
