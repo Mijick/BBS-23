@@ -22,7 +22,7 @@ protocol CurveSuite {
     var A: BInt { get }
 
     /// Basic curve defined by: y^2 = x^3 + Ax + B
-    var B: BInt { get }
+    var B: Value { get }
 
     /// Prime curve is defined by: yʹ^2 = xʹ^3 + Aʹxʹ + Bʹ
     var Aʹ: BInt { get }
@@ -85,7 +85,7 @@ extension CurveSuite {
     }
 
     /// Function that defines the curve
-    func f(_ x: BInt) -> BInt { x ** 3 + A * x + B }
+    func f(_ x: Value) -> Value { x * x * x + A * x + B }
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F

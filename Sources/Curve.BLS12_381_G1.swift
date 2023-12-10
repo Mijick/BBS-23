@@ -15,7 +15,7 @@ import BigInt
 extension Curve { struct BLS12_381_G1: CurveSuite {
     let dst: String = "QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SSWU_RO_"
     let A: BInt = 0
-    let B: BInt = 4
+    let B: Value = [4]
     let Aʹ: BInt = .init(hex: "144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d")
     let Bʹ: BInt = .init(hex: "12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0")
     let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
@@ -74,7 +74,7 @@ extension Curve.BLS12_381_G1 {
                 }
             }
 
-            return .init(x: 0, y: nil, curve: self)
+            return .init(x: 0, y: nil, self)
         }
 
 
@@ -90,7 +90,7 @@ extension Curve.BLS12_381_G1 {
 
 
 
-        var point = CurvePoint(x: x, curve: self)
+        var point = CurvePoint(x: x, self)
         if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
 
         
@@ -107,7 +107,7 @@ extension Curve.BLS12_381_G1 {
 extension Curve.BLS12_381_G1 {
     func mapToCurve(_ u: BInt) -> CurvePoint {
         // MARK: Pre-calculated
-        let c1 = f(Z),
+        let c1 = f([Z]).real,
             c2 = u * u * c1,
             c3 = 3 * Z * Z + 4 * A
 
@@ -122,22 +122,22 @@ extension Curve.BLS12_381_G1 {
         // MARK: Calculating x and y
         let x = calculateX(tv2, tv3, tv5, tv6)
         let y = calculateY(x, u)
-        return .init(x: x.mod(p), y: y.mod(p), curve: self)
+        return .init(x: x.mod(p), y: y.mod(p), self)
     }
 }
 private extension Curve.BLS12_381_G1 {
     func calculateX(_ tv2: BInt, _ tv3: BInt, _ tv5: BInt, _ tv6: BInt) -> BInt {
         let x1 = -Z / 2 - tv5
-        if isSquare(f(x1)) { return x1 }
+        if isSquare(f([x1]).real) { return x1 }
 
         let x2 = -Z / 2 + tv5
-        if isSquare(f(x2)) { return x2 }
+        if isSquare(f([x2]).real) { return x2 }
 
         let x3 = Z + tv6 * (tv2 * tv2 * tv3) ** 2
         return x3
     }
     func calculateY(_ x: BInt, _ u: BInt) -> BInt {
-        let y1 = squareRoot(f(x))
+        let y1 = squareRoot(f([x]).real)
         return isNegative(u) == isNegative(y1) ? y1 : -y1
     }
 }
