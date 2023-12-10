@@ -73,23 +73,11 @@ private extension Curve.BLS12_381_G1 {
         try checkPointAtInfinity(bytes)
         return .init(x: 0, y: nil, self)
     }
-    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> CurvePoint {  var bytes = bytes
-        let yFlag = (bytes[0] & serializationYFlag) > 0
+    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> CurvePoint {
+        var point = createRegularPoint(bytes)
+        try checkRegularPoint(point)
 
-
-        bytes[0] = bytes[0] & 31
-
-        let x = Primitives.bytesToInteger(bytes)
-        if x >= p { throw Error.Deserialization.invalidPoint }
-
-
-        var point = CurvePoint(x: x, self)
-        if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
-
-        if (point.y > (-point.y).mod(r)) != yFlag {
-            point.y.negate()
-        }
-
+        updateRegularPointYCoordinateIfNeeded(bytes, &point)
         return point
     }
 }
@@ -101,9 +89,27 @@ private extension Curve.BLS12_381_G1 {
         if bytes[0] & 63 != 0 { throw Error.Deserialization.invalidPoint }
         for byte in bytes.dropFirst() { if byte != 0 { throw Error.Deserialization.invalidPoint } }
     }
+    func checkRegularPoint(_ point: CurvePoint) throws {
+        if point.x >= p { throw Error.Deserialization.invalidPoint }
+        if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
+    }
 }
 private extension Curve.BLS12_381_G1 {
     func isPointAtInfinity(_ bytes: [UInt8]) -> Bool { bytes[0] & 64 != 0 }
+    func createRegularPoint(_ bytes: [UInt8]) -> CurvePoint { 
+        var bytes = bytes
+        bytes[0] &= 31
+        
+        let xCoordinate = Primitives.bytesToInteger(bytes)
+        let point = CurvePoint(x: xCoordinate, self)
+        return point
+    }
+    func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint) {
+        let yFlag = (bytes[0] & serializationYFlag) > 0
+        let yComparisonFlag = point.y > (-point.y).mod(r)
+
+        if yFlag != yComparisonFlag { point.y.negate() }
+    }
 }
 
 // MARK: - Mapping To Curve
