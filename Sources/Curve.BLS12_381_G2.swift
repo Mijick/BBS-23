@@ -26,22 +26,30 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
 
 // MARK: - Point Serialization
 extension Curve.BLS12_381_G2 {
-    
+    func serializePoint(_ point: CurvePoint) throws -> [UInt8] {
+        fatalError()
+    }
 }
 
 // MARK: - Point Deserialization
 extension Curve.BLS12_381_G2 {
-    
+    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint {
+        fatalError()
+    }
 }
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G2 {
-    
+    func mapToCurve(_ u: BInt) -> CurvePoint {
+        fatalError()
+    }
 }
 
 // MARK: - Expanding Message
 extension Curve.BLS12_381_G2 {
-    
+    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
+        fatalError()
+    }
 }
 
 // MARK: - Hashing
