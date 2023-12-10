@@ -24,6 +24,14 @@ extension BLS12_381_G1_Tests {
 
         XCTAssertEqual(bytes, serializedPoint)
     }
+    func testSerialization_2() throws {
+        let point = CurvePoint(x: 0, y: nil, curve)
+
+        let serializedPoint = try Curve.BLS12_381_G1().serializePoint(point)
+        let deserializedPoint = try curve.deserializePoint(serializedPoint)
+
+        XCTAssertEqual(point, deserializedPoint)
+    }
 }
 
 // MARK: - Expanding Message

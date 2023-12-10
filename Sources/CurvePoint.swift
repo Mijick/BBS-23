@@ -53,8 +53,8 @@ extension CurvePoint {
         set { _x.real = newValue }
     }
     var y: BInt! {
-        get { _y.real }
-        set { _y.real = newValue }
+        get { _y?.real }
+        set { if _y == nil || newValue == nil { _y = nil } else { _y!.real = newValue! } }
     }
 
     // MARK: Complex
