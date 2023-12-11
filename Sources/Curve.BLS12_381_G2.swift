@@ -27,8 +27,45 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
 // MARK: - Point Serialization
 extension Curve.BLS12_381_G2 {
     func serializePoint(_ point: CurvePoint) throws -> [UInt8] {
-        fatalError()
+        if point.isAtInfinity() {
+            var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
+            result[0] += serializationCompressionFlag
+            return result
+        }
+
+
+        var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
+
+
+        let x = point.xComplex
+        
+        let xR = try Primitives.integerToBytes(value: x.real, expectedLength: 48)
+        let xI = try Primitives.integerToBytes(value: x.imaginary!, expectedLength: 48)
+
+
+        result.replaceSubrange(0..<48, with: xI)
+        result.replaceSubrange(48..<96, with: xR)
+
+        let y = point.yComplex
+
+        let bbb = y > -y?.mod(r) ? 32 : 0
+
+
+
+        result[0] += serializationCompressionFlag
+        result[0] += UInt8(bbb)
+
+
+        return result
     }
+}
+private extension Curve.BLS12_381_G2 {
+
+}
+private extension Curve.BLS12_381_G2 {
+    var serializationInfinityFlag: UInt8 { 192 }
+    var serializationYFlag: UInt8 { 32 }
+    var serializationCompressionFlag: UInt8 { 128 }
 }
 
 // MARK: - Point Deserialization
@@ -66,4 +103,21 @@ fileprivate typealias Error = BLS12_381_G2Error
 enum BLS12_381_G2Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
     enum Deserialization: Swift.Error { case invalidSize, invalidPoint }
+}
+
+
+
+
+
+extension BInt? {
+    static func >(lhs: BInt?, rhs: BInt?) -> Bool { rhs == nil ? true : lhs == nil ? false : lhs! > rhs! }
+}
+
+
+
+extension ComplexValue? {
+    static func >(lhs: ComplexValue?, rhs: ComplexValue?) -> Bool { rhs == nil ? true : lhs == nil ? false : lhs! > rhs! }
+
+
+    static prefix func -(x: ComplexValue?) -> ComplexValue? { x == nil ? nil : -x! }
 }

@@ -27,6 +27,7 @@ extension ComplexValue: ExpressibleByArrayLiteral {
 // MARK: - Comparing Values
 extension ComplexValue: Equatable {
     static func ==(v1: Self, v2: Self) -> Bool { v1.real == v2.real && v1.imaginary == v2.imaginary }
+    static func >(v1: Self, v2: Self) -> Bool { v1.real > v2.real }
 }
 
 // MARK: - Arithmetic Operations

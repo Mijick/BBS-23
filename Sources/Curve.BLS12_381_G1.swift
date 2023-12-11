@@ -47,7 +47,7 @@ private extension Curve.BLS12_381_G1 {
     }
 }
 private extension Curve.BLS12_381_G1 {
-    func calculateSerializationYFlag(_ y: BInt) -> UInt8 { y > (-y).mod(r) ? 32 : 0 }
+    func calculateSerializationYFlag(_ y: BInt) -> UInt8 { y > (-y).mod(r) ? serializationYFlag : 0 }
 }
 private extension Curve.BLS12_381_G1 {
     var serializationInfinityFlag: UInt8 { 192 }
