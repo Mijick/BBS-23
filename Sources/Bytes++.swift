@@ -10,6 +10,7 @@
 
 
 import Foundation
+import BigInt
 
 // MARK: - Operations
 extension [UInt8] {
@@ -45,4 +46,9 @@ extension [UInt8] {
         for byte in self { hexString.append(String(format:"%02X", byte)) }
         return hexString.lowercased()
     }
+}
+
+// MARK: - Bytes to Integer
+extension [UInt8] {
+    func toInteger() -> BInt { Primitives.bytesToInteger(self) }
 }
