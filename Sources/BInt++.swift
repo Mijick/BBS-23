@@ -11,6 +11,7 @@
 
 import BigInt
 
+// MARK: - Initialisers
 extension BInt: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) { self.init(value) }
     init(decimal value: String) { self.init(value, radix: 10)! }
@@ -23,7 +24,12 @@ extension BInt {
 }
 
 
-// MARK: - Optional
+// MARK: - Comparing Values
+extension BInt? {
+    static func >(lhs: BInt?, rhs: BInt?) -> Bool { rhs == nil ? true : lhs == nil ? false : lhs! > rhs! }
+}
+
+// MARK: - Arithmetic Operations
 extension BInt? {
     static func +(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! + v2! }
     static func +(v1: BInt, v2: BInt?) -> BInt { v1 + (v2 ?? 0) }
