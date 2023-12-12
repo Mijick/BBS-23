@@ -24,8 +24,13 @@ extension BInt: ExpressibleByIntegerLiteral {
 // MARK: - Optional
 extension BInt? {
     static func +(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! + v2! }
-    static func -(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! - v2! }
-    static func *(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! * v2! }
+    static func +(v1: BInt, v2: BInt?) -> BInt { v1 + (v2 ?? 0) }
 
+    static func -(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! - v2! }
+    static func -(v1: BInt, v2: BInt?) -> BInt { v1 - (v2 ?? 0) }
+
+    static func *(v1: BInt?, v2: BInt?) -> BInt? { v1 == nil || v2 == nil ? nil : v1! * v2! }
+}
+extension BInt? {
     static prefix func -(x: BInt?) -> BInt? { x == nil ? nil : -x! }
 }
