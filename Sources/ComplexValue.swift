@@ -27,7 +27,7 @@ extension ComplexValue: ExpressibleByArrayLiteral {
 // MARK: - Comparing Values
 extension ComplexValue: Equatable {
     static func ==(v1: Self, v2: Self) -> Bool { v1.real == v2.real && v1.imaginary == v2.imaginary }
-    static func >(v1: Self, v2: Self) -> Bool { v1.real > v2.real }
+    static func >(v1: Self, v2: Self) -> Bool { v1.imaginary == v2.imaginary ? v1.real > v2.real : v1.imaginary > v2.imaginary }
 }
 
 // MARK: - Arithmetic Operations
@@ -44,7 +44,10 @@ extension ComplexValue {
 
 // MARK: - Others
 extension ComplexValue {
+    mutating func negate() { self = -self }
+}
+extension ComplexValue {
     func modInverse(_ m: BInt) -> ComplexValue { .init(real: real.modInverse(m), imaginary: imaginary?.modInverse(m)) }
     func mod(_ x: BInt) -> ComplexValue { .init(real: real.mod(x), imaginary: imaginary?.mod(x)) }
-    func sqrtMod(_ p: BInt) -> ComplexValue { .init(real: real.sqrtMod(p)!, imaginary: imaginary?.sqrtMod(p)!) }
+    func sqrtMod(_ p: BInt) -> ComplexValue { .init(real: real.sqrtMod(p) ?? 0, imaginary: imaginary?.sqrtMod(p) ?? 0) }
 }
