@@ -34,10 +34,10 @@ extension ComplexValue: Equatable {
 extension ComplexValue {
     static func +(v1: Self, v2: Self) -> Self { .init(real: v1.real + v2.real, imaginary: v1.imaginary + v2.imaginary) }
     static func -(v1: Self, v2: Self) -> Self { .init(real: v1.real - v2.real, imaginary: v1.imaginary - v2.imaginary) }
-    static func *(v1: Self, v2: Self) -> Self { .init(real: v1.real * v2.real, imaginary: v1.imaginary * v2.imaginary) }
 
-    static func *(v1: Self, v2: BInt) -> Self { .init(real: v1.real * v2, imaginary: v1.imaginary) }
-    static func *(v1: BInt, v2: Self) -> Self { .init(real: v1 * v2.real, imaginary: v2.imaginary) }
+    static func *(v1: Self, v2: Self) -> Self { .init(real: v1.real * v2.real - v1.imaginary * v2.imaginary, imaginary: v1.real * v2.imaginary + v1.imaginary * v2.real) }
+    static func *(v1: Self, v2: BInt) -> Self { .init(real: v1.real * v2, imaginary: v1.imaginary * v2) }
+    static func *(v1: BInt, v2: Self) -> Self { .init(real: v1 * v2.real, imaginary: v1 * v2.imaginary) }
 
     static prefix func -(x: Self) -> Self { .init(real: -x.real, imaginary: -x.imaginary) }
 }
@@ -47,7 +47,13 @@ extension ComplexValue {
     mutating func negate() { self = -self }
 }
 extension ComplexValue {
-    func modInverse(_ m: BInt) -> ComplexValue { .init(real: real.modInverse(m), imaginary: imaginary?.modInverse(m)) }
+    func modInverse(_ m: BInt) -> ComplexValue {
+        let divider = (real * real + imaginary * imaginary).modInverse(m)
+
+        let real = real * divider
+        let imaginary = (-1) * imaginary * divider
+        return .init(real: real.mod(m), imaginary: imaginary?.mod(m))
+    }
     func mod(_ x: BInt) -> ComplexValue { .init(real: real.mod(x), imaginary: imaginary?.mod(x)) }
-    func sqrtMod(_ p: BInt) -> ComplexValue { .init(real: real.sqrtMod(p) ?? 0, imaginary: imaginary?.sqrtMod(p) ?? 0) }
+    func sqrtMod(_ p: BInt) -> ComplexValue { .init(real: real.sqrtMod(p)!, imaginary: imaginary?.sqrtMod(p)) }
 }
