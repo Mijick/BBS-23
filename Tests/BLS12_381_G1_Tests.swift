@@ -20,14 +20,14 @@ extension BLS12_381_G1_Tests {
         let bytes = "b301803f8b5ac4a1133581fc676dfedc60d891dd5fa99028805e5ea5b08d3491af75d0707adab3b70c1a6a580217bf85".asHexToByteRepresentation()
 
         let deserializedPoint = try curve.deserializePoint(bytes)
-        let serializedPoint = try Curve.BLS12_381_G1().serializePoint(deserializedPoint)
+        let serializedPoint = try curve.serializePoint(deserializedPoint)
 
         XCTAssertEqual(bytes, serializedPoint)
     }
     func testSerialization_2() throws {
         let point = CurvePoint(x: 0, y: nil, curve)
 
-        let serializedPoint = try Curve.BLS12_381_G1().serializePoint(point)
+        let serializedPoint = try curve.serializePoint(point)
         let deserializedPoint = try curve.deserializePoint(serializedPoint)
 
         XCTAssertEqual(point, deserializedPoint)

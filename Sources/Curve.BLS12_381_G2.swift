@@ -71,7 +71,57 @@ private extension Curve.BLS12_381_G2 {
 // MARK: - Point Deserialization
 extension Curve.BLS12_381_G2 {
     func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint {
-        fatalError()
+        try precheckPoint(bytes)
+
+        switch isPointAtInfinity(bytes) {
+            case true: return try deserializePointAtInfinity(bytes)
+            case false: return try deserializeRegularPoint(bytes)
+        }
+    }
+}
+private extension Curve.BLS12_381_G2 {
+    func deserializePointAtInfinity(_ bytes: [UInt8]) throws -> CurvePoint {
+        try checkPointAtInfinity(bytes)
+        return .init(xComplex: [0, 0], yComplex: nil, self)
+    }
+    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> CurvePoint {
+        var point = createRegularPoint(bytes)
+        try checkRegularPoint(point)
+
+        updateRegularPointYCoordinateIfNeeded(bytes, &point)
+        return point
+    }
+}
+private extension Curve.BLS12_381_G2 {
+    func precheckPoint(_ bytes: [UInt8]) throws {
+        if bytes.count != 96 { throw Error.Deserialization.invalidSize }
+    }
+    func checkPointAtInfinity(_ bytes: [UInt8]) throws {
+        if bytes[0] & 63 != 0 { throw Error.Deserialization.invalidPoint }
+        for byte in bytes.dropFirst() { if byte != 0 { throw Error.Deserialization.invalidPoint } }
+    }
+    func checkRegularPoint(_ point: CurvePoint) throws {
+        if point.xComplex.real >= p || point.xComplex.imaginary! >= p { throw Error.Deserialization.invalidPoint }
+        if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
+    }
+}
+private extension Curve.BLS12_381_G2 {
+    func isPointAtInfinity(_ bytes: [UInt8]) -> Bool { bytes[0] & 64 != 0 }
+    func createRegularPoint(_ bytes: [UInt8]) -> CurvePoint {
+        var bytes = bytes
+        bytes[0] &= 31
+
+        let xRealCoordinate = Primitives.bytesToInteger(.init(bytes[48..<96]))
+        let xImaginaryCoordinate = Primitives.bytesToInteger(.init(bytes[0..<48]))
+
+        let point = CurvePoint(xComplex: [xRealCoordinate, xImaginaryCoordinate], self)
+        return point
+    }
+    func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint) {
+        let yFlag = (bytes[0] & serializationYFlag) > 0
+        let yComparisonFlag = point.yComplex > (-point.yComplex).mod(r)
+
+        if yFlag != yComparisonFlag { point.yComplex.negate() }
     }
 }
 
