@@ -45,6 +45,12 @@ protocol CurveSuite {
     /// Input block size of hashData, measured in byte. For example, for SHA-256, size = 64
     var hashOutputSizeInBytes: Int { get }
 
+    /// Constant point (X coordinate) on the G subgroup
+    var BPx: ComplexValue { get }
+
+    /// Constant point (T coordinate) on the G subgroup
+    var BPy: ComplexValue { get }
+
 
     // MARK: Methods
 
@@ -77,6 +83,9 @@ extension CurveSuite {
         let resultPoint = clearCofactor(point3)
         return resultPoint
     }
+
+    /// Returns a base point on the G subgroup
+    func getBasePoint() -> CurvePoint { .init(xComplex: BPx, yComplex: BPy, self) }
 
     /// Function that defines the curve
     func f(_ x: ComplexValue) -> ComplexValue { x * x * x + A * x + B }
