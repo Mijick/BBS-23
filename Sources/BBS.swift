@@ -10,6 +10,7 @@
 
 
 import Foundation
+import BigInt
 
 class BBS {
     private let cipher: CipherSuite
@@ -19,15 +20,40 @@ class BBS {
 
 // MARK: - Secret Key Generation
 extension BBS {
-    func generateSecretKey() throws { fatalError() }
+    func generateSecretKey(keyMaterial: [UInt8], keyInfo: [UInt8]? = nil, keyDst: [UInt8]? = nil) throws -> BInt { let keyInfo = keyInfo ?? defaultKeyInfo, keyDst = keyDst ?? defaultKeyDst
+        try checkSecretKeyIngredients(keyMaterial, keyInfo)
+
+        let deriveInput = keyMaterial
+            .concatenate(with: try BInt(keyInfo.count).toBytes(expectedLength: 2))
+            .concatenate(with: keyInfo)
+
+        let secretKey = try Utilities.hashToScalar(deriveInput, keyDst, cipher)
+        return secretKey
+    }
+}
+private extension BBS {
+    func checkSecretKeyIngredients(_ keyMaterial: [UInt8], _ keyInfo: [UInt8]) throws {
+        if keyMaterial.count < 32 { throw Error.SecretKeyGeneration.tooSmallKeyMaterial }
+        if keyInfo.count > 65535 { throw Error.SecretKeyGeneration.tooBigKeyInfo }
+    }
+}
+private extension BBS {
+    var defaultKeyInfo: [UInt8] { [] }
+    var defaultKeyDst: [UInt8] { cipher.id.asAsciiToByteRepresentation().concatenate(with: "KEYGEN_DST_".asAsciiToByteRepresentation()) }
+
 }
 
 // MARK: - Public Generation
 extension BBS {
-    func generatePublicKey(_ secretKey: [UInt8]) throws -> [UInt8] {
-        let secretKey = secretKey.toInteger(), curve = cipher.curve.last!, bp2 = curve.getBasePoint()
-
+    func generatePublicKey(_ secretKey: BInt) throws -> [UInt8] { let curve = cipher.curve.last!, bp2 = curve.getBasePoint()
         let publicKey = secretKey * bp2
         return try curve.serializePoint(publicKey)
     }
+}
+
+
+// MARK: - Errors
+fileprivate typealias Error = BBSError
+enum BBSError {
+    enum SecretKeyGeneration: Swift.Error { case tooSmallKeyMaterial, tooBigKeyInfo }
 }
