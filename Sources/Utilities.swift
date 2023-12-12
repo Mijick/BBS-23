@@ -18,9 +18,9 @@ extension Utilities {
     static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: CipherSuite) throws -> BInt {
         guard dst.count * 8 > 255 else { throw Error.invalidDSTLength }
         
-        let uniformBytes = try ciphersuite.curve.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
+        let uniformBytes = try ciphersuite.curve.first!.expandMessage(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
-        return number % ciphersuite.curve.r
+        return number % ciphersuite.curve.first!.r
     }
     static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: CipherSuite) throws -> [BInt] {
         guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.invalidMessageLength }
