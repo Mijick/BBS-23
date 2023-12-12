@@ -29,6 +29,9 @@ extension ComplexValue: Equatable {
     static func ==(v1: Self, v2: Self) -> Bool { v1.real == v2.real && v1.imaginary == v2.imaginary }
     static func >(v1: Self, v2: Self) -> Bool { v1.imaginary == v2.imaginary ? v1.real > v2.real : v1.imaginary > v2.imaginary }
 }
+extension ComplexValue? {
+    static func >(lhs: ComplexValue?, rhs: ComplexValue?) -> Bool { rhs == nil ? true : lhs == nil ? false : lhs! > rhs! }
+}
 
 // MARK: - Arithmetic Operations
 extension ComplexValue {
@@ -40,6 +43,9 @@ extension ComplexValue {
     static func *(v1: BInt, v2: Self) -> Self { .init(real: v1 * v2.real, imaginary: v1 * v2.imaginary) }
 
     static prefix func -(x: Self) -> Self { .init(real: -x.real, imaginary: -x.imaginary) }
+}
+extension ComplexValue? {
+    static prefix func -(x: ComplexValue?) -> ComplexValue? { x == nil ? nil : -x! }
 }
 
 // MARK: - Others

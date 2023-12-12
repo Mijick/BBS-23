@@ -166,20 +166,3 @@ enum BLS12_381_G2Error {
     enum ExpandMessage: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
     enum Deserialization: Swift.Error { case invalidSize, invalidPoint }
 }
-
-
-
-
-
-extension BInt? {
-    static func >(lhs: BInt?, rhs: BInt?) -> Bool { rhs == nil ? true : lhs == nil ? false : lhs! > rhs! }
-}
-
-
-
-extension ComplexValue? {
-    static func >(lhs: ComplexValue?, rhs: ComplexValue?) -> Bool { rhs == nil ? true : lhs == nil ? false : lhs! > rhs! }
-
-
-    static prefix func -(x: ComplexValue?) -> ComplexValue? { x == nil ? nil : -x! }
-}
