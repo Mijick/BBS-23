@@ -18,5 +18,5 @@ extension Cipher { struct BLS12_381_SHA_256: CipherSuite {
     let octetPointLength: Int = 48
     let expandLength: Int = 48
     let p1: BInt = .init(hex: "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9")
-    let curve: CurveSuite = Curve.BLS12_381_G1()
+    let curve: [CurveSuite] = [Curve.BLS12_381_G1(), Curve.BLS12_381_G2()]
 }}

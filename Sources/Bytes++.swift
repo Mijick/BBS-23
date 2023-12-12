@@ -39,7 +39,7 @@ extension [UInt8] {
 }
 
 // MARK: - Converting to Hex
-extension Array where Element == UInt8 {
+extension [UInt8] {
     func toHexRepresentation() -> String {
         var hexString: String = ""
         for byte in self { hexString.append(String(format:"%02X", byte)) }

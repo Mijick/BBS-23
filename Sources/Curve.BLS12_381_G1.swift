@@ -225,6 +225,12 @@ private extension Curve.BLS12_381_G1 {
     }}
 }
 
+// MARK: - Base Point
+extension Curve.BLS12_381_G1 {
+    var BPx: ComplexValue { fatalError() }
+    var BPy: ComplexValue { fatalError() }
+}
+
 // MARK: - Hashing
 extension Curve.BLS12_381_G1 {
     func hashData(_ bytes: [UInt8]) -> [UInt8] { Hash.sha256(bytes) }

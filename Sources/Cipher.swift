@@ -19,5 +19,5 @@ protocol CipherSuite {
     var octetPointLength: Int { get }
     var expandLength: Int { get }
     var p1: BInt { get }
-    var curve: CurveSuite { get }
+    var curve: [CurveSuite] { get }
 }
