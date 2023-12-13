@@ -27,40 +27,31 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
 // MARK: - Point Serialization
 extension Curve.BLS12_381_G2 {
     func serializePoint(_ point: CurvePoint) throws -> [UInt8] {
-        if point.isAtInfinity() {
-            var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
-            result[0] += serializationCompressionFlag
-            return result
+        switch point.isAtInfinity() {
+            case true: return try serializePointAtInfinity()
+            case false: return try serializeRegularPoint(point)
         }
-
-
+    }
+}
+private extension Curve.BLS12_381_G2 {
+    func serializePointAtInfinity() throws -> [UInt8] {
         var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
-
-
-        let x = point.xComplex
-        
-        let xR = try Primitives.integerToBytes(value: x.real, expectedLength: 48)
-        let xI = try Primitives.integerToBytes(value: x.imaginary!, expectedLength: 48)
-
-
-        result.replaceSubrange(0..<48, with: xI)
-        result.replaceSubrange(48..<96, with: xR)
-
-        let y = point.yComplex
-
-        let bbb = y > -y?.mod(r) ? 32 : 0
-
-
-
         result[0] += serializationCompressionFlag
-        result[0] += UInt8(bbb)
-
-
+        return result
+    }
+    func serializeRegularPoint(_ point: CurvePoint) throws -> [UInt8] {
+        var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
+        result.replaceSubrange(0..<48, with: try calculateSerializationLeftSide(point))
+        result.replaceSubrange(48..<96, with: try calculateSerializationRightSide(point))
+        result[0] += serializationCompressionFlag
+        result[0] += calculateSerializationYFlag(point.yComplex)
         return result
     }
 }
 private extension Curve.BLS12_381_G2 {
-
+    func calculateSerializationLeftSide(_ point: CurvePoint) throws -> [UInt8] { try point.xComplex.imaginary!.toBytes(expectedLength: 48) }
+    func calculateSerializationRightSide(_ point: CurvePoint) throws -> [UInt8] { try point.xComplex.real.toBytes(expectedLength: 48) }
+    func calculateSerializationYFlag(_ y: ComplexValue?) -> UInt8 { y > -y?.mod(r) ? serializationYFlag : 0 }
 }
 private extension Curve.BLS12_381_G2 {
     var serializationInfinityFlag: UInt8 { 192 }
