@@ -36,7 +36,9 @@ extension ComplexValue? {
 // MARK: - Arithmetic Operations
 extension ComplexValue {
     static func +(v1: Self, v2: Self) -> Self { .init(real: v1.real + v2.real, imaginary: v1.imaginary + v2.imaginary) }
+    static func +(v1: BInt, v2: Self) -> Self { .init(real: v1 + v2.real, imaginary: v2.imaginary) }
     static func -(v1: Self, v2: Self) -> Self { .init(real: v1.real - v2.real, imaginary: v1.imaginary - v2.imaginary) }
+    static func -(v1: BInt, v2: Self) -> Self { .init(real: v1 - v2.real, imaginary: v2.imaginary) }
 
     static func *(v1: Self, v2: Self) -> Self { .init(real: v1.real * v2.real - v1.imaginary * v2.imaginary, imaginary: v1.real * v2.imaginary + v1.imaginary * v2.real) }
     static func *(v1: Self, v2: BInt) -> Self { .init(real: v1.real * v2, imaginary: v1.imaginary * v2) }

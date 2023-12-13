@@ -20,7 +20,7 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
     let r: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
     let m: Int = 2
     let L: Int = 64
-    let Z: BInt = .init(hex: "1A0111EA397FE69A4B1BA7B6434BACD764774B84F38512BF6730D2A0F6B0F6241EABFFFEB153FFFFB9FEFFFFFFFFAAA8")
+    let Z: BInt = -1
     let hEff: BInt = .init(hex: "bc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551")
 }}
 
@@ -118,16 +118,58 @@ private extension Curve.BLS12_381_G2 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G2 {
-    func mapToCurve(_ u: BInt) -> CurvePoint {
+    func mapToCurve(_ u: ComplexValue) -> CurvePoint {
+        // MARK: Pre-calculated
+        let c1 = f([Z]),
+            c2 = u * u * c1,
+            c3 = 3 * Z * Z + 4 * A
+
+        // MARK: Temporary Values
+        let tv1 = 1 - c2
+        let tv2 = 1 + c2
+        let tv3 = multiplicativeInverse(tv1 * tv2)
+        let tv4 = abs(squareRoot(-c1 * c3))
+        let tv5 = u * tv1 * tv3 * tv4
+        let tv6 = -4 * c1 * multiplicativeInverse([c3, 0])
+
+        // MARK: Calculating x and y
+        let x = calculateX(tv2, tv3, tv5, tv6)
+        let y = calculateY(x, u)
+        return .init(xComplex: x.mod(p * p), yComplex: y.mod(p * p), self)
+    }
+}
+private extension Curve.BLS12_381_G2 {
+    func calculateX(_ tv2: ComplexValue, _ tv3: ComplexValue, _ tv5: ComplexValue, _ tv6: ComplexValue) -> ComplexValue {
+        let x1 = -Z / 2 - tv5
+        if isSquare(f(x1)) { return x1 }
+
+        let x2 = -Z / 2 + tv5
+        if isSquare(f(x2)) { return x2 }
+
+        let x3 = Z + tv6 * (tv2 * tv2 * tv3) * (tv2 * tv2 * tv3)
+        return x3
+    }
+    func calculateY(_ x: ComplexValue, _ u: ComplexValue) -> ComplexValue {
+        let y1 = squareRoot(f(x))
+        return isNegative(u) == isNegative(y1) ? y1 : -y1
+    }
+}
+private extension Curve.BLS12_381_G2 {
+    func abs(_ x: ComplexValue) -> ComplexValue { isNegative(x) ? -x : x }
+    func multiplicativeInverse(_ x: ComplexValue) -> ComplexValue { x.modInverse(p * p) }
+    func squareRoot(_ x: ComplexValue) -> ComplexValue { x.sqrtMod(p * p) }
+    func isNegative(_ x: ComplexValue) -> Bool { fatalError() }
+    func isSquare(_ x: ComplexValue) -> Bool {
         fatalError()
+//        let a =  x.expMod((p - 1) / 2, p)
+//        return a == 0 || a == 1
     }
 }
 
+
 // MARK: - Expanding Message
 extension Curve.BLS12_381_G2 {
-    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
-        fatalError()
-    }
+    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] { fatalError() }
 }
 
 // MARK: - Base Point

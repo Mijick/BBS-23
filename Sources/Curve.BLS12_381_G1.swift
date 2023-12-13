@@ -112,7 +112,7 @@ private extension Curve.BLS12_381_G1 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
-    func mapToCurve(_ u: BInt) -> CurvePoint {
+    func mapToCurve(_ u: ComplexValue) -> CurvePoint { let u = u.real
         // MARK: Pre-calculated
         let c1 = f([Z]).real,
             c2 = u * u * c1,
