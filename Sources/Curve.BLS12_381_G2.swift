@@ -165,26 +165,18 @@ private extension Curve.BLS12_381_G2 {
         let zero0 = x0 == 0
         let sign1 = x1.mod(2) == 1
         return sign0 || (zero0 && sign1)
-
-
-        // prawidlowo
     }
-    func isSquare(_ x: ComplexValue) -> Bool {
+    func isSquare(_ x: ComplexValue) -> Bool { let x0 = x.real, x1 = x.imaginary!
+        // MARK: Pre-calculated
         let c1 = (p - 1) * BInt(2).modInverse(p)
         
-        let x1 = x.real, x2 = x.imaginary!
+        // MARK: Temporary Values
+        let tv1 = x0 * x0
+        let tv2 = x1 * x1
+        let tv3 = (tv1 + tv2).expMod(c1.mod(p), p)
 
-        var tv1 = x1 * x1
-        var tv2 = x2 * x2
-
-        tv1 = tv1 + tv2
-
-
-
-        tv1 = tv1.expMod(c1.mod(p), p)
-
-        var neg1 = BInt(-1).mod(p)
-        return tv1 != neg1
+        let neg1 = BInt(-1).mod(p)
+        return tv3 != neg1
     }
 }
 
