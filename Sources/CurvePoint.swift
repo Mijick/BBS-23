@@ -70,7 +70,7 @@ extension CurvePoint {
 
 // MARK: - Comparing Points
 extension CurvePoint: Equatable {
-    static func ==(p1: CurvePoint, p2: CurvePoint) -> Bool { p1.x == p2.x && p1.y == p2.y }
+    static func ==(p1: CurvePoint, p2: CurvePoint) -> Bool { p1.xComplex == p2.xComplex && p1.yComplex == p2.yComplex }
 }
 
 // MARK: - Point Addition
