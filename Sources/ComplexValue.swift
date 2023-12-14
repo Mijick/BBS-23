@@ -81,29 +81,14 @@ extension ComplexValue {
             case false: return tv3 * tv4
         }
     }
-
-
-
-
-    func exp(_ k: BInt, _ mod: BInt) -> ComplexValue {
+    func exp(_ k: BInt, _ m: BInt) -> ComplexValue { let bits = Array(k.mod(m).asString(radix: 2).reversed())
         var c: ComplexValue = [1, 0]
 
-        let bits = Array(Array(k.mod(mod).asString(radix: 2)).reversed())
-
-
         for i in 0..<381 {
-            c = (c * c).mod(mod)
-
-
-            if bits.count > 380 - i && bits[380 - i] == "1" {
-                c = (c * self).mod(mod)
-            }
-
+            c = (c * c).mod(m)
+            if bits.count > 380 - i && bits[380 - i] == "1" { c = (c * self).mod(m) }
         }
 
         return c
-
-
-
     }
 }
