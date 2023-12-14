@@ -167,7 +167,7 @@ extension Curve.BLS12_381_G1 {
         try assertExpandMessageRequirements(expectedLengthInBytes, domainSeparationTag, helperBytesArraySize)
 
         let dstPrime = try calculateDomainSeparationTagPrime(domainSeparationTag)
-        let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hashOutputSizeInBytes)
+        let zPad = try Primitives.integerToBytes(value: 0, expectedLength: sInBytes)
         let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
         let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)
         let hashedMessagePrime = hashData(messagePrime)
@@ -181,7 +181,7 @@ extension Curve.BLS12_381_G1 {
 }
 private extension Curve.BLS12_381_G1 {
     func calculateHelperBytesArraySize(_ expectedLengthInBytes: Int) -> Int {
-        let expectedLengthInBytes = Double(expectedLengthInBytes), hashOutputSizeInBytes = Double(hashOutputSizeInBytes)
+        let expectedLengthInBytes = Double(expectedLengthInBytes), hashOutputSizeInBytes = Double(bInBytes)
 
         let result = expectedLengthInBytes / hashOutputSizeInBytes
         return .init(ceil(result))
@@ -236,7 +236,8 @@ extension Curve.BLS12_381_G1 {
     func hashData(_ bytes: [UInt8]) -> [UInt8] { Hash.sha256(bytes) }
 }
 extension Curve.BLS12_381_G1 {
-    var hashOutputSizeInBytes: Int { 64 }
+    var bInBytes: Int { 32 }
+    var sInBytes: Int { 64 }
 }
 
 

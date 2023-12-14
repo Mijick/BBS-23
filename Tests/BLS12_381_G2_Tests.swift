@@ -26,6 +26,21 @@ extension BLS12_381_G2_Tests {
     }
 }
 
+// MARK: - Hasing to Curve
+extension BLS12_381_G2_Tests {
+    func test_hashToCurve_1() {
+        let bytes = "".asAsciiToByteRepresentation()
+        let result = try! curve.hashToCurve(bytes)
+
+        let expectedResult = CurvePoint(
+            xComplex: [.init(decimal: "1621169081573085681239791067342887223798336929756494122922080106020517223143455671595781382068418043280544215228327"), .init(decimal: "1587587486146751690902193817105810639863689020339711120960195972042040056930190472657387432543142596013791096481490")],
+            yComplex: [.init(decimal: "970966172969753563835279261935645107175810389630330309589294521125466412550049106270842945181812158581216178908978"), .init(decimal: "2604343480472196888590735567210713355767675214828829116243510142820626223172675708232496834944806825075739059590827")],
+            curve
+        )
+        XCTAssertEqual(result, expectedResult)
+    }
+}
+
 // MARK: - Helpers
 private extension BLS12_381_G2_Tests {
     var curve: CurveSuite { Curve.BLS12_381_G2() }
