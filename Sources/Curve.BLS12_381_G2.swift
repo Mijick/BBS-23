@@ -159,7 +159,7 @@ private extension Curve.BLS12_381_G2 {
     func multiplicativeInverse(_ x: ComplexValue) -> ComplexValue { x.modInverse(p) }
     func squareRoot(_ x: ComplexValue) -> ComplexValue { x.sqrtMod(p) }
     func isNegative(_ x: ComplexValue) -> Bool {
-        let x0 = x.real, x1 = x.imaginary!
+        let x0 = x.real.mod(p), x1 = x.imaginary!.mod(p)
 
         let sign0 = x0.mod(2) == 1
         let zero0 = x0 == 0
