@@ -39,7 +39,6 @@ extension ComplexValue {
     static func +(v1: BInt, v2: Self) -> Self { .init(real: v1 + v2.real, imaginary: v2.imaginary) }
     static func -(v1: Self, v2: Self) -> Self { .init(real: v1.real - v2.real, imaginary: v1.imaginary - v2.imaginary) }
     static func -(v1: BInt, v2: Self) -> Self { v1 + (-v2) }
-
     static func *(v1: Self, v2: Self) -> Self { .init(real: v1.real * v2.real - v1.imaginary * v2.imaginary, imaginary: v1.real * v2.imaginary + v1.imaginary * v2.real) }
     static func *(v1: Self, v2: BInt) -> Self { .init(real: v1.real * v2, imaginary: v1.imaginary * v2) }
     static func *(v1: BInt, v2: Self) -> Self { .init(real: v1 * v2.real, imaginary: v1 * v2.imaginary) }
@@ -64,35 +63,23 @@ extension ComplexValue {
     }
     func mod(_ x: BInt) -> ComplexValue { .init(real: real.mod(x), imaginary: imaginary?.mod(x)) }
     func sqrtMod(_ p: BInt) -> ComplexValue {
-        let c1 = (p - 3) * BInt(4).modInverse(p)
-        let c2 = (p - 1) * BInt(2).modInverse(p)
+        // MARK: Pre-calculated
+        let c1 = (p - 3) * BInt(4).modInverse(p),
+            c2 = (p - 1) * BInt(2).modInverse(p)
 
+        // MARK: Temporary Values
+        let tv1 = exp(c1, p)
+        let tv2 = tv1 * tv1 * self
+        let tv3 = ([1, 0] + tv2).exp(c2, p)
+        let tv4 = tv1 * self
 
-        // dotąd git
+        // MARK: Calculating Value
+        let neg = ComplexValue(real: -1, imaginary: 0).mod(p)
 
-        let a1 = self.exp(c1, p)
-
-
-
-        let alpha = a1 * a1 * self
-
-        let x0 = a1 * self
-
-        let neg1: ComplexValue = [-1, 0]
-
-
-        let bbbb = [1, 0] + alpha
-
-        let b = bbbb.exp(c2, p)
-
-        if alpha == neg1 {
-            return [0, 1] * x0
-        } else {
-            return b * x0
+        switch tv2 == neg {
+            case true: return [0, 1] * tv4
+            case false: return tv3 * tv4
         }
-
-
-
     }
 
 
