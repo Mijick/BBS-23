@@ -42,8 +42,11 @@ protocol CurveSuite {
     /// Scalar parameter for clearCofactor method
     var hEff: BInt { get }
 
+    /// Output size of hashData in bits. For example, for SHA-256 = 256, size = 32
+    var bInBytes: Int { get }
+
     /// Input block size of hashData, measured in byte. For example, for SHA-256, size = 64
-    var hashOutputSizeInBytes: Int { get }
+    var sInBytes: Int { get }
 
     /// Constant point (X coordinate) on the G subgroup
     var BPx: ComplexValue { get }
