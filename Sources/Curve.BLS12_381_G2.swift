@@ -120,7 +120,7 @@ private extension Curve.BLS12_381_G2 {
 extension Curve.BLS12_381_G2 {
     func mapToCurve(_ u: ComplexValue) -> CurvePoint {
         // MARK: Pre-calculated
-        let c1 = f([Z]),
+        let c1 = f([Z, 0]),
             c2 = u * u * c1,
             c3 = 3 * Z * Z + 4 * A
 
@@ -135,15 +135,15 @@ extension Curve.BLS12_381_G2 {
         // MARK: Calculating x and y
         let x = calculateX(tv2, tv3, tv5, tv6)
         let y = calculateY(x, u)
-        return .init(xComplex: x.mod(p * p), yComplex: y.mod(p * p), self)
+        return .init(xComplex: x.mod(p), yComplex: y.mod(p), self)
     }
 }
 private extension Curve.BLS12_381_G2 {
     func calculateX(_ tv2: ComplexValue, _ tv3: ComplexValue, _ tv5: ComplexValue, _ tv6: ComplexValue) -> ComplexValue {
-        let x1 = -Z / 2 - tv5
+        let x1 = -Z * BInt(2).modInverse(p) - tv5
         if isSquare(f(x1)) { return x1 }
 
-        let x2 = -Z / 2 + tv5
+        let x2 = -Z * BInt(2).modInverse(p) + tv5
         if isSquare(f(x2)) { return x2 }
 
         let x3 = Z + tv6 * (tv2 * tv2 * tv3) * (tv2 * tv2 * tv3)
@@ -156,13 +156,35 @@ private extension Curve.BLS12_381_G2 {
 }
 private extension Curve.BLS12_381_G2 {
     func abs(_ x: ComplexValue) -> ComplexValue { isNegative(x) ? -x : x }
-    func multiplicativeInverse(_ x: ComplexValue) -> ComplexValue { x.modInverse(p * p) }
-    func squareRoot(_ x: ComplexValue) -> ComplexValue { x.sqrtMod(p * p) }
-    func isNegative(_ x: ComplexValue) -> Bool { fatalError() }
+    func multiplicativeInverse(_ x: ComplexValue) -> ComplexValue { x.modInverse(p) }
+    func squareRoot(_ x: ComplexValue) -> ComplexValue { x.sqrtMod(p) }
+    func isNegative(_ x: ComplexValue) -> Bool {
+        let x0 = x.real, x1 = x.imaginary!
+
+        let sign0 = x0.mod(2) == 1
+        let zero0 = x0 == 0
+        let sign1 = x1.mod(2) == 1
+        return sign0 || (zero0 && sign1)
+
+
+        // prawidlowo
+    }
     func isSquare(_ x: ComplexValue) -> Bool {
-        fatalError()
-//        let a =  x.expMod((p - 1) / 2, p)
-//        return a == 0 || a == 1
+        let c1 = (p - 1) * BInt(2).modInverse(p)
+        
+        let x1 = x.real, x2 = x.imaginary!
+
+        var tv1 = x1 * x1
+        var tv2 = x2 * x2
+
+        tv1 = tv1 + tv2
+
+
+
+        tv1 = tv1.expMod(c1.mod(p), p)
+
+        var neg1 = BInt(-1).mod(p)
+        return tv1 != neg1
     }
 }
 

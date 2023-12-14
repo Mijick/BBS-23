@@ -38,7 +38,7 @@ extension ComplexValue {
     static func +(v1: Self, v2: Self) -> Self { .init(real: v1.real + v2.real, imaginary: v1.imaginary + v2.imaginary) }
     static func +(v1: BInt, v2: Self) -> Self { .init(real: v1 + v2.real, imaginary: v2.imaginary) }
     static func -(v1: Self, v2: Self) -> Self { .init(real: v1.real - v2.real, imaginary: v1.imaginary - v2.imaginary) }
-    static func -(v1: BInt, v2: Self) -> Self { .init(real: v1 - v2.real, imaginary: v2.imaginary) }
+    static func -(v1: BInt, v2: Self) -> Self { v1 + (-v2) }
 
     static func *(v1: Self, v2: Self) -> Self { .init(real: v1.real * v2.real - v1.imaginary * v2.imaginary, imaginary: v1.real * v2.imaginary + v1.imaginary * v2.real) }
     static func *(v1: Self, v2: BInt) -> Self { .init(real: v1.real * v2, imaginary: v1.imaginary * v2) }
@@ -63,5 +63,60 @@ extension ComplexValue {
         return .init(real: real.mod(m), imaginary: imaginary?.mod(m))
     }
     func mod(_ x: BInt) -> ComplexValue { .init(real: real.mod(x), imaginary: imaginary?.mod(x)) }
-    func sqrtMod(_ p: BInt) -> ComplexValue { .init(real: real.sqrtMod(p)!, imaginary: imaginary?.sqrtMod(p)) }
+    func sqrtMod(_ p: BInt) -> ComplexValue {
+        let c1 = (p - 3) * BInt(4).modInverse(p)
+        let c2 = (p - 1) * BInt(2).modInverse(p)
+
+
+        // dotąd git
+
+        let a1 = self.exp(c1, p)
+
+
+
+        let alpha = a1 * a1 * self
+
+        let x0 = a1 * self
+
+        let neg1: ComplexValue = [-1, 0]
+
+
+        let bbbb = [1, 0] + alpha
+
+        let b = bbbb.exp(c2, p)
+
+        if alpha == neg1 {
+            return [0, 1] * x0
+        } else {
+            return b * x0
+        }
+
+
+
+    }
+
+
+
+
+    func exp(_ k: BInt, _ mod: BInt) -> ComplexValue {
+        var c: ComplexValue = [1, 0]
+
+        let bits = Array(Array(k.mod(mod).asString(radix: 2)).reversed())
+
+
+        for i in 0..<381 {
+            c = (c * c).mod(mod)
+
+
+            if bits.count > 380 - i && bits[380 - i] == "1" {
+                c = (c * self).mod(mod)
+            }
+
+        }
+
+        return c
+
+
+
+    }
 }
