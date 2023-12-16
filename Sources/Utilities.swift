@@ -19,40 +19,29 @@ class Utilities {
 
 // MARK: - Creating Generators
 extension Utilities {
-    func createGenerators(count: BInt, seed: [UInt8]?, apiID: [UInt8]?) throws { let seed = seed ?? defaultGeneratorsSeed, apiID = apiID ?? defaultGeneratorApiID
+    func createGenerators(count: BInt, seed: [UInt8], apiID: [UInt8]) throws -> [CurvePoint] {
         if count > BInt(2) ** 64 - 1 { throw Error.CreateGenerators.cannotGenerateThatAmountOfGenerators }
 
+        // MARK: Parameters
         let seedDst = getSeedDst(apiID),
             generatorDst = getGeneratorDst(apiID),
             generatorSeed = getGeneratorSeed(apiID)
 
+        // MARK: Variables
+        var generators: [CurvePoint] = []
+        var v = try ciphersuite.expandMessage.make(generatorSeed, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
 
+        // MARK: Creating Generators
+        while generators.count < count {
+            let bytes = v.concatenate(with: try BInt(generators.count + 1).toBytes(expectedLength: 8))
+            v = try ciphersuite.expandMessage.make(bytes, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
 
+            let generatorI = try ciphersuite.curveG1.hashToCurve(v, dst: generatorDst)
+            generators.append(generatorI)
+        }
 
-
-        var v = try ciphersuite.curveG1.expandMessage.make(generatorSeed, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
-
-
-        //        var generators = []
-        //
-        //
-        //        for i in 1...count {
-        //            let uu = v.concatenate(with: i.toBytes(expectedLength: 8))
-        //
-        //            v = ciphersuite.curve.first!.expandMessage(uu, domainSeparationTag: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
-        //
-        //            generators.append(ciphersuite.curve.first!.hashToCurve(<#T##bytes: [UInt8]##[UInt8]#>))
-        //
-        //            // dwie zmiany:
-        //            // 2. hashToCurve powinno móc przyjmować opcjonalny argument - DST
-        //
-        //
-        //            let vv = ciphersuite.curve.first!.expandMessage(<#T##[UInt8]#>, domainSeparationTag: <#T##[UInt8]#>, expectedLengthInBytes: <#T##Int#>)
-        //        }
+        return generators
     }
-}
-private extension Utilities {
-
 }
 private extension Utilities {
     func getSeedDst(_ apiID: [UInt8]) -> [UInt8] {
@@ -68,11 +57,6 @@ private extension Utilities {
         return apiID.concatenate(with: generatorSeed)
     }
 }
-private extension Utilities {
-    var defaultGeneratorsSeed: [UInt8] { [] }
-    var defaultGeneratorApiID: [UInt8] { [] }
-}
-
 
 // MARK: - Converting to scalar
 extension Utilities {
