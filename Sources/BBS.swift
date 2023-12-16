@@ -27,7 +27,7 @@ extension BBS {
             .concatenate(with: try BInt(keyInfo.count).toBytes(expectedLength: 2))
             .concatenate(with: keyInfo)
 
-        let secretKey = try Utilities.hashToScalar(deriveInput, keyDst, cipher)
+        let secretKey = try Utilities(cipher).hashToScalar(deriveInput, keyDst)
         return secretKey
     }
 }

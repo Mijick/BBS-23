@@ -21,7 +21,7 @@ extension UtilitiesTest {
     func test_hashToScalar() throws {
         let msg = "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02".asHexToByteRepresentation()
 
-        let result = try Utilities.hashToScalar(msg, dst, cipher).asString(radix: 16, uppercase: false)
+        let result = try utilities.hashToScalar(msg, dst).asString(radix: 16, uppercase: false)
         let expectedResult = "f90cbee27beb214e6545becb8404640d3612da5d6758dffeccd77ed7169807c"
         XCTAssertEqual(result, expectedResult)
     }
@@ -33,59 +33,59 @@ private extension UtilitiesTest {
 // MARK: - Messages to Scalar
 extension UtilitiesTest {
     func test_messagesToScalar1() {
-        let result = try? Utilities.messagesToScalars([m_1], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_1], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["1cb5bb86114b34dc438a911617655a1db595abafac92f47c5001799cf624b430"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar2() {
-        let result = try? Utilities.messagesToScalars([m_2], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_2], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["154249d503c093ac2df516d4bb88b510d54fd97e8d7121aede420a25d9521952"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar3() {
-        let result = try? Utilities.messagesToScalars([m_4], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_4], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["4a196deafee5c23f630156ae13be3e46e53b7e39094d22877b8cba7f14640888"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar4() {
-        let result = try? Utilities.messagesToScalars([m_4], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_4], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["4a196deafee5c23f630156ae13be3e46e53b7e39094d22877b8cba7f14640888"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar5() {
-        let result = try? Utilities.messagesToScalars([m_5], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_5], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["34c5ea4f2ba49117015a02c711bb173c11b06b3f1571b88a2952b93d0ed4cf7e"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar6() {
-        let result = try? Utilities.messagesToScalars([m_6], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_6], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["4045b39b83055cd57a4d0203e1660800fabe434004dbdc8730c21ce3f0048b08"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar7() {
-        let result = try? Utilities.messagesToScalars([m_7], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_7], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["64621da4377b6b1d05ecc37cf3b9dfc94b9498d7013dc5c4a82bf3bb1750743"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar8() {
-        let result = try? Utilities.messagesToScalars([m_8], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_8], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["34ac9196ace0a37e147e32319ea9b3d8cc7d21870d3c3ba071246859cca49b02"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar9() {
-        let result = try? Utilities.messagesToScalars([m_9], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_9], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["57eb93f417c43200e9784fa5ea5a59168d3dbc38df707a13bb597c871b2a5f74"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar10() {
-        let result = try? Utilities.messagesToScalars([m_10], cipher.id.asAsciiToByteRepresentation(), ciphersuite: cipher).map { $0.asString(radix: 16, uppercase: false) }
+        let result = try? utilities.messagesToScalars([m_10], utilities.ciphersuite.id.asAsciiToByteRepresentation()).map { $0.asString(radix: 16, uppercase: false) }
         let expectedResult = ["8e3afeb2b4f2b5f907924ef42856616e6f2d5f1fb373736db1cca32707a7d16"]
         XCTAssertEqual(result, expectedResult)
     }
 }
 
 private extension UtilitiesTest {
-    var cipher: CipherSuite { Cipher.BLS12_381_SHA_256() }
+    var utilities: Utilities { .init(Cipher.BLS12_381_SHA_256()) }
     var m_1: [UInt8] { "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02".asHexToByteRepresentation() }
     var m_2: [UInt8] { "c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80".asHexToByteRepresentation() }
     var m_3: [UInt8] { "7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73".asHexToByteRepresentation() }
