@@ -1,5 +1,5 @@
 //
-//  Array.swift of BBS-Signature
+//  Int++.swift of BBS-Signature
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -11,6 +11,6 @@
 
 import Foundation
 
-extension Array {
-    func get(_ index: Int) -> Element? { count > index ? self[index] : nil }
+extension Int {
+    func toBytes(expectedLength: Int) throws -> [UInt8] { try Primitives.integerToBytes(value: .init(self), expectedLength: expectedLength) }
 }
