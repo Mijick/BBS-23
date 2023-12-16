@@ -67,8 +67,8 @@ protocol CurveSuite {
 // MARK: - Helpers
 extension CurveSuite {
     /// Encodes a byte string to a point in G
-    func hashToCurve(_ bytes: [UInt8]) throws -> CurvePoint {
-        let fieldElements = try hashToField(bytes, 2)
+    func hashToCurve(_ bytes: [UInt8], dst: [UInt8]? = nil) throws -> CurvePoint {
+        let fieldElements = try hashToField(bytes, 2, dst)
 
         let point1 = mapToCurve(fieldElements[0])
         let point2 = mapToCurve(fieldElements[1])
@@ -86,9 +86,13 @@ extension CurveSuite {
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
-    func hashToField(_ bytes: [UInt8], _ count: Int) throws -> [ComplexValue] {
-        let uniformBytes = try createUniformBytesArray(bytes, count)
-        
+    func hashToField(_ bytes: [UInt8], _ count: Int, _ customDst: [UInt8]?) throws -> [ComplexValue] {
+        let uniformBytes = try expandMessage.make(
+            bytes,
+            dst: customDst ?? dst.asAsciiToByteRepresentation(),
+            expectedLengthInBytes: count * m * L
+        )
+
         let listOfElements = createListOfElements(uniformBytes, count)
         let complexValues = listOfElements.map { ComplexValue(real: $0.first!, imaginary: $0.last) }
         return complexValues
@@ -100,11 +104,6 @@ private extension CurveSuite {
 
 // MARK: - Hash to Field Helpers
 private extension CurveSuite {
-    func createUniformBytesArray(_ bytes: [UInt8], _ count: Int) throws -> [UInt8] { try expandMessage.make(
-        bytes,
-        domainSeparationTag: dst.asAsciiToByteRepresentation(),
-        expectedLengthInBytes: count * m * L
-    )}
     func createListOfElements(_ uniformBytes: [UInt8], _ count: Int) -> [[BInt]] {
         var listOfElements: [[BInt]] = []
 

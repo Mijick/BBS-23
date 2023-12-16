@@ -15,12 +15,12 @@ extension ExpandMessage { struct XMD: MessageExpander {
     let hasher: HashType
 }}
 extension ExpandMessage.XMD {
-    func make(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
+    func make(_ messageBytes: [UInt8], dst: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
         let helperBytesArraySize = calculateHelperBytesArraySize(expectedLengthInBytes)
 
-        try assertExpandMessageRequirements(expectedLengthInBytes, domainSeparationTag, helperBytesArraySize)
+        try assertExpandMessageRequirements(expectedLengthInBytes, dst, helperBytesArraySize)
 
-        let dstPrime = try calculateDomainSeparationTagPrime(domainSeparationTag)
+        let dstPrime = try calculateDomainSeparationTagPrime(dst)
         let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hasher.sInBytes)
         let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
         let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)

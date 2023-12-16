@@ -30,7 +30,7 @@ extension Utilities {
 
 
 
-        var v = try ciphersuite.curveG1.expandMessage.make(generatorSeed, domainSeparationTag: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
+        var v = try ciphersuite.curveG1.expandMessage.make(generatorSeed, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
 
 
         //        var generators = []
@@ -44,7 +44,6 @@ extension Utilities {
         //            generators.append(ciphersuite.curve.first!.hashToCurve(<#T##bytes: [UInt8]##[UInt8]#>))
         //
         //            // dwie zmiany:
-        //            // 1. przenieść expandMessage do ciphersuite
         //            // 2. hashToCurve powinno móc przyjmować opcjonalny argument - DST
         //
         //
@@ -80,7 +79,7 @@ extension Utilities {
     static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: CipherSuite) throws -> BInt {
         guard dst.count * 8 > 255 else { throw Error.ConvertToScalar.invalidDSTLength }
 
-        let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
+        let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
         return number % ciphersuite.curveG1.r
     }

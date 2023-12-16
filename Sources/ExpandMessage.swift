@@ -17,5 +17,5 @@ protocol MessageExpander {
     var hasher: HashType { get }
 
     // MARK: Methods
-    func make(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
+    func make(_ messageBytes: [UInt8], dst: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
 }
