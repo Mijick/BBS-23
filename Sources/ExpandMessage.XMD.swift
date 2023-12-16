@@ -1,0 +1,85 @@
+//
+//  ExpandMessage.XMD.swift of BBS-Signature
+//
+//  Created by Tomasz Kurylik
+//    - Twitter: https://twitter.com/tkurylik
+//    - Mail: tomasz.kurylik@mijick.com
+//    - GitHub: https://github.com/FulcrumOne
+//
+//  Copyright ©2023 Mijick. Licensed under MIT License.
+
+
+import Foundation
+
+extension ExpandMessage { struct XMD: MessageExpander {
+    let hasher: HashType
+}}
+extension ExpandMessage.XMD {
+    func make(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8] {
+        let helperBytesArraySize = calculateHelperBytesArraySize(expectedLengthInBytes)
+
+        try assertExpandMessageRequirements(expectedLengthInBytes, domainSeparationTag, helperBytesArraySize)
+
+        let dstPrime = try calculateDomainSeparationTagPrime(domainSeparationTag)
+        let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hasher.sInBytes)
+        let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
+        let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)
+        let hashedMessagePrime = hasher.hashData(messagePrime)
+
+        var helperBytesArray = try createHelperBytesArray(hashedMessagePrime, dstPrime)
+        try populateHelperBytesArray(&helperBytesArray, helperBytesArraySize, hashedMessagePrime, dstPrime)
+
+        let uniformBytes = helperBytesArray.reduce([]) { $0.concatenate(with: $1) }
+        return .init(uniformBytes[0...expectedLengthInBytes - 1])
+    }
+}
+private extension ExpandMessage.XMD {
+    func calculateHelperBytesArraySize(_ expectedLengthInBytes: Int) -> Int {
+        let expectedLengthInBytes = Double(expectedLengthInBytes), hashOutputSizeInBytes = Double(hasher.bInBytes)
+
+        let result = expectedLengthInBytes / hashOutputSizeInBytes
+        return .init(ceil(result))
+    }
+    func assertExpandMessageRequirements(_ expectedLengthInBytes: Int, _ domainSeparationTag: [UInt8], _ helperBytesArraySize: Int) throws {
+        if expectedLengthInBytes <= 0 { throw Error.expectedLengthMustBePositive }
+        if expectedLengthInBytes > 65535 { throw Error.expectedLengthTooLarge }
+        if domainSeparationTag.count > 255 { throw Error.domainSeperationTagTooBig }
+        if helperBytesArraySize > 255 { throw Error.helperArrayTooBig }
+    }
+    func calculateDomainSeparationTagPrime(_ domainSeparationTag: [UInt8]) throws -> [UInt8] {
+        let bytes = try Primitives.integerToBytes(value: .init(domainSeparationTag.count), expectedLength: 1)
+        return domainSeparationTag.concatenate(with: bytes)
+    }
+    func calculateMessageBytesPrime(_ messageBytes: [UInt8], _ dstPrime: [UInt8], _ zPad: [UInt8], _ expectedLengthBytes: [UInt8]) throws -> [UInt8] {
+        let bytes = try Primitives.integerToBytes(value: 0, expectedLength: 1)
+        return zPad
+            .concatenate(with: messageBytes)
+            .concatenate(with: expectedLengthBytes)
+            .concatenate(with: bytes)
+            .concatenate(with: dstPrime)
+    }
+    func createHelperBytesArray(_ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws -> [[UInt8]] {
+        let byte = try Primitives.integerToBytes(value: 1, expectedLength: 1)
+        let firstByte = hashedMessagePrime
+            .concatenate(with: byte)
+            .concatenate(with: dstPrime)
+
+        let hashedFirstByte = hasher.hashData(firstByte)
+        return [hashedFirstByte]
+    }
+    func populateHelperBytesArray(_ helperBytesArray: inout [[UInt8]], _ expectedSize: Int, _ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws { for index in 0...expectedSize {
+        let indexBytes = try Primitives.integerToBytes(value: .init(index + 2), expectedLength: 1)
+        let xorResult = hashedMessagePrime.xor(helperBytesArray[index])
+        let byte = xorResult
+            .concatenate(with: indexBytes)
+            .concatenate(with: dstPrime)
+
+        let hashedByte = hasher.hashData(byte)
+        helperBytesArray.append(hashedByte)
+    }}
+}
+
+
+// MARK: - Errors
+fileprivate typealias Error = ExpandMessageXMDError
+enum ExpandMessageXMDError: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }

@@ -1,5 +1,5 @@
 //
-//  SHA256.swift of BBS-Signature
+//  Hash.SHA256.swift of BBS-Signature
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -12,11 +12,11 @@
 import Foundation
 import CommonCrypto
 
-struct SHA256: HashType {
+extension Hash { struct SHA256: HashType {
     let bInBytes: Int = 32
     let sInBytes: Int = 64
-}
-extension SHA256 {
+}}
+extension Hash.SHA256 {
     func hashData(_ bytes: [UInt8]) -> [UInt8] { let data = Data(bytes)
         var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
         data.withUnsafeBytes { _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash) }
