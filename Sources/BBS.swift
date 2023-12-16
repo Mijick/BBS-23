@@ -45,7 +45,7 @@ private extension BBS {
 
 // MARK: - Public Generation
 extension BBS {
-    func generatePublicKey(_ secretKey: BInt) throws -> [UInt8] { let curve = cipher.curve.last!, bp2 = curve.getBasePoint()
+    func generatePublicKey(_ secretKey: BInt) throws -> [UInt8] { let curve = cipher.curveG2, bp2 = curve.getBasePoint()
         let publicKey = secretKey * bp2
         return try curve.serializePoint(publicKey)
     }

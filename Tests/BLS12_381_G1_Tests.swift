@@ -106,5 +106,5 @@ extension BLS12_381_G1_Tests {
 
 // MARK: - Helpers
 private extension BLS12_381_G1_Tests {
-    var curve: CurveSuite { Curve.BLS12_381_G1(expandMessage: ExpandMessage.XMD(hasher: Hash.SHA256())) }
+    var curve: CurveSuite { Cipher.BLS12_381_SHA_256().curveG1 }
 }

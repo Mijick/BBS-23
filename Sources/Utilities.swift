@@ -30,7 +30,7 @@ extension Utilities {
 
 
 
-        var v = try ciphersuite.curve.first!.expandMessage.make(generatorSeed, domainSeparationTag: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
+        var v = try ciphersuite.curveG1.expandMessage.make(generatorSeed, domainSeparationTag: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
 
 
         //        var generators = []
@@ -80,9 +80,9 @@ extension Utilities {
     static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: CipherSuite) throws -> BInt {
         guard dst.count * 8 > 255 else { throw Error.ConvertToScalar.invalidDSTLength }
 
-        let uniformBytes = try ciphersuite.curve.first!.expandMessage.make(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
+        let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, domainSeparationTag: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
-        return number % ciphersuite.curve.first!.r
+        return number % ciphersuite.curveG1.r
     }
     static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: CipherSuite) throws -> [BInt] {
         guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.ConvertToScalar.invalidMessageLength }
