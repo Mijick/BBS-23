@@ -10,15 +10,20 @@
 
 
 import Foundation
-import CommonCrypto
 
-class Hash { private init() {} }
+enum Hash {}
+protocol HashType {
+    // MARK: Attributes
 
-// MARK: - SHA-256
-extension Hash {
-    static func sha256(_ bytes: [UInt8]) -> [UInt8] { let data = Data(bytes)
-        var hash = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
-        data.withUnsafeBytes { _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash) }
-        return hash
-    }
+    /// Output size of hashData in bits. For example, for SHA-256 = 256, size = 32
+    var bInBytes: Int { get }
+
+    /// Input block size of hashData, measured in byte. For example, for SHA-256, size = 64
+    var sInBytes: Int { get }
+
+
+    // MARK: Methods
+    
+    /// Hashes bytes
+    func hashData(_ bytes: [UInt8]) -> [UInt8]
 }
