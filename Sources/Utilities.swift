@@ -17,6 +17,39 @@ class Utilities {
     init(_ ciphersuite: CipherSuite) { self.ciphersuite = ciphersuite }
 }
 
+// MARK: - Domain Calculation
+extension Utilities {
+    func calculateDomain(publicKey: [UInt8], points: [CurvePoint], header: [UInt8], apiID: [UInt8]) throws -> BInt {
+        try precheckDomainRequirements(points, header)
+
+        let L = points.count - 1,
+            domainDst = getDomainDst(apiID)
+
+        let domArray = [L] + points
+        let domOcts = try serialize(input: domArray).concatenate(with: apiID)
+        let domInput = publicKey
+            .concatenate(with: domOcts)
+            .concatenate(with: try header.count.toBytes(expectedLength: 8))
+            .concatenate(with: header)
+
+        let domain = try hashToScalar(domInput, domainDst)
+        return domain
+    }
+}
+private extension Utilities {
+    func precheckDomainRequirements(_ points: [CurvePoint], _ header: [UInt8]) throws {
+        if points.count < 2 { throw Error.CalculateDomain.tooLessPoints }
+        if points.count > 2 ** 64 - 1 { throw Error.CalculateDomain.tooManyPoints }
+        if header.count > 2 ** 64 - 1 { throw Error.CalculateDomain.tooBigHeader }
+    }
+}
+private extension Utilities {
+    func getDomainDst(_ apiID: [UInt8]) -> [UInt8] {
+        let domain = "H2S_".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: domain)
+    }
+}
+
 // MARK: - Creating Generators
 extension Utilities {
     func createGenerators(count: BInt, seed: [UInt8], apiID: [UInt8]) throws -> [CurvePoint] {
@@ -58,20 +91,27 @@ private extension Utilities {
     }
 }
 
-// MARK: - Converting to scalar
+// MARK: - Converting to Scalar
 extension Utilities {
-    static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8], _ ciphersuite: CipherSuite) throws -> BInt {
+    func hashToScalar(_ msg: [UInt8], _ dst: [UInt8]) throws -> BInt {
         guard dst.count * 8 > 255 else { throw Error.ConvertToScalar.invalidDSTLength }
 
         let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
         return number % ciphersuite.curveG1.r
     }
-    static func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = [], ciphersuite: CipherSuite) throws -> [BInt] {
+    func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = []) throws -> [BInt] {
         guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.ConvertToScalar.invalidMessageLength }
 
         let map_dst = apiId.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
-        return try messages.map { try hashToScalar($0, map_dst, ciphersuite) }
+        return try messages.map { try hashToScalar($0, map_dst) }
+    }
+}
+
+// MARK: - Serializing
+extension Utilities {
+    func serialize(input: [Any]) throws -> [UInt8] {
+        fatalError()
     }
 }
 
@@ -79,6 +119,7 @@ extension Utilities {
 // MARK: - Errors
 fileprivate typealias Error = UtilitiesError
 enum UtilitiesError {
+    enum CalculateDomain: Swift.Error { case tooLessPoints, tooManyPoints, tooBigHeader }
     enum CreateGenerators: Swift.Error { case cannotGenerateThatAmountOfGenerators }
     enum ConvertToScalar: Swift.Error { case invalidDSTLength, invalidMessageLength }
 }
