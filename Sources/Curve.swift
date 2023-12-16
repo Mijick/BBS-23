@@ -42,11 +42,8 @@ protocol CurveSuite {
     /// Scalar parameter for clearCofactor method
     var hEff: BInt { get }
 
-    /// Output size of hashData in bits. For example, for SHA-256 = 256, size = 32
-    var bInBytes: Int { get }
-
-    /// Input block size of hashData, measured in byte. For example, for SHA-256, size = 64
-    var sInBytes: Int { get }
+    /// Contains a single function that generates a uniformly random byte string
+    var expandMessage: MessageExpander { get }
 
     /// Constant point (X coordinate) on the G subgroup
     var BPx: ComplexValue { get }
@@ -65,12 +62,6 @@ protocol CurveSuite {
 
     /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
     func mapToCurve(_ u: ComplexValue) -> CurvePoint
-
-    /// Expands a byte string and domain separation tag into a uniformly random byte string
-    func expandMessage(_ messageBytes: [UInt8], domainSeparationTag: [UInt8], expectedLengthInBytes: Int) throws -> [UInt8]
-
-    /// Hashes bytes
-    func hashData(_ bytes: [UInt8]) -> [UInt8]
 }
 
 // MARK: - Helpers
@@ -109,7 +100,7 @@ private extension CurveSuite {
 
 // MARK: - Hash to Field Helpers
 private extension CurveSuite {
-    func createUniformBytesArray(_ bytes: [UInt8], _ count: Int) throws -> [UInt8] { try expandMessage(
+    func createUniformBytesArray(_ bytes: [UInt8], _ count: Int) throws -> [UInt8] { try expandMessage.make(
         bytes,
         domainSeparationTag: dst.asAsciiToByteRepresentation(),
         expectedLengthInBytes: count * m * L

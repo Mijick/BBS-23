@@ -20,4 +20,6 @@ protocol CipherSuite {
     var expandLength: Int { get }
     var p1: BInt { get }
     var curve: [CurveSuite] { get }
+    var hash: HashType { get }
+    var expandMessage: MessageExpander { get }
 }
