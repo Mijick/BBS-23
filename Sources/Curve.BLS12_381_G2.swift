@@ -81,7 +81,7 @@ private extension Curve.BLS12_381_G2 {
         try checkRegularPoint(point)
 
         updateRegularPointYCoordinateIfNeeded(bytes, &point)
-        return point
+        return point.modularized()
     }
 }
 private extension Curve.BLS12_381_G2 {
@@ -136,7 +136,7 @@ extension Curve.BLS12_381_G2 {
         // MARK: Calculating x and y
         let x = calculateX(tv2, tv3, tv5, tv6)
         let y = calculateY(x, u)
-        return .init(xComplex: x.mod(p), yComplex: y.mod(p), self)
+        return .init(xComplex: x, yComplex: y, self).modularized()
     }
 }
 private extension Curve.BLS12_381_G2 {
