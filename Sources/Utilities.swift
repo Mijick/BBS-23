@@ -115,6 +115,21 @@ extension Utilities {
     }
 }
 
+// MARK: - Octets to Public Key
+extension Utilities {
+    func octetsToPublicKey(publicKey: [UInt8]) throws -> CurvePoint {
+        let publicKey = try ciphersuite.curveG2.deserializePoint(publicKey)
+        try checkPublicKey(publicKey)
+        return publicKey
+    }
+}
+private extension Utilities {
+    func checkPublicKey(_ publicKey: CurvePoint) throws {
+        if !publicKey.isInSubgroup() { throw Error.OctetsToPublicKey.publicKeyIsInWrongSubgroup }
+        if publicKey.isAtInfinity() { throw Error.OctetsToPublicKey.publicKeyIsAtInfinity }
+    }
+}
+
 
 // MARK: - Errors
 fileprivate typealias Error = UtilitiesError
@@ -122,4 +137,5 @@ enum UtilitiesError {
     enum CalculateDomain: Swift.Error { case tooLessPoints, tooManyPoints, tooBigHeader }
     enum CreateGenerators: Swift.Error { case cannotGenerateThatAmountOfGenerators }
     enum ConvertToScalar: Swift.Error { case invalidDSTLength, invalidMessageLength }
+    enum OctetsToPublicKey: Swift.Error { case publicKeyIsInWrongSubgroup, publicKeyIsAtInfinity }
 }
