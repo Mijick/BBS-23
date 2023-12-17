@@ -111,7 +111,35 @@ extension Utilities {
 // MARK: - Serializing
 extension Utilities {
     func serialize(input: [Any]) throws -> [UInt8] {
-        fatalError()
+        var octetsResult: [UInt8] = []
+
+        for element in input {
+            let elementOcts = try serializeElement(element)
+            octetsResult = octetsResult.concatenate(with: elementOcts)
+        }
+
+        return octetsResult
+    }
+}
+private extension Utilities {
+    func serializeElement(_ element: Any) throws -> [UInt8] {
+        if let point = element as? CurvePoint { return try serializePoint(point) }
+        if let integer = element as? BInt { return try serializeInteger(integer) }
+
+        throw Error.Serialization.notValidElement
+    }
+}
+private extension Utilities {
+    func serializePoint(_ point: CurvePoint) throws -> [UInt8] {
+        if point.isPointOfG1() { return try ciphersuite.curveG1.serializePoint(point) }
+        if point.isPointOfG2() { return try ciphersuite.curveG2.serializePoint(point) }
+
+        throw Error.Serialization.notValidElement
+    }
+    func serializeInteger(_ integer: BInt) throws -> [UInt8] {
+        if integer > 0 && integer < 2 ** 64 { return try integer.toBytes(expectedLength: 8) }
+
+        return try integer.toBytes(expectedLength: ciphersuite.octetScalarLength)
     }
 }
 
@@ -156,6 +184,7 @@ enum UtilitiesError {
     enum CalculateDomain: Swift.Error { case tooLessPoints, tooManyPoints, tooBigHeader }
     enum CreateGenerators: Swift.Error { case cannotGenerateThatAmountOfGenerators }
     enum ConvertToScalar: Swift.Error { case invalidDSTLength, invalidMessageLength }
+    enum Serialization: Swift.Error { case notValidElement }
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyIsInWrongSubgroup, publicKeyIsAtInfinity }
 }
