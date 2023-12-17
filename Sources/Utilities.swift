@@ -177,6 +177,16 @@ private extension Utilities {
     }
 }
 
+// MARK: - Signature to Octets
+extension Utilities {
+    func signatureToOctets(signature: [Any]) throws -> [UInt8] {
+        if signature.count != 2 { throw Error.SignatureToOctets.invalidSignature }
+
+        let serializedSignature = try serialize(input: signature)
+        return serializedSignature
+    }
+}
+
 
 // MARK: - Errors
 fileprivate typealias Error = UtilitiesError
@@ -187,4 +197,5 @@ enum UtilitiesError {
     enum Serialization: Swift.Error { case notValidElement }
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyIsInWrongSubgroup, publicKeyIsAtInfinity }
+    enum SignatureToOctets: Swift.Error { case invalidSignature }
 }
