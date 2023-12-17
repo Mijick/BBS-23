@@ -172,7 +172,6 @@ extension Utilities {
 }
 private extension Utilities {
     func checkPublicKey(_ publicKey: CurvePoint) throws {
-        if !publicKey.isInSubgroup() { throw Error.OctetsToPublicKey.publicKeyIsInWrongSubgroup }
         if publicKey.isAtInfinity() { throw Error.OctetsToPublicKey.publicKeyIsAtInfinity }
     }
 }

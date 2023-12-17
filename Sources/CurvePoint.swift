@@ -118,7 +118,6 @@ private extension CurvePoint {
 // MARK: - Others
 extension CurvePoint {
     func isAtInfinity() -> Bool { y == nil }
-    func isInSubgroup() -> Bool { true }
     func isPointOfG1() -> Bool { curve is Curve.BLS12_381_G1 }
     func isPointOfG2() -> Bool { curve is Curve.BLS12_381_G2 }
 }
