@@ -179,11 +179,45 @@ private extension Utilities {
 
 // MARK: - Signature to Octets
 extension Utilities {
-    func signatureToOctets(signature: [Any]) throws -> [UInt8] {
-        if signature.count != 2 { throw Error.SignatureToOctets.invalidSignature }
-
-        let serializedSignature = try serialize(input: signature)
+    func signatureToOctets(signature: (point: CurvePoint, scalar: BInt)) throws -> [UInt8] {
+        let serializedSignature = try serialize(input: [signature.point, signature.scalar])
         return serializedSignature
+    }
+}
+
+// MARK: - Octets to Signature
+extension Utilities {
+    func octetsToSignature(signatureOctets: [UInt8]) throws -> (point: CurvePoint, scalar: BInt) {
+        try precheckSignatureOctets(signatureOctets)
+
+        let point = try deserializePoint(signatureOctets)
+        let scalar = try deserializeScalar(signatureOctets)
+
+        return (point, scalar)
+    }
+}
+private extension Utilities {
+    func precheckSignatureOctets(_ signatureOctets: [UInt8]) throws {
+        let expectedLength = ciphersuite.octetPointLength + ciphersuite.octetScalarLength
+        if signatureOctets.count != expectedLength { throw Error.OctetsToSignature.invalidSignature }
+    }
+    func deserializePoint(_ signatureOctets: [UInt8]) throws -> CurvePoint {
+        let octets = Array(signatureOctets[0..<ciphersuite.octetPointLength])
+        let point = try ciphersuite.curveG1.deserializePoint(octets)
+
+        if point.isAtInfinity() { throw Error.OctetsToSignature.invalidPoint }
+        return point
+    }
+    func deserializeScalar(_ signatureOctets: [UInt8]) throws -> BInt {
+        let startIndex = ciphersuite.octetPointLength,
+            endIndex = startIndex + ciphersuite.octetScalarLength - 1
+
+        let scalar = Array(signatureOctets[startIndex...endIndex])
+            .toInteger()
+            .mod(ciphersuite.curveG1.r)
+
+        if scalar == 0 || scalar >= ciphersuite.curveG1.r { throw Error.OctetsToSignature.invalidScalar }
+        return scalar
     }
 }
 
@@ -197,5 +231,5 @@ enum UtilitiesError {
     enum Serialization: Swift.Error { case notValidElement }
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyIsInWrongSubgroup, publicKeyIsAtInfinity }
-    enum SignatureToOctets: Swift.Error { case invalidSignature }
+    enum OctetsToSignature: Swift.Error { case invalidSignature, invalidPoint, invalidScalar }
 }

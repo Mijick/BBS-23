@@ -110,7 +110,7 @@ extension UtilitiesTest {
         let octetsSignature = try utilities.octetsToSignature(signatureOctets: signatureOctets)
 
         XCTAssertEqual(signature.point, octetsSignature.point)
-        XCTAssertEqual(signature.scalar.mod(utilities.ciphersuite.curveG1.r), octetsSignature.scalar)
+        XCTAssertEqual(signature.scalar, octetsSignature.scalar)
     }
 }
 
