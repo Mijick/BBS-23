@@ -95,9 +95,9 @@ private extension UtilitiesTest {
     var m_10: [UInt8] { "".asHexToByteRepresentation() }
 }
 
-// MARK: - Signature
+// MARK: - Signature to Octets
 extension UtilitiesTest {
-    func testA() throws {
+    func testSignatureToOctets() throws {
         let point = CurvePoint(
             x: .init(decimal: "1031246738451272257918307649645427926126395098676218623157461618035668551328720548531524570871230389539697713933182"),
             y: .init(decimal: "3770865391344759460897441956007821360607472141384078872418818486419925991873542360161539566057289824728296659129050"),
