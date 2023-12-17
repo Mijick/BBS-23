@@ -13,7 +13,6 @@ import XCTest
 import BigInt
 @testable import MijickBBS_Signature
 
-// MARK: - Hash to scalar
 final class UtilitiesTest: XCTestCase {}
     
 // MARK: - Hash to Scalar
@@ -83,9 +82,7 @@ extension UtilitiesTest {
         XCTAssertEqual(result, expectedResult)
     }
 }
-
 private extension UtilitiesTest {
-    var utilities: Utilities { .init(Cipher.BLS12_381_SHA_256()) }
     var m_1: [UInt8] { "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02".asHexToByteRepresentation() }
     var m_2: [UInt8] { "c344136d9ab02da4dd5908bbba913ae6f58c2cc844b802a6f811f5fb075f9b80".asHexToByteRepresentation() }
     var m_3: [UInt8] { "7372e9daa5ed31e6cd5c825eac1b855e84476a1d94932aa348e07b73".asHexToByteRepresentation() }
@@ -96,4 +93,29 @@ private extension UtilitiesTest {
     var m_8: [UInt8] { "ac55fb33a75909ed".asHexToByteRepresentation() }
     var m_9: [UInt8] { "96012096".asHexToByteRepresentation() }
     var m_10: [UInt8] { "".asHexToByteRepresentation() }
+}
+
+// MARK: - Signature
+extension UtilitiesTest {
+    func testA() throws {
+        let point = CurvePoint(
+            x: .init(decimal: "1031246738451272257918307649645427926126395098676218623157461618035668551328720548531524570871230389539697713933182"),
+            y: .init(decimal: "3770865391344759460897441956007821360607472141384078872418818486419925991873542360161539566057289824728296659129050"),
+            utilities.ciphersuite.curveG1
+        )
+        let scalar = BInt(hex: "1004262112c3eaa95941b2b0d1311c09c845db0099a50e67eda628ad26b43083")
+        let signature = (point: point, scalar: scalar)
+
+        let signatureOctets = try utilities.signatureToOctets(signature: signature)
+        let octetsSignature = try utilities.octetsToSignature(signatureOctets: signatureOctets)
+
+        XCTAssertEqual(signature.point, octetsSignature.point)
+        XCTAssertEqual(signature.scalar.mod(utilities.ciphersuite.curveG1.r), octetsSignature.scalar)
+    }
+}
+
+
+// MARK: - Helpers
+private extension UtilitiesTest {
+    var utilities: Utilities { .init(Cipher.BLS12_381_SHA_256()) }
 }
