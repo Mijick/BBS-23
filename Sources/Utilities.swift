@@ -115,6 +115,25 @@ extension Utilities {
     }
 }
 
+// MARK: - Random Scalars
+extension Utilities {
+    func calculateRandomScalars(count: BInt) throws -> [BInt] { let expandLength = ciphersuite.expandLength, r = ciphersuite.curveG2.r
+        var randomScalars: [BInt] = []
+
+        while randomScalars.count < count {
+            guard let randomScalar = [UInt8]
+                .random(length: expandLength)?
+                .toInteger()
+                .mod(r)
+            else { throw Error.RandomScalars.unexpectedErrorDuringGeneratingRandomScalars }
+
+            randomScalars.append(randomScalar)
+        }
+
+        return randomScalars
+    }
+}
+
 // MARK: - Octets to Public Key
 extension Utilities {
     func octetsToPublicKey(publicKey: [UInt8]) throws -> CurvePoint {
@@ -137,5 +156,6 @@ enum UtilitiesError {
     enum CalculateDomain: Swift.Error { case tooLessPoints, tooManyPoints, tooBigHeader }
     enum CreateGenerators: Swift.Error { case cannotGenerateThatAmountOfGenerators }
     enum ConvertToScalar: Swift.Error { case invalidDSTLength, invalidMessageLength }
+    enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyIsInWrongSubgroup, publicKeyIsAtInfinity }
 }

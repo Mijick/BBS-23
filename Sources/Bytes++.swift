@@ -52,3 +52,14 @@ extension [UInt8] {
 extension [UInt8] {
     func toInteger() -> BInt { Primitives.bytesToInteger(self) }
 }
+
+// MARK: - Random Bytes
+extension [UInt8] {
+    static func random(length: Int) -> [UInt8]? {
+        var bytes = [UInt8](repeating: 0, count: length)
+        switch SecRandomCopyBytes(kSecRandomDefault, length, &bytes) {
+            case errSecSuccess: return bytes
+            default: return nil
+        }
+    }
+}

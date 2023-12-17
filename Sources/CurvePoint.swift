@@ -113,4 +113,5 @@ private extension CurvePoint {
 // MARK: - Others
 extension CurvePoint {
     func isAtInfinity() -> Bool { y == nil }
+    func isInSubgroup() -> Bool { true }
 }
