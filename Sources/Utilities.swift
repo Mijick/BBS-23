@@ -172,7 +172,7 @@ extension Utilities {
 }
 private extension Utilities {
     func checkPublicKey(_ publicKey: CurvePoint) throws {
-        if publicKey.isAtInfinity() { throw Error.OctetsToPublicKey.publicKeyIsAtInfinity }
+        if publicKey.isAtInfinity() { throw Error.OctetsToPublicKey.publicKeyInvalid }
     }
 }
 
@@ -229,6 +229,6 @@ enum UtilitiesError {
     enum ConvertToScalar: Swift.Error { case invalidDSTLength, invalidMessageLength }
     enum Serialization: Swift.Error { case notValidElement }
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
-    enum OctetsToPublicKey: Swift.Error { case publicKeyIsInWrongSubgroup, publicKeyIsAtInfinity }
+    enum OctetsToPublicKey: Swift.Error { case publicKeyInvalid }
     enum OctetsToSignature: Swift.Error { case invalidSignature, invalidPoint, invalidScalar }
 }
