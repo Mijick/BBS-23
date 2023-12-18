@@ -51,6 +51,30 @@ extension BBS {
     }
 }
 
+// MARK: - Signature Generation
+extension BBS {
+    func generateSignature(secretKey: BInt, publicKey: [UInt8], header: [UInt8] = [], messages: [[UInt8]] = []) throws -> [UInt8] {
+        let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID),
+            generators = try utilities.createGenerators(count: messages.count + 1, seed: publicKey, apiID: apiID),
+            commitment = CurvePoint(x: 0, y: nil, cipher.curveG1)
+
+        let signature = try core.coreSign(secretKey: secretKey, publicKey: publicKey, generators: generators, header: header, messages: messageScalars, commitment: commitment, apiID: apiID)
+        return signature
+    }
+}
+
+// MARK: - Helpers
+private extension BBS {
+    var apiID: [UInt8] {
+        let cipherID = cipher.id.asAsciiToByteRepresentation(), api = "H2G_HM2S_".asAsciiToByteRepresentation()
+        return cipherID.concatenate(with: api)
+    }
+}
+private extension BBS {
+    var core: Core { .init(cipher) }
+    var utilities: Utilities { .init(cipher) }
+}
+
 
 // MARK: - Errors
 fileprivate typealias Error = BBSError

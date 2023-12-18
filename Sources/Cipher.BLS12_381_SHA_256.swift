@@ -17,11 +17,16 @@ extension Cipher { struct BLS12_381_SHA_256: CipherSuite {
     let octetScalarLength: Int = 32
     let octetPointLength: Int = 48
     let expandLength: Int = 48
-    let p1: BInt = .init(hex: "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9")
     let hash: HashType = Hash.SHA256()
+    let p1: CurvePoint
     let curveG1: CurveSuite
     let curveG2: CurveSuite
     let expandMessage: MessageExpander
 
-    init() { self.expandMessage = ExpandMessage.XMD(hasher: hash); self.curveG1 = Curve.BLS12_381_G1(expandMessage: expandMessage); self.curveG2 = Curve.BLS12_381_G2(expandMessage: expandMessage) }
+    init() {
+        self.expandMessage = ExpandMessage.XMD(hasher: hash)
+        self.curveG1 = Curve.BLS12_381_G1(expandMessage: expandMessage)
+        self.curveG2 = Curve.BLS12_381_G2(expandMessage: expandMessage)
+        self.p1 = .init(x: .init(hex: "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9"), curveG1)
+    }
 }}
