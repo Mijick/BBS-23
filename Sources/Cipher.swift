@@ -18,8 +18,8 @@ protocol CipherSuite {
     var octetScalarLength: Int { get }
     var octetPointLength: Int { get }
     var expandLength: Int { get }
-    var p1: BInt { get }
     var hash: HashType { get }
+    var p1: CurvePoint { get }
     var curveG1: CurveSuite { get }
     var curveG2: CurveSuite { get }
     var expandMessage: MessageExpander { get }

@@ -47,7 +47,7 @@ extension CurvePoint {
 
 // MARK: - Initializers Helpers
 extension CurvePoint {
-    func modularized() -> CurvePoint { .init(xComplex: xComplex.mod(curve.p), yComplex: yComplex.mod(curve.p), curve) }
+    func modularized() -> CurvePoint { .init(xComplex: xComplex.mod(curve.p), yComplex: yComplex?.mod(curve.p), curve) }
 }
 
 // MARK: - Getters & Setters
