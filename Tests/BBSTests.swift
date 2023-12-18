@@ -39,6 +39,21 @@ extension BBSTests {
     }
 }
 
+// MARK: - Signature Generation
+extension BBSTests {
+    func testSignatureGeneration_1() throws {
+        let message = "9872ad089e452c7b6e283dfac2a80d58e8d0ff71cc4d5e310a1debdda4a45f02".asHexToByteRepresentation(),
+            secretKey = "2eee0f60a8a3a8bec0ee942bfd46cbdae9a0738ee68f5a64e7238311cf09a079".asHexToByteRepresentation().toInteger(),
+            publicKey = "92d37d1d6cd38fea3a873953333eab23a4c0377e3e049974eb62bd45949cdeb18fb0490edcd4429adff56e65cbce42cf188b31bddbd619e419b99c2c41b38179eb001963bc3decaae0d9f702c7a8c004f207f46c734a5eae2e8e82833f3e7ea5".asHexToByteRepresentation(),
+            header = "11223344556677889900aabbccddeeff".asHexToByteRepresentation()
+
+        let signature = try bbs.generateSignature(secretKey: secretKey, publicKey: publicKey, header: header, messages: [message])
+        let expectedSignature = "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1bc0bc75543c681bf061ce7e7f6091fe78c1cb8af103".asHexToByteRepresentation()
+
+        XCTAssertEqual(signature, expectedSignature)
+    }
+}
+
 // MARK: - Helpers
 private extension BBSTests {
     var bbs: BBS { .init(Cipher.BLS12_381_SHA_256()) }

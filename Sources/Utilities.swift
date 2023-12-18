@@ -58,7 +58,7 @@ extension Utilities {
         // MARK: Parameters
         let seedDst = getSeedDst(apiID),
             generatorDst = getGeneratorDst(apiID),
-            generatorSeed = getGeneratorSeed(apiID)
+            generatorSeed = getGeneratorSeed(seed, apiID)
 
         // MARK: Variables
         var generators: [CurvePoint] = []
@@ -85,7 +85,9 @@ private extension Utilities {
         let generator = "SIG_GENERATOR_DST_".asAsciiToByteRepresentation()
         return apiID.concatenate(with: generator)
     }
-    func getGeneratorSeed(_ apiID: [UInt8]) -> [UInt8] {
+    func getGeneratorSeed(_ seed: [UInt8], _ apiID: [UInt8]) -> [UInt8] {
+        if !seed.isEmpty { return seed }
+
         let generatorSeed = "MESSAGE_GENERATOR_SEED".asAsciiToByteRepresentation()
         return apiID.concatenate(with: generatorSeed)
     }
@@ -93,18 +95,18 @@ private extension Utilities {
 
 // MARK: - Converting to Scalar
 extension Utilities {
+    func messagesToScalars(messages: [[UInt8]], apiID: [UInt8] = []) throws -> [BInt] {
+        guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.ConvertToScalar.invalidMessageLength }
+
+        let map_dst = apiID.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
+        return try messages.map { try hashToScalar($0, map_dst) }
+    }
     func hashToScalar(_ msg: [UInt8], _ dst: [UInt8]) throws -> BInt {
         guard dst.count * 8 > 255 else { throw Error.ConvertToScalar.invalidDSTLength }
 
         let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
         let number = Primitives.bytesToInteger(uniformBytes)
         return number % ciphersuite.curveG1.r
-    }
-    func messagesToScalars(_ messages: [[UInt8]], _ apiId: [UInt8] = []) throws -> [BInt] {
-        guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.ConvertToScalar.invalidMessageLength }
-
-        let map_dst = apiId.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
-        return try messages.map { try hashToScalar($0, map_dst) }
     }
 }
 
@@ -125,6 +127,8 @@ private extension Utilities {
     func serializeElement(_ element: Any) throws -> [UInt8] {
         if let point = element as? CurvePoint { return try serializePoint(point) }
         if let integer = element as? BInt { return try serializeInteger(integer) }
+        if let integer = element as? Int { return try serializeInteger(BInt(integer)) }
+        if let byteArray = element as? [UInt8] { return byteArray }
 
         throw Error.Serialization.notValidElement
     }
