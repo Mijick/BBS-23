@@ -121,66 +121,7 @@ private extension Curve.BLS12_381_G2 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G2 {
-    func mapToCurve(_ u: ComplexValue) -> CurvePoint {
-        // MARK: Pre-calculated
-        let c1 = f([Z, 0]),
-            c2 = u * u * c1,
-            c3 = 3 * Z * Z + 4 * A
-
-        // MARK: Temporary Values
-        let tv1 = 1 - c2
-        let tv2 = 1 + c2
-        let tv3 = multiplicativeInverse(tv1 * tv2)
-        let tv4 = abs(squareRoot(-c1 * c3))
-        let tv5 = u * tv1 * tv3 * tv4
-        let tv6 = -4 * c1 * multiplicativeInverse(c3)
-
-        // MARK: Calculating x and y
-        let x = calculateX(tv2, tv3, tv5, tv6)
-        let y = calculateY(x, u)
-        return .init(xComplex: x, yComplex: y, self).modularized()
-    }
-}
-private extension Curve.BLS12_381_G2 {
-    func calculateX(_ tv2: ComplexValue, _ tv3: ComplexValue, _ tv5: ComplexValue, _ tv6: ComplexValue) -> ComplexValue {
-        let x1 = -Z * BInt(2).modInverse(p) - tv5
-        if isSquare(f(x1)) { return x1 }
-
-        let x2 = -Z * BInt(2).modInverse(p) + tv5
-        if isSquare(f(x2)) { return x2 }
-
-        let x3 = Z + tv6 * (tv2 * tv2 * tv3) * (tv2 * tv2 * tv3)
-        return x3
-    }
-    func calculateY(_ x: ComplexValue, _ u: ComplexValue) -> ComplexValue {
-        let y1 = squareRoot(f(x))
-        return isNegative(u) == isNegative(y1) ? y1 : -y1
-    }
-}
-private extension Curve.BLS12_381_G2 {
-    func abs(_ x: ComplexValue) -> ComplexValue { isNegative(x) ? -x : x }
-    func multiplicativeInverse(_ x: ComplexValue) -> ComplexValue { x.modInverse(p) }
-    func squareRoot(_ x: ComplexValue) -> ComplexValue { x.sqrtMod(p) }
-    func isNegative(_ x: ComplexValue) -> Bool {
-        let x0 = x.real.mod(p), x1 = x.imaginary!.mod(p)
-
-        let sign0 = x0.mod(2) == 1
-        let zero0 = x0 == 0
-        let sign1 = x1.mod(2) == 1
-        return sign0 || (zero0 && sign1)
-    }
-    func isSquare(_ x: ComplexValue) -> Bool { let x0 = x.real, x1 = x.imaginary!
-        // MARK: Pre-calculated
-        let c1 = (p - 1) * BInt(2).modInverse(p)
-        
-        // MARK: Temporary Values
-        let tv1 = x0 * x0
-        let tv2 = x1 * x1
-        let tv3 = (tv1 + tv2).expMod(c1.mod(p), p)
-
-        let neg1 = BInt(-1).mod(p)
-        return tv3 != neg1
-    }
+    func mapToCurve(_ u: ComplexValue) -> CurvePoint { MapToCurve(self).svdw(u) }
 }
 
 // MARK: - Base Point
