@@ -67,50 +67,30 @@ extension MapToCurve {
         // MARK: Temporary Values
         let tv1 = (Z * Z * c2 + Z * c1).modInverse(p)
 
-        var x1 = -B * A.modInverse(p) * (1 + tv1)
-
-        if tv1.real.mod(p) == 0 && tv1.imaginary?.mod(p) == 0 { x1 = B * (Z * A).modInverse(p) }
-
-
-
-        let gx1 = x1.exp(3, p) + A * x1 + B
-        let x2 = Z * c1 * x1
-
-        let gx2 = x2.exp(3, p) + A * x2 + B
-
-        
-        var (x, y) = {
-            if isSquare(gx1) { return (x1, squareRoot(gx1)) }
-            return (x2, squareRoot(gx2))
-        }()
-
-        if isNegative(u) != isNegative(y) { y.negate() }
-
-        return .init(xComplex: x, yComplex: y, curve).modularized()
-
-
-
-
-
         // MARK: Calculating x and y
-//        let x = sswuCalculateX()
-//        let y = sswuCalculateY()
-//        return .init(xComplex: x, yComplex: y, curve).modularized()
+        var (x, y) = swuCalculateCoordinates(c1, tv1, A, B)
+        if isNegative(u) != isNegative(y) { y.negate() }
+        return .init(xComplex: x, yComplex: y, curve).modularized()
     }
 }
 private extension MapToCurve {
-    func swuCalculateX() -> ComplexValue {
-        fatalError()
-    }
-    func swuCalculateY() -> ComplexValue {
-        fatalError()
-    }
-}
-private extension MapToCurve {
+    func swuCalculateCoordinates(_ c1: ComplexValue, _ tv1: ComplexValue, _ A: ComplexValue, _ B: ComplexValue) -> (x: ComplexValue, y: ComplexValue) {
+        let x1 = swuCalculateXCandidate1(tv1, A, B)
+        let gx1 = x1.exp(3, p) + A * x1 + B
+        if isSquare(gx1) { return (x1, squareRoot(gx1)) }
 
+        let x2 = Z * c1 * x1
+        let gx2 = x2.exp(3, p) + A * x2 + B
+        return (x2, squareRoot(gx2))
+    }
 }
 private extension MapToCurve {
-
+    func swuCalculateXCandidate1(_ tv1: ComplexValue, _ A: ComplexValue, _ B: ComplexValue) -> ComplexValue { let tv1 = tv1.mod(p)
+        switch tv1.real == 0 && tv1.imaginary == 0 {
+            case true: return B * (Z * A).modInverse(p)
+            case false: return -B * A.modInverse(p) * (1 + tv1)
+        }
+    }
 }
 
 // MARK: - Simplified SWU for AB == 0
