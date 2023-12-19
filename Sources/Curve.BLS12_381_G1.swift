@@ -115,51 +115,7 @@ private extension Curve.BLS12_381_G1 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
-    func mapToCurve(_ u: ComplexValue) -> CurvePoint { let u = u.real
-        // MARK: Pre-calculated
-        let c1 = f([Z]).real,
-            c2 = u * u * c1,
-            c3 = 3 * Z * Z + 4 * A.real
-
-        // MARK: Temporary Values
-        let tv1 = 1 - c2
-        let tv2 = 1 + c2
-        let tv3 = multiplicativeInverse(tv1 * tv2)
-        let tv4 = abs(squareRoot(-c1 * c3))
-        let tv5 = u * tv1 * tv3 * tv4
-        let tv6 = -4 * c1 * multiplicativeInverse(c3)
-
-        // MARK: Calculating x and y
-        let x = calculateX(tv2, tv3, tv5, tv6)
-        let y = calculateY(x, u)
-        return .init(x: x, y: y, self).modularized()
-    }
-}
-private extension Curve.BLS12_381_G1 {
-    func calculateX(_ tv2: BInt, _ tv3: BInt, _ tv5: BInt, _ tv6: BInt) -> BInt {
-        let x1 = -Z / 2 - tv5
-        if isSquare(f([x1]).real) { return x1 }
-
-        let x2 = -Z / 2 + tv5
-        if isSquare(f([x2]).real) { return x2 }
-
-        let x3 = Z + tv6 * (tv2 * tv2 * tv3) ** 2
-        return x3
-    }
-    func calculateY(_ x: BInt, _ u: BInt) -> BInt {
-        let y1 = squareRoot(f([x]).real)
-        return isNegative(u) == isNegative(y1) ? y1 : -y1
-    }
-}
-private extension Curve.BLS12_381_G1 {
-    func abs(_ x: BInt) -> BInt { isNegative(x) ? -x : x }
-    func multiplicativeInverse(_ x: BInt) -> BInt { x.modInverse(p) }
-    func squareRoot(_ x: BInt) -> BInt { x.sqrtMod(p)! }
-    func isNegative(_ x: BInt) -> Bool { x.mod(2) == 1 }
-    func isSquare(_ x: BInt) -> Bool {
-        let a =  x.expMod((p - 1) / 2, p)
-        return a == 0 || a == 1
-    }
+    func mapToCurve(_ u: ComplexValue) -> CurvePoint { MapToCurve(self).svdw(u) }
 }
 
 // MARK: - Base Point
