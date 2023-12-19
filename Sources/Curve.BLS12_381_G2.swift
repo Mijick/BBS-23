@@ -13,7 +13,7 @@ import Foundation
 import BigInt
 
 extension Curve { struct BLS12_381_G2: CurveSuite {
-    let dst: String = "hacspec_v0.1.0_BLS12381G2_XMD:SHA-256_SVDW_RO_"
+    let dst: String = "QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SSWU_RO_"
     let A: ComplexValue = [0, 0]
     let Aʹ: ComplexValue = [0, 240]
     let B: ComplexValue = [4, 4]
@@ -22,7 +22,7 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
     let r: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
     let m: Int = 2
     let L: Int = 64
-    let Z: BInt = -1
+    let Z: ComplexValue = [-2, -1]
     let hEff: BInt = .init(hex: "bc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551")
     let expandMessage: MessageExpander
 }}
@@ -121,7 +121,7 @@ private extension Curve.BLS12_381_G2 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G2 {
-    func mapToCurve(_ u: ComplexValue) -> CurvePoint { MapToCurve(self).svdw(u) }
+    func mapToCurve(_ u: ComplexValue) -> CurvePoint { MapToCurve(self).sswu(u) }
 }
 
 // MARK: - Base Point
@@ -133,6 +133,33 @@ extension Curve.BLS12_381_G2 {
     var BPy: ComplexValue {[
         .init(hex: "0ce5d527727d6e118cc9cdc6da2e351aadfd9baa8cbdd3a76d429a695160d12c923ac9cc3baca289e193548608b82801"),
         .init(hex: "0606c4a02ea734cc32acd2b02bc28b99cb3e287e85a763af267492ab572e99ab3f370d275cec1da1aaa9075ff05f79be")
+    ]}
+}
+
+// MARK: - Isogeny Map Values
+extension Curve.BLS12_381_G2 {
+    var xNumConstants: [ComplexValue] {[
+        ["5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6", "5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97d6"],
+        ["0", "11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71a"],
+        ["11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71e", "8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38d"],
+        ["171d6541fa38ccfaed6dea691f5fb614cb14b4e7f4e810aa22d6108f142b85757098e38d0f671c7188e2aaaaaaaa5ed1", "0"]
+    ]}
+    var xDenConstants: [ComplexValue] {[
+        ["0", "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa63"],
+        ["c", "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa9f"]
+    ]}
+}
+extension Curve.BLS12_381_G2 {
+    var yNumConstants: [ComplexValue] {[
+        ["1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706", "1530477c7ab4113b59a4c18b076d11930f7da5d4a07f649bf54439d87d27e500fc8c25ebf8c92f6812cfc71c71c6d706"],
+        ["0", "5c759507e8e333ebb5b7a9a47d7ed8532c52d39fd3a042a88b58423c50ae15d5c2638e343d9c71c6238aaaaaaaa97be"],
+        ["11560bf17baa99bc32126fced787c88f984f87adf7ae0c7f9a208c6b4f20a4181472aaa9cb8d555526a9ffffffffc71c", "8ab05f8bdd54cde190937e76bc3e447cc27c3d6fbd7063fcd104635a790520c0a395554e5c6aaaa9354ffffffffe38f"],
+        ["124c9ad43b6cf79bfbf7043de3811ad0761b0f37a1e26286b0e977c69aa274524e79097a56dc4bd9e1b371c71c718b10", "0"]
+    ]}
+    var yDenConstants: [ComplexValue] {[
+        ["1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb", "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa8fb"],
+        ["0", "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffa9d3"],
+        ["12", "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaa99"]
     ]}
 }
 
