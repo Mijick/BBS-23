@@ -43,7 +43,7 @@ protocol CurveSuite {
     var L: Int { get }
 
     /// A non-zero element of F
-    var Z: BInt { get }
+    var Z: ComplexValue { get }
 
     /// Scalar parameter for clearCofactor method
     var hEff: BInt { get }
@@ -68,6 +68,15 @@ protocol CurveSuite {
 
     /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
     func mapToCurve(_ u: ComplexValue) -> CurvePoint
+
+
+    // MARK: Isogeny Map Values
+
+    var xNumConstants: [ComplexValue] { get }
+    var xDenConstants: [ComplexValue] { get }
+
+    var yNumConstants: [ComplexValue] { get }
+    var yDenConstants: [ComplexValue] { get }
 }
 
 // MARK: - Helpers
@@ -82,6 +91,20 @@ extension CurveSuite {
         let point3 = point1 + point2
         let resultPoint = clearCofactor(point3)
         return resultPoint
+    }
+
+    /// Takes as input a point on E' and produces as output a point on E
+    func isoMap(_ point: CurvePoint) -> CurvePoint {
+        // MARK: Calculating X
+        let xNum = calculateNum(point.xComplex, xNumConstants), xDen = calculateDen(point.xComplex, xDenConstants)
+        let x = xNum * (xDen.modInverse(p))
+
+        // MARK: Calculating Y
+        let yNum = calculateNum(point.xComplex, yNumConstants), yDen = calculateDen(point.xComplex, yDenConstants)
+        let y = point.yComplex * yNum * yDen.modInverse(p)
+
+        let point = CurvePoint(xComplex: x, yComplex: y, self)
+        return point.modularized()
     }
 
     /// Returns a base point on the G subgroup
@@ -109,6 +132,30 @@ private extension CurveSuite {
 
     /// Sends any point on the curve E to the subgroup G of E
     func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
+}
+
+// MARK: - Iso Map Helpers
+private extension CurveSuite {
+    func calculateNum(_ x: ComplexValue, _ array: [ComplexValue]) -> ComplexValue {
+        var result = ComplexValue(real: 0, imaginary: x.imaginary != nil ? 0 : nil)
+
+        for i in 0..<array.count {
+            let valueToAdd = array[i] * x.exp(BInt(i), p)
+            result = (result + valueToAdd).mod(p)
+        }
+
+        return result
+    }
+    func calculateDen(_ x: ComplexValue, _ array: [ComplexValue]) -> ComplexValue {
+        var result = ComplexValue(real: 0, imaginary: x.imaginary != nil ? 0 : nil)
+
+        for i in 0...array.count {
+            let valueToAdd = i < array.count ? array[i] * x.exp(BInt(i), p) : x.exp(BInt(i), p)
+            result = (result + valueToAdd).mod(p)
+        }
+
+        return result
+    }
 }
 
 // MARK: - Hash to Field Helpers
