@@ -103,7 +103,7 @@ private extension CurveSuite {
         )
 
         let listOfElements = createListOfElements(uniformBytes, count)
-        let complexValues = listOfElements.map { ComplexValue(real: $0.first!, imaginary: $0.last) }
+        let complexValues = listOfElements.map { ComplexValue(real: $0.first!, imaginary: $0.first == $0.last ? nil : $0.last) }
         return complexValues
     }
 
