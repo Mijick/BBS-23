@@ -12,8 +12,9 @@
 import BigInt
 
 // MARK: - Initialisers
-extension BInt: ExpressibleByIntegerLiteral {
+extension BInt: ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
     public init(integerLiteral value: Int) { self.init(value) }
+    public init(stringLiteral value: StringLiteralType) { self.init(hex: value) }
     init(decimal value: String) { self.init(value, radix: 10)! }
     init(hex value: String) { self.init(value, radix: 16)! }
 }
