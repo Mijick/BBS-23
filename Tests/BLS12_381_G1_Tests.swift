@@ -41,63 +41,52 @@ extension BLS12_381_G1_Tests {
         let result = try! curve.hashToCurve(bytes)
 
         let expectedResult = CurvePoint(
-            x: .init(decimal: "1313210275672700111308352674601622299567967208952874617848198534618033373180005948258080857613483172152669619450156"),
-            y: .init(decimal: "1083295271268767428731160781525866738409174349759914625290950147650093304199984227500696625519803933645046968350465"),
+            x: "052926add2207b76ca4fa57a8734416c8dc95e24501772c814278700eed6d1e4e8cf62d9c09db0fac349612b759e79a1",
+            y: "08ba738453bfed09cb546dbb0783dbb3a5f1f566ed67bb6be0e8c67e2e81a4cc68ee29813bb7994998f3eae0c9c6a265",
             curve
         )
         XCTAssertEqual(result, expectedResult)
     }
     func test_hashToCurve_2() {
-        let bytes = "dupa".asAsciiToByteRepresentation()
+        let bytes = "abc".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 
         let expectedResult = CurvePoint(
-            x: .init(decimal: "1884843941653414368475955735510076771473193597258793412200662461796743345834930586634187508555411875536978671276600"),
-            y: .init(decimal: "3998133779577042359401839916139720389094479906177237041387130170803842993385608109169962552208130318543665366561446"), 
+            x: "03567bc5ef9c690c2ab2ecdf6a96ef1c139cc0b2f284dca0a9a7943388a49a3aee664ba5379a7655d3c68900be2f6903",
+            y: "0b9c15f3fe6e5cf4211f346271d7b01c8f3b28be689c8429c85b67af215533311f0b8dfaaa154fa6b88176c229f2885d",
             curve
         )
         XCTAssertEqual(result, expectedResult)
     }
     func test_hashToCurve_3() {
-        let bytes = "dupaichuj".asAsciiToByteRepresentation()
+        let bytes = "abcdef0123456789".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 
         let expectedResult = CurvePoint(
-            x: .init(decimal: "2525244196980909815712533457285123938921364526079561686444557145011031873224548838424004128145853527915858555276581"),
-            y: .init(decimal: "213293326143961106857610083006051487007518626645100171231620727374803828316356460366221539157100528096126317723530"),
+            x: "11e0b079dea29a68f0383ee94fed1b940995272407e3bb916bbf268c263ddd57a6a27200a784cbc248e84f357ce82d98",
+            y: "03a87ae2caf14e8ee52e51fa2ed8eefe80f02457004ba4d486d6aa1f517c0889501dc7413753f9599b099ebcbbd2d709",
             curve
         )
         XCTAssertEqual(result, expectedResult)
     }
     func test_hashToCurve_4() {
-        let bytes = "okurwamac".asAsciiToByteRepresentation()
+        let bytes = "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 
         let expectedResult = CurvePoint(
-            x: .init(decimal: "1031246738451272257918307649645427926126395098676218623157461618035668551328720548531524570871230389539697713933182"),
-            y: .init(decimal: "3770865391344759460897441956007821360607472141384078872418818486419925991873542360161539566057289824728296659129050"),
+            x: "15f68eaa693b95ccb85215dc65fa81038d69629f70aeee0d0f677cf22285e7bf58d7cb86eefe8f2e9bc3f8cb84fac488",
+            y: "1807a1d50c29f430b8cafc4f8638dfeeadf51211e1602a5f184443076715f91bb90a48ba1e370edce6ae1062f5e6dd38",
             curve
         )
         XCTAssertEqual(result, expectedResult)
     }
     func test_hashToCurve_5() {
-        let bytes = "pieczenie piernikow przez Torunian powinno byc zakazane przez prawo miedzynarodowe.".asAsciiToByteRepresentation()
+        let bytes = "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 
         let expectedResult = CurvePoint(
-            x: .init(decimal: "1278083421294808417487381979194215394741441131170149498603963275091933404422884520940122971643343165438916416339897"),
-            y: .init(decimal: "3924986838989227302927496476314937392988475931350994455553380556641394682120529136588994367413427051617110065728651"),
-            curve
-        )
-        XCTAssertEqual(result, expectedResult)
-    }
-    func test_hashToCurve_6() {
-        let bytes = "dawaj maniek, to sie kameruje. no kurwa rzeczywiscie. o jak boli, o jak boli 2".asAsciiToByteRepresentation()
-        let result = try! curve.hashToCurve(bytes)
-
-        let expectedResult = CurvePoint(
-            x: .init(decimal: "744343983355628319577143793596632634444111008816928581411055010232077762116075746203334616964647403685472939637088"),
-            y: .init(decimal: "502955259366278838524493247094988415363442630696454663206096420715703405237497499290174785888582595912514953000301"),
+            x: "082aabae8b7dedb0e78aeb619ad3bfd9277a2f77ba7fad20ef6aabdc6c31d19ba5a6d12283553294c1825c4b3ca2dcfe",
+            y: "05b84ae5a942248eea39e1d91030458c40153f3b654ab7872d779ad1e942856a20c438e8d99bc8abfbf74729ce1f7ac8",
             curve
         )
         XCTAssertEqual(result, expectedResult)
