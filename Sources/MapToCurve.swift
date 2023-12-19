@@ -22,7 +22,7 @@ class MapToCurve {
 extension MapToCurve {
     func svdw(_ u: ComplexValue) -> CurvePoint {
         // MARK: Pre-calculated
-        let c1 = f([Z, 0]),
+        let c1 = f(Z),
             c2 = u * u * c1,
             c3 = 3 * Z * Z + 4 * A
 
@@ -59,10 +59,52 @@ private extension MapToCurve {
 
 // MARK: - Simplified Shallue-van de Woestijne-Ulas method
 extension MapToCurve {
+    func swu(_ u: ComplexValue, A: ComplexValue? = nil, B: ComplexValue? = nil) -> CurvePoint { let A = A ?? self.A, B = B ?? self.B
+        // MARK: Pre-calculated
+        let c1 = u.exp(2, p),
+            c2 = (c1 * c1).mod(p)
 
+        // MARK: Temporary Values
+        let tv1 = (Z * Z * c2 + Z * c1).modInverse(p)
+
+        var x1 = -B * A.modInverse(p) * (1 + tv1)
+
+        if tv1.real.mod(p) == 0 && tv1.imaginary?.mod(p) == 0 { x1 = B * (Z * A).modInverse(p) }
+
+
+
+        let gx1 = x1.exp(3, p) + A * x1 + B
+        let x2 = Z * c1 * x1
+
+        let gx2 = x2.exp(3, p) + A * x2 + B
+
+        
+        var (x, y) = {
+            if isSquare(gx1) { return (x1, squareRoot(gx1)) }
+            return (x2, squareRoot(gx2))
+        }()
+
+        if isNegative(u) != isNegative(y) { y.negate() }
+
+        return .init(xComplex: x, yComplex: y, curve).modularized()
+
+
+
+
+
+        // MARK: Calculating x and y
+//        let x = sswuCalculateX()
+//        let y = sswuCalculateY()
+//        return .init(xComplex: x, yComplex: y, curve).modularized()
+    }
 }
 private extension MapToCurve {
-
+    func swuCalculateX() -> ComplexValue {
+        fatalError()
+    }
+    func swuCalculateY() -> ComplexValue {
+        fatalError()
+    }
 }
 private extension MapToCurve {
 
@@ -73,16 +115,12 @@ private extension MapToCurve {
 
 // MARK: - Simplified SWU for AB == 0
 extension MapToCurve {
+    func sswu(_ u: ComplexValue) -> CurvePoint {
+        let curvePointʹ = swu(u, A: Aʹ, B: Bʹ)
+        let curvePoint = curve.isoMap(curvePointʹ)
 
-}
-private extension MapToCurve {
-
-}
-private extension MapToCurve {
-
-}
-private extension MapToCurve {
-
+        return curvePoint
+    }
 }
 
 
@@ -125,5 +163,7 @@ private extension MapToCurve {
     var p: BInt { curve.p }
     var A: ComplexValue { curve.A }
     var Aʹ: ComplexValue { curve.Aʹ }
-    var Z: BInt { curve.Z }
+    var B: ComplexValue { curve.B }
+    var Bʹ: ComplexValue { curve.Bʹ }
+    var Z: ComplexValue { curve.Z }
 }
