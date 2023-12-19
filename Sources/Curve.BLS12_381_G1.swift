@@ -14,8 +14,10 @@ import BigInt
 
 extension Curve { struct BLS12_381_G1: CurveSuite {
     let dst: String = "QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SSWU_RO_"
-    let A: BInt = 0
+    let A: ComplexValue = [0]
+    var Aʹ: ComplexValue = [.init(hex: "144698a3b8e9433d693a02c96d4982b0ea985383ee66a8d8e8981aefd881ac98936f8da0e0f97f5cf428082d584c1d")]
     let B: ComplexValue = [4]
+    var Bʹ: ComplexValue = [.init(hex: "12e2908d11688030018b12e8753eee3b2016c1f0f24f4070a0b9c14fcef35ef55a23215a316ceaa5d1cc48e98e172be0")]
     let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
     let r: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
     let m: Int = 1
@@ -113,24 +115,39 @@ private extension Curve.BLS12_381_G1 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
-    func mapToCurve(_ u: ComplexValue) -> CurvePoint { let u = u.real
-        // MARK: Pre-calculated
-        let c1 = f([Z]).real,
-            c2 = u * u * c1,
-            c3 = 3 * Z * Z + 4 * A
+    func mapToCurve(_ u: ComplexValue) -> CurvePoint {
+        
 
-        // MARK: Temporary Values
-        let tv1 = 1 - c2
-        let tv2 = 1 + c2
-        let tv3 = multiplicativeInverse(tv1 * tv2)
-        let tv4 = abs(squareRoot(-c1 * c3))
-        let tv5 = u * tv1 * tv3 * tv4
-        let tv6 = -4 * c1 * multiplicativeInverse(c3)
 
-        // MARK: Calculating x and y
-        let x = calculateX(tv2, tv3, tv5, tv6)
-        let y = calculateY(x, u)
-        return .init(x: x, y: y, self).modularized()
+
+
+        fatalError()
+
+
+
+
+
+
+
+
+//        let u = u.real
+//        // MARK: Pre-calculated
+//        let c1 = f([Z]).real,
+//            c2 = u * u * c1,
+//            c3 = 3 * Z * Z + 4 * A
+//
+//        // MARK: Temporary Values
+//        let tv1 = 1 - c2
+//        let tv2 = 1 + c2
+//        let tv3 = multiplicativeInverse(tv1 * tv2)
+//        let tv4 = abs(squareRoot(-c1 * c3))
+//        let tv5 = u * tv1 * tv3 * tv4
+//        let tv6 = -4 * c1 * multiplicativeInverse(c3)
+//
+//        // MARK: Calculating x and y
+//        let x = calculateX(tv2, tv3, tv5, tv6)
+//        let y = calculateY(x, u)
+//        return .init(x: x, y: y, self).modularized()
     }
 }
 private extension Curve.BLS12_381_G1 {

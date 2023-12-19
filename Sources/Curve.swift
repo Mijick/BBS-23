@@ -19,10 +19,16 @@ protocol CurveSuite {
     var dst: String { get }
 
     /// Basic curve defined by: y^2 = x^3 + Ax + B
-    var A: BInt { get }
+    var A: ComplexValue { get }
+
+    /// Prime curve defined by: y^2 = x^3 + Aʹx + Bʹ
+    var Aʹ: ComplexValue { get }
 
     /// Basic curve defined by: y^2 = x^3 + Ax + B
     var B: ComplexValue { get }
+
+    /// Prime curve defined by: y^2 = x^3 + Aʹx + Bʹ
+    var Bʹ: ComplexValue { get }
 
     /// Characteristic of the field F
     var p: BInt { get }
@@ -81,8 +87,11 @@ extension CurveSuite {
     /// Returns a base point on the G subgroup
     func getBasePoint() -> CurvePoint { .init(xComplex: BPx, yComplex: BPy, self) }
 
-    /// Function that defines the curve
+    /// Function that defines the basic curve
     func f(_ x: ComplexValue) -> ComplexValue { x * x * x + A * x + B }
+
+    /// Function that defines the prime curve
+    func fʹ(_ x: ComplexValue) -> ComplexValue { x * x * x + Aʹ * x + Bʹ }
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
