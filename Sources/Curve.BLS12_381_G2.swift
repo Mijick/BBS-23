@@ -14,7 +14,7 @@ import BigInt
 
 extension Curve { struct BLS12_381_G2: CurveSuite {
     let dst: String = "hacspec_v0.1.0_BLS12381G2_XMD:SHA-256_SVDW_RO_"
-    let A: ComplexValue = [0]
+    let A: ComplexValue = [0, 0]
     let Aʹ: ComplexValue = [0, 240]
     let B: ComplexValue = [4, 4]
     let Bʹ: ComplexValue = [1012, 1012]
@@ -133,7 +133,7 @@ extension Curve.BLS12_381_G2 {
         let tv3 = multiplicativeInverse(tv1 * tv2)
         let tv4 = abs(squareRoot(-c1 * c3))
         let tv5 = u * tv1 * tv3 * tv4
-        let tv6 = -4 * c1 * multiplicativeInverse([c3, 0])
+        let tv6 = -4 * c1 * multiplicativeInverse(c3)
 
         // MARK: Calculating x and y
         let x = calculateX(tv2, tv3, tv5, tv6)

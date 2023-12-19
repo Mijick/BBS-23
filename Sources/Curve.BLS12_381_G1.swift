@@ -121,7 +121,7 @@ extension Curve.BLS12_381_G1 {
 
 
 
-        fatalError()
+        //fatalError()
 
 
 
@@ -130,24 +130,24 @@ extension Curve.BLS12_381_G1 {
 
 
 
-//        let u = u.real
-//        // MARK: Pre-calculated
-//        let c1 = f([Z]).real,
-//            c2 = u * u * c1,
-//            c3 = 3 * Z * Z + 4 * A
-//
-//        // MARK: Temporary Values
-//        let tv1 = 1 - c2
-//        let tv2 = 1 + c2
-//        let tv3 = multiplicativeInverse(tv1 * tv2)
-//        let tv4 = abs(squareRoot(-c1 * c3))
-//        let tv5 = u * tv1 * tv3 * tv4
-//        let tv6 = -4 * c1 * multiplicativeInverse(c3)
-//
-//        // MARK: Calculating x and y
-//        let x = calculateX(tv2, tv3, tv5, tv6)
-//        let y = calculateY(x, u)
-//        return .init(x: x, y: y, self).modularized()
+        let u = u.real
+        // MARK: Pre-calculated
+        let c1 = f([Z]).real,
+            c2 = u * u * c1,
+            c3 = 3 * Z * Z + 4 * A.real
+
+        // MARK: Temporary Values
+        let tv1 = 1 - c2
+        let tv2 = 1 + c2
+        let tv3 = multiplicativeInverse(tv1 * tv2)
+        let tv4 = abs(squareRoot(-c1 * c3))
+        let tv5 = u * tv1 * tv3 * tv4
+        let tv6 = -4 * c1 * multiplicativeInverse(c3)
+
+        // MARK: Calculating x and y
+        let x = calculateX(tv2, tv3, tv5, tv6)
+        let y = calculateY(x, u)
+        return .init(x: x, y: y, self).modularized()
     }
 }
 private extension Curve.BLS12_381_G1 {
