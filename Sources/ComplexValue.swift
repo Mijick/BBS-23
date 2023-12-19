@@ -62,7 +62,7 @@ extension ComplexValue {
         return .init(real: real.mod(m), imaginary: imaginary?.mod(m))
     }
     func mod(_ x: BInt) -> ComplexValue { .init(real: real.mod(x), imaginary: imaginary?.mod(x)) }
-    func sqrtMod(_ p: BInt) -> ComplexValue {
+    func sqrtMod(_ p: BInt) -> ComplexValue { //if imaginary == nil { return .init(real: real.sqrtMod(p)!) }
         // MARK: Pre-calculated
         let c1 = (p - 3) * BInt(4).modInverse(p),
             c2 = (p - 1) * BInt(2).modInverse(p)
