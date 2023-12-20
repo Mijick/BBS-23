@@ -13,7 +13,7 @@ import Foundation
 import BigInt
 
 extension Cipher { struct BLS12_381_SHA_256: CipherSuite {
-    let id: String = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_"
+    let id: String = "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_"
     let octetScalarLength: Int = 32
     let octetPointLength: Int = 48
     let expandLength: Int = 48

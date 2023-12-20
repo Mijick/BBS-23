@@ -58,7 +58,7 @@ extension Utilities {
         // MARK: Parameters
         let seedDst = getSeedDst(apiID),
             generatorDst = getGeneratorDst(apiID),
-            generatorSeed = getGeneratorSeed(seed, apiID)
+            generatorSeed = getGeneratorSeed(apiID)
 
         // MARK: Variables
         var generators: [CurvePoint] = []
@@ -85,9 +85,7 @@ private extension Utilities {
         let generator = "SIG_GENERATOR_DST_".asAsciiToByteRepresentation()
         return apiID.concatenate(with: generator)
     }
-    func getGeneratorSeed(_ seed: [UInt8], _ apiID: [UInt8]) -> [UInt8] {
-        if !seed.isEmpty { return seed }
-
+    func getGeneratorSeed(_ apiID: [UInt8]) -> [UInt8] {
         let generatorSeed = "MESSAGE_GENERATOR_SEED".asAsciiToByteRepresentation()
         return apiID.concatenate(with: generatorSeed)
     }
@@ -95,7 +93,7 @@ private extension Utilities {
 
 // MARK: - Converting to Scalar
 extension Utilities {
-    func messagesToScalars(messages: [[UInt8]], apiID: [UInt8] = []) throws -> [BInt] {
+    func messagesToScalars(messages: [[UInt8]], apiID: [UInt8]) throws -> [BInt] {
         guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.ConvertToScalar.invalidMessageLength }
 
         let map_dst = apiID.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())

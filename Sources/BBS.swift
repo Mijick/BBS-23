@@ -39,7 +39,7 @@ private extension BBS {
 }
 private extension BBS {
     var defaultKeyInfo: [UInt8] { [] }
-    var defaultKeyDst: [UInt8] { cipher.id.asAsciiToByteRepresentation().concatenate(with: "KEYGEN_DST_".asAsciiToByteRepresentation()) }
+    var defaultKeyDst: [UInt8] { cipher.id.asAsciiToByteRepresentation().concatenate(with: "H2G_HM2S_KEYGEN_DST_".asAsciiToByteRepresentation()) }
 
 }
 
