@@ -80,15 +80,33 @@ extension CurvePoint: Equatable {
 
 // MARK: - Point Addition
 extension CurvePoint {
-    static func +(p1: Self, p2: Self) -> CurvePoint {
-        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(xComplex: [], yComplex: nil, p1.curve) }
+    static func +(p1: Self, p2: Self) -> CurvePoint { let p1 = p1.modularized(), p2 = p2.modularized(), curve = p1.curve, p = curve.p
+        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(xComplex: [], yComplex: nil, curve) }
 
-        let curve = p1.curve, p = curve.p
-        let λ = (p2.yComplex - p1.yComplex) * (p2.xComplex - p1.xComplex).modInverse(p)
+        let λ = addCalculateLambda(p1, p2, p)
+        let x = addCalculateX(p1, p2, λ, p)
+        let y = addCalculateY(p1, x, λ, p)
 
-        let x3 = λ * λ - p1.xComplex - p2.xComplex
-        let y3 = λ * (p1.xComplex - x3) - p1.yComplex
-        return .init(xComplex: x3.mod(p), yComplex: y3.mod(p), curve)
+        let point = CurvePoint(xComplex: x, yComplex: y, curve)
+        return point.modularized()
+    }
+}
+private extension CurvePoint {
+    static func addCalculateLambda(_ p1: Self, _ p2: Self, _ p: BInt) -> ComplexValue {
+        let lλ = (p2.yComplex - p1.yComplex).mod(p)
+        let rλ = (p2.xComplex - p1.xComplex).modInverse(p)
+
+        return (lλ * rλ).mod(p)
+    }
+    static func addCalculateX(_ p1: Self, _ p2: Self, _ λ: ComplexValue, _ p: BInt) -> ComplexValue {
+        let λ² = (λ * λ).mod(p)
+        return λ² - p1.xComplex - p2.xComplex
+    }
+    static func addCalculateY(_ p1: Self, _ x: ComplexValue, _ λ: ComplexValue, _ p: BInt) -> ComplexValue {
+        let lr = (p1.xComplex - x).mod(p)
+        let l = (λ * lr).mod(p)
+
+        return l - p1.yComplex
     }
 }
 
@@ -105,13 +123,31 @@ extension CurvePoint {
     static func *(scalar: BInt, point: Self) -> CurvePoint { point * scalar }
 }
 private extension CurvePoint {
-    func double() -> CurvePoint {
-        let λ = (3 * xComplex * xComplex) * (2 * yComplex).modInverse(curve.p)
+    func double() -> CurvePoint { let p = curve.p, xComplex = xComplex.mod(p), yComplex = yComplex.mod(p)
+        let λ = doubleCalculateLambda(xComplex, yComplex, p)
+        let x = doubleCalculateX(xComplex, λ, p)
+        let y = doubleCalculateY(xComplex, yComplex, x, λ, p)
 
-        let x3 = λ * λ - 2 * xComplex
-        let y3 = λ * (xComplex - x3) - yComplex
+        let point = CurvePoint(xComplex: x, yComplex: y, curve)
+        return point.modularized()
+    }
+}
+private extension CurvePoint {
+    func doubleCalculateLambda(_ xComplex: ComplexValue, _ yComplex: ComplexValue, _ p: BInt) -> ComplexValue {
+        let lλ = (3 * xComplex * xComplex).mod(curve.p)
+        let rλ = (2 * yComplex).modInverse(curve.p)
 
-        return CurvePoint(xComplex: x3.mod(curve.p), yComplex: y3.mod(curve.p), curve)
+        return (lλ * rλ).mod(p)
+    }
+    func doubleCalculateX(_ xComplex: ComplexValue, _ λ: ComplexValue, _ p: BInt) -> ComplexValue {
+        let λ² = (λ * λ).mod(p)
+        return λ² - 2 * xComplex
+    }
+    func doubleCalculateY(_ xComplex: ComplexValue, _ yComplex: ComplexValue, _ x: ComplexValue, _ λ: ComplexValue, _ p: BInt) -> ComplexValue {
+        let lr = xComplex - x
+        let l = (λ * lr).mod(p)
+
+        return l - yComplex
     }
 }
 
