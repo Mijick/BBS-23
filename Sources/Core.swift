@@ -54,7 +54,7 @@ private extension Core {
             B = B + (p1 * p2)
         }
 
-        let point = B * (secretKey + scalar).modInverse(ciphersuite.curveG1.p)
+        let point = B * (secretKey + scalar).modInverse(ciphersuite.curveG1.r)
         return point
     }
 }
