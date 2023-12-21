@@ -112,9 +112,6 @@ extension CurveSuite {
 
     /// Function that defines the basic curve
     func f(_ x: ComplexValue) -> ComplexValue { x * x * x + A * x + B }
-
-    /// Function that defines the prime curve
-    func fʹ(_ x: ComplexValue) -> ComplexValue { x * x * x + Aʹ * x + Bʹ }
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F

@@ -17,7 +17,7 @@ final class BLS12_381_G1_Tests: XCTestCase {}
 // MARK: - Point Serialization & Deserialization
 extension BLS12_381_G1_Tests {
     func testSerialization_1() throws {
-        let bytes = "b301803f8b5ac4a1133581fc676dfedc60d891dd5fa99028805e5ea5b08d3491af75d0707adab3b70c1a6a580217bf85".asHexToByteRepresentation()
+        let bytes = "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9".asHexToByteRepresentation()
 
         let deserializedPoint = try curve.deserializePoint(bytes)
         let serializedPoint = try curve.serializePoint(deserializedPoint)

@@ -137,7 +137,6 @@ private extension MapToCurve {
 // MARK: - Curve Helpers
 private extension MapToCurve {
     func f(_ x: ComplexValue) -> ComplexValue { curve.f(x) }
-    func fʹ(_ x: ComplexValue) -> ComplexValue { curve.fʹ(x) }
 }
 private extension MapToCurve {
     var p: BInt { curve.p }
