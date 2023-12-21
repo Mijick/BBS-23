@@ -55,7 +55,7 @@ extension BBS {
 extension BBS {
     func generateSignature(secretKey: BInt, publicKey: [UInt8], header: [UInt8] = [], messages: [[UInt8]] = []) throws -> [UInt8] {
         let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID),
-            generators = try utilities.createGenerators(count: messages.count + 1, seed: publicKey, apiID: apiID),
+            generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID),
             commitment = CurvePoint(x: 0, y: nil, cipher.curveG1)
 
         let signature = try core.coreSign(secretKey: secretKey, publicKey: publicKey, generators: generators, header: header, messages: messageScalars, commitment: commitment, apiID: apiID)

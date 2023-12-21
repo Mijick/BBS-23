@@ -50,7 +50,7 @@ private extension Curve.BLS12_381_G1 {
     }
 }
 private extension Curve.BLS12_381_G1 {
-    func calculateSerializationYFlag(_ y: BInt) -> UInt8 { y > (-y).mod(r) ? serializationYFlag : 0 }
+    func calculateSerializationYFlag(_ y: BInt) -> UInt8 { y > (-y).mod(p) ? serializationYFlag : 0 }
 }
 private extension Curve.BLS12_381_G1 {
     var serializationInfinityFlag: UInt8 { 192 }
@@ -107,7 +107,7 @@ private extension Curve.BLS12_381_G1 {
     }
     func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint) {
         let yFlag = (bytes[0] & serializationYFlag) > 0
-        let yComparisonFlag = point.y > (-point.y).mod(r)
+        let yComparisonFlag = point.y > (-point.y).mod(p)
 
         if yFlag != yComparisonFlag { point.y.negate() }
     }

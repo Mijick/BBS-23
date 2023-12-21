@@ -54,7 +54,7 @@ private extension Curve.BLS12_381_G2 {
 private extension Curve.BLS12_381_G2 {
     func calculateSerializationLeftSide(_ point: CurvePoint) throws -> [UInt8] { try point.xComplex.imaginary!.toBytes(expectedLength: 48) }
     func calculateSerializationRightSide(_ point: CurvePoint) throws -> [UInt8] { try point.xComplex.real.toBytes(expectedLength: 48) }
-    func calculateSerializationYFlag(_ y: ComplexValue?) -> UInt8 { y > -y?.mod(r) ? serializationYFlag : 0 }
+    func calculateSerializationYFlag(_ y: ComplexValue?) -> UInt8 { y > -y?.mod(p) ? serializationYFlag : 0 }
 }
 private extension Curve.BLS12_381_G2 {
     var serializationInfinityFlag: UInt8 { 192 }
@@ -113,7 +113,7 @@ private extension Curve.BLS12_381_G2 {
     }
     func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint) {
         let yFlag = (bytes[0] & serializationYFlag) > 0
-        let yComparisonFlag = point.yComplex > (-point.yComplex).mod(r)
+        let yComparisonFlag = point.yComplex > (-point.yComplex).mod(p)
 
         if yFlag != yComparisonFlag { point.yComplex.negate() }
     }

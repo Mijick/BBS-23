@@ -52,7 +52,7 @@ private extension Utilities {
 
 // MARK: - Creating Generators
 extension Utilities {
-    func createGenerators(count: BInt, seed: [UInt8], apiID: [UInt8]) throws -> [CurvePoint] {
+    func createGenerators(count: BInt, apiID: [UInt8]) throws -> [CurvePoint] {
         if count > BInt(2) ** 64 - 1 { throw Error.CreateGenerators.cannotGenerateThatAmountOfGenerators }
 
         // MARK: Parameters
@@ -126,7 +126,6 @@ private extension Utilities {
         if let point = element as? CurvePoint { return try serializePoint(point) }
         if let integer = element as? BInt { return try serializeInteger(integer) }
         if let integer = element as? Int { return try serializeInteger(BInt(integer)) }
-        if let byteArray = element as? [UInt8] { return byteArray }
 
         throw Error.Serialization.notValidElement
     }
@@ -140,7 +139,6 @@ private extension Utilities {
     }
     func serializeInteger(_ integer: BInt) throws -> [UInt8] {
         if integer > 0 && integer < 2 ** 64 { return try integer.toBytes(expectedLength: 8) }
-
         return try integer.toBytes(expectedLength: ciphersuite.octetScalarLength)
     }
 }
