@@ -20,13 +20,13 @@ class Core {
 
 // MARK: - Core Sign
 extension Core {
-    func coreSign(secretKey: BInt, publicKey: [UInt8], generators: [CurvePoint], header: [UInt8], messages: [BInt], commitment: CurvePoint, apiID: [UInt8]) throws -> [UInt8] {
+    func coreSign(secretKey: BInt, publicKey: [UInt8], generators: [CurvePoint], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> [UInt8] {
         try checkCoreSignInput(generators, messages)
 
         let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
+
         let scalar = try createScalar(secretKey, domain, messages, apiID)
         let point = createPoint(secretKey, scalar, generators, domain, messages)
-
         let signature = try utilities.signatureToOctets(signature: (point, scalar))
         return signature
     }
@@ -38,10 +38,9 @@ private extension Core {
     func createScalar(_ secretKey: BInt, _ domain: BInt, _ messages: [BInt], _ apiID: [UInt8]) throws -> BInt {
         let signatureDst = getSignatureDst(apiID)
 
-        let scalarInputArray = [secretKey, domain] + messages
-        let serializedScalar = try utilities.serialize(input: scalarInputArray)
-
+        let serializedScalar = try utilities.serialize(input: [secretKey, domain] + messages)
         let scalar = try utilities.hashToScalar(serializedScalar, signatureDst)
+
         if secretKey == (-scalar).mod(ciphersuite.curveG1.p) { throw Error.CoreSign.insufficientRandomness }
         return scalar
     }
