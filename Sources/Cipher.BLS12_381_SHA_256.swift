@@ -27,6 +27,6 @@ extension Cipher { struct BLS12_381_SHA_256: CipherSuite {
         self.expandMessage = ExpandMessage.XMD(hasher: hash)
         self.curveG1 = Curve.BLS12_381_G1(expandMessage: expandMessage)
         self.curveG2 = Curve.BLS12_381_G2(expandMessage: expandMessage)
-        self.p1 = .init(x: .init(hex: "a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9"), curveG1)
+        self.p1 = try! curveG1.deserializePoint("a8ce256102840821a3e94ea9025e4662b205762f9776b3a766c872b948f1fd225e7c59698588e70d11406d161b4e28c9".asHexToByteRepresentation())
     }
 }}
