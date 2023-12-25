@@ -18,7 +18,7 @@ class Core {
     init(_ ciphersuite: CipherSuite) { self.ciphersuite = ciphersuite }
 }
 
-// MARK: - Core Sign
+// MARK: - Core Signature
 extension Core {
     func coreSign(secretKey: BInt, publicKey: [UInt8], generators: [CurvePoint], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> [UInt8] {
         try checkCoreSignInput(generators, messages)
@@ -65,6 +65,145 @@ private extension Core {
     }
 }
 
+// MARK: - Core Proof Generation
+extension Core {
+    func proofGeneration(publicKey: [UInt8], signature: [UInt8], generators: [CurvePoint], header: [UInt8], presentationHeader: [UInt8], messages: [BInt], disclosedIndexes: [Int], apiID: [UInt8]) throws -> [UInt8] {
+        try checkProofGenerationEntryData(messages, disclosedIndexes)
+
+        let undisclosedIndexes = getUndisclosedIndexes(messages, disclosedIndexes),
+            disclosedMessages = getMessages(messages, disclosedIndexes),
+            undisclosedMessages = getMessages(messages, undisclosedIndexes),
+            signatureResult = try utilities.octetsToSignature(signatureOctets: signature),
+            randomScalars = try getRandomScalars(messages, disclosedIndexes)
+
+        let initRes = try proofInit(publicKey: publicKey, signature: signatureResult, generators: generators, randomScalars: randomScalars, header: header, messages: messages, undisclosedIndexes: undisclosedIndexes, apiID: apiID)
+        let challenge = try proofChallengeCalculate(initRes: initRes, iArray: disclosedIndexes, msgArray: disclosedMessages, presentationHeader: presentationHeader, apiID: apiID)
+
+        let proof = proofFinalize(initRes: initRes, challenge: challenge, eValue: signatureResult.scalar, randomScalars: randomScalars, undisclosedMessages: undisclosedMessages)
+        return proof
+    }
+}
+private extension Core {
+    func checkProofGenerationEntryData(_ messages: [BInt], _ disclosedIndexes: [Int]) throws {
+        if disclosedIndexes.count > messages.count { throw Error.CoreProof.incorrectDisclosedIndexes }
+        if disclosedIndexes.contains(where: { $0 < 0 || $0 >= messages.count }) { throw Error.CoreProof.incorrectDisclosedIndexes }
+    }
+    func getUndisclosedIndexes(_ messages: [BInt], _ disclosedIndexes: [Int]) -> [Int] { .init(0..<messages.count).filter { !disclosedIndexes.contains($0) } }
+    func getMessages(_ messages: [BInt], _ indexes: [Int]) -> [BInt] { indexes.reduce(into: []) { $0.append(messages[$1]) } }
+    func getRandomScalars(_ messages: [BInt], _ disclosedIndexes: [Int]) throws -> [BInt] { try utilities.calculateRandomScalars(count: 5 + messages.count - disclosedIndexes.count) }
+}
+
+// MARK: - Proof Init
+extension Core {
+    func proofInit(publicKey: [UInt8], signature: (point: CurvePoint, scalar: BInt), generators: [CurvePoint], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt) {
+        let L = messages.count
+        let U = undisclosedIndexes.count
+
+        if randomScalars.count != U + 5 { fatalError() }
+        if generators.count != L + 1 { fatalError() }
+
+        let (A, e) = signature
+
+        let Q1 = generators.first!
+        let msgGenerators = Array(generators[1..<generators.count])
+
+
+        if undisclosedIndexes.contains(where: { $0 < 1 || $0 > L }) { fatalError() }
+
+        var hj: [CurvePoint] = []
+        for index in undisclosedIndexes {
+            hj.append(msgGenerators[index])
+        }
+
+        if U > L { fatalError() }
+
+        let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
+
+
+
+        var B = ciphersuite.p1
+
+        for index in 0..<generators.count {
+            let p1 = generators[index]
+            let p2 = ([domain] + messages)[index]
+
+            B = B + (p1 * p2)
+        }
+
+
+        let D = B * randomScalars[1]
+        let Abar = A * (randomScalars[0] * randomScalars[1])
+        let Bbar = D * randomScalars[0] + (-(Abar * e))
+
+        let T1 = Abar * randomScalars[2] + D * randomScalars[0]
+        let T2: CurvePoint? = nil //D * randomScalars[4]
+
+
+        print(T1.x.mod(ciphersuite.curveG1.p).asString(radix: 16, uppercase: false))
+
+//
+//        let Abar = A * randomScalars.first!
+//        let Bbar = (B * randomScalars.first!) + (-(Abar * e))
+//
+//
+//        var T: CurvePoint = .init(x: 0, y: 0, ciphersuite.curveG1)
+//
+//        let arr = [Abar, Bbar] + hj
+//
+//        for index in 0..<arr.count {
+//            T = T + (arr[index] * randomScalars[index + 1])
+//        }
+
+
+        return (Abar, Bbar, T1, domain)
+    }
+}
+
+// MARK: - Proof Challenge Calculation
+extension Core {
+    func proofChallengeCalculate(initRes: (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt), iArray: [Int], msgArray: [BInt], presentationHeader: [UInt8], apiID: [UInt8]) throws -> BInt {
+
+        let challengeDst = apiID
+            .concatenate(with: "H2S_".asAsciiToByteRepresentation())
+
+
+        let R = iArray.count
+        
+        let (Abar, Bbar, C, domain) = initRes
+
+        if R > 2 ** 64 - 1 || R != msgArray.count { fatalError() }
+
+        
+        if presentationHeader.count > 2 ** 64 - 1 { fatalError() }
+
+        let cArr: [Any] = [Abar, Bbar, C, R] + iArray + msgArray + [domain]
+        let cOcts = try utilities
+            .serialize(input: cArr)
+            .concatenate(with: presentationHeader.count.toBytes(expectedLength: 8))
+            .concatenate(with: presentationHeader)
+
+        return try utilities.hashToScalar(cOcts, challengeDst)
+    }
+}
+
+// MARK: - Proof Finalize
+extension Core {
+    func proofFinalize(initRes: (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt), challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) -> [UInt8] {
+        let U = undisclosedMessages.count
+
+        if randomScalars.count != U + 3 { fatalError() }
+
+        let (Abar, Bbar) = (initRes.p1, initRes.p2)
+
+        
+
+
+
+        fatalError()
+    }
+
+}
+
 // MARK: - Helpers
 private extension Core {
     var utilities: Utilities { .init(ciphersuite) }
@@ -75,4 +214,14 @@ private extension Core {
 fileprivate typealias Error = CoreError
 enum CoreError {
     enum CoreSign: Swift.Error { case tooLessGenerators, insufficientRandomness }
+    enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
+}
+
+
+
+
+
+
+extension Array {
+
 }
