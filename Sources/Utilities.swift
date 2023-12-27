@@ -131,8 +131,8 @@ extension Utilities {
 private extension Utilities {
     func serializeElement(_ element: Any) throws -> [UInt8] {
         if let point = element as? CurvePoint { return try serializePoint(point) }
-        if let integer = element as? BInt { return try serializeInteger(integer) }
-        if let integer = element as? Int { return try serializeInteger(BInt(integer)) }
+        if let integer = element as? BInt { return try integer.toBytes(expectedLength: ciphersuite.octetScalarLength) }
+        if let integer = element as? Int { return try integer.toBytes(expectedLength: 8) }
 
         throw Error.Serialization.notValidElement
     }
@@ -143,10 +143,6 @@ private extension Utilities {
         if point.isPointOfG2() { return try ciphersuite.curveG2.serializePoint(point) }
 
         throw Error.Serialization.notValidElement
-    }
-    func serializeInteger(_ integer: BInt) throws -> [UInt8] {
-        if integer > 0 && integer < 2 ** 64 { return try integer.toBytes(expectedLength: 8) }
-        return try integer.toBytes(expectedLength: ciphersuite.octetScalarLength)
     }
 }
 
