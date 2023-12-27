@@ -72,7 +72,7 @@ extension Core {
         let initRes = try proofInit(publicKey: publicKey, signature: signatureResult, generators: generators, randomScalars: randomScalars, header: header, messages: messages, undisclosedIndexes: undisclosedIndexes, apiID: apiID)
         let challenge = try proofChallengeCalculate(initProof: initRes, disclosedMessages: disclosedMessages, disclosedIndexes: disclosedIndexes, presentationHeader: presentationHeader, apiID: apiID)
 
-        let proof = try proofFinalize(initRes: initRes, challenge: challenge, eValue: signatureResult.scalar, randomScalars: randomScalars, undisclosedMessages: undisclosedMessages)
+        let proof = try proofFinalize(initRes: initRes, challenge: challenge, e: signatureResult.e, randomScalars: randomScalars, undisclosedMessages: undisclosedMessages)
         return proof
     }
 }
@@ -96,8 +96,8 @@ extension Core {
 
         // MARK: Proof Points
         let D = B * randomScalars[1]
-        let Abar = signature.point * randomScalars[0] * randomScalars[1]
-        let Bbar = D * randomScalars[0] - Abar * signature.scalar
+        let Abar = signature.A * randomScalars[0] * randomScalars[1]
+        let Bbar = D * randomScalars[0] - Abar * signature.e
         let T1 = Abar * randomScalars[2] + D * randomScalars[3]
         let T2 = getPointT2(D, generators, randomScalars, undisclosedIndexes)
 
@@ -164,14 +164,25 @@ private extension Core {
 
 // MARK: - Proof Finalize
 extension Core {
-    func proofFinalize(initRes: ProofInitVector, challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) throws -> [UInt8] {
+    func proofFinalize(initRes: ProofInitVector, challenge: BInt, e: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) throws -> [UInt8] {
         try checkProofFinalizeEntryData(randomScalars, undisclosedMessages)
 
-        
+        let c = "067fb8c56b2af454562358b1509632f92f2116c020fe7de1ba242effdb36e980".asHexToByteRepresentation().toInteger()
 
 
 
-        let proof = (initRes.Abar, initRes.Bbar, initRes.D, BInt(0), BInt(0), BInt(0), [BInt](), challenge)
+        let tv1 = randomScalars[1].modInverse(ciphersuite.curveG1.r)
+
+
+        let e = (randomScalars[2] + e * c).mod(ciphersuite.curveG1.r)
+        let r1 = (randomScalars[3] - randomScalars[0] * c).mod(ciphersuite.curveG1.r)
+        let r3 = (randomScalars[4] - tv1 * c).mod(ciphersuite.curveG1.r)
+
+
+
+
+
+        let proof = (initRes.Abar, initRes.Bbar, initRes.D, e, r1, r3, [BInt](), challenge)
         return try utilities.proofToOctets(proof)
     }
 
@@ -205,7 +216,7 @@ enum CoreError {
 
 typealias ProofInitVector = (Abar: CurvePoint, Bbar: CurvePoint, D: CurvePoint, T1: CurvePoint, T2: CurvePoint, domain: BInt)
 typealias Proof = (Abar: CurvePoint, Bbar: CurvePoint, D: CurvePoint, e: BInt, r1: BInt, r3: BInt, m: [BInt], challenge: BInt)
-typealias Signature = (point: CurvePoint, scalar: BInt)
+typealias Signature = (A: CurvePoint, e: BInt)
 
 
 

@@ -132,13 +132,13 @@ extension UtilitiesTest {
             utilities.ciphersuite.curveG1
         )
         let scalar = BInt(hex: "1004262112c3eaa95941b2b0d1311c09c845db0099a50e67eda628ad26b43083")
-        let signature = (point: point, scalar: scalar)
+        let signature = (A: point, e: scalar)
 
         let signatureOctets = try utilities.signatureToOctets(signature: signature)
         let octetsSignature = try utilities.octetsToSignature(signatureOctets: signatureOctets)
 
-        XCTAssertEqual(signature.point, octetsSignature.point)
-        XCTAssertEqual(signature.scalar, octetsSignature.scalar)
+        XCTAssertEqual(signature.A, octetsSignature.A)
+        XCTAssertEqual(signature.e, octetsSignature.e)
     }
 }
 
