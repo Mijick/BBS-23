@@ -11,6 +11,16 @@
 
 import Foundation
 
+// MARK: - Appending
+extension Array {
+    func appending(_ elements: [Element]) -> Self {
+        var array = self
+        array.append(contentsOf: elements)
+        return array
+    }
+}
+
+// MARK: - Getting
 extension Array {
     func get(_ index: Int) -> Element? { count > index ? self[index] : nil }
 }

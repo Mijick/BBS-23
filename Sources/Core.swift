@@ -94,13 +94,11 @@ extension Core {
         let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
         let B = getPointB(generators, domain, messages)
 
-        // MARK: Proof Points
         let D = B * randomScalars[1]
         let Abar = signature.A * randomScalars[0] * randomScalars[1]
         let Bbar = D * randomScalars[0] - Abar * signature.e
         let T1 = Abar * randomScalars[2] + D * randomScalars[3]
         let T2 = getPointT2(D, generators, randomScalars, undisclosedIndexes)
-
         return (Abar, Bbar, D, T1, T2, domain)
     }
 }
@@ -208,20 +206,4 @@ enum CoreError {
     enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
     enum Challenge: Swift.Error { case disclosedMessagesMustBeOfTheSameLengthAsDisclosedIndexes, tooManyDisclosedIndexes, tooBigPresentationHeader }
     enum CoreProofFinalize: Swift.Error { case tooLessRandomScalars }
-}
-
-
-
-typealias ProofInitVector = (Abar: CurvePoint, Bbar: CurvePoint, D: CurvePoint, T1: CurvePoint, T2: CurvePoint, domain: BInt)
-typealias Proof = (Abar: CurvePoint, Bbar: CurvePoint, D: CurvePoint, e: BInt, r1: BInt, r3: BInt, m: [BInt], challenge: BInt)
-typealias Signature = (A: CurvePoint, e: BInt)
-
-
-
-extension Array {
-    func appending(_ elements: [Element]) -> Self {
-        var array = self
-        array.append(contentsOf: elements)
-        return array
-    }
 }
