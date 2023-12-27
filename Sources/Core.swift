@@ -101,9 +101,6 @@ extension Core {
         let T1 = Abar * randomScalars[2] + D * randomScalars[3]
         let T2 = getPointT2(D, generators, randomScalars, undisclosedIndexes)
 
-        print(try! utilities.serialize(input: [T2]).toHexRepresentation())
-
-
         return (Abar, Bbar, D, T1, T2, domain)
     }
 }
