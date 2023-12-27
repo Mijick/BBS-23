@@ -24,3 +24,7 @@ protocol CipherSuite {
     var curveG2: CurveSuite { get }
     var expandMessage: MessageExpander { get }
 }
+extension CipherSuite {
+    var p: BInt { curveG1.p }
+    var r: BInt { curveG1.r }
+}
