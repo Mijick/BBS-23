@@ -70,7 +70,9 @@ extension Core {
             randomScalars = try getRandomScalars(messages, disclosedIndexes)
 
         let initRes = try proofInit(publicKey: publicKey, signature: signatureResult, generators: generators, randomScalars: randomScalars, header: header, messages: messages, undisclosedIndexes: undisclosedIndexes, apiID: apiID)
-        let challenge = try proofChallengeCalculate(initRes: initRes, iArray: disclosedIndexes, msgArray: disclosedMessages, presentationHeader: presentationHeader, apiID: apiID)
+        let challenge = try proofChallengeCalculate(initProof: initRes, disclosedMessages: disclosedMessages, disclosedIndexes: disclosedIndexes, presentationHeader: presentationHeader, apiID: apiID)
+
+        print(challenge.mod(ciphersuite.curveG1.r).asString(radix: 16, uppercase: false))
 
         let proof = proofFinalize(initRes: initRes, challenge: challenge, eValue: signatureResult.scalar, randomScalars: randomScalars, undisclosedMessages: undisclosedMessages)
         return proof
@@ -88,7 +90,7 @@ private extension Core {
 
 // MARK: - Proof Init
 extension Core {
-    func proofInit(publicKey: [UInt8], signature: Signature, generators: [CurvePoint], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> ProofVector {
+    func proofInit(publicKey: [UInt8], signature: Signature, generators: [CurvePoint], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> ProofInitVector {
         try checkProofInitEntryData(generators, randomScalars, messages, undisclosedIndexes)
 
         let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
@@ -126,39 +128,50 @@ private extension Core {
 
 // MARK: - Proof Challenge Calculation
 extension Core {
-    func proofChallengeCalculate(initRes: ProofVector, iArray: [Int], msgArray: [BInt], presentationHeader: [UInt8], apiID: [UInt8]) throws -> BInt {
+    func proofChallengeCalculate(initProof: ProofInitVector, disclosedMessages: [BInt], disclosedIndexes: [Int], presentationHeader: [UInt8], apiID: [UInt8]) throws -> BInt {
+        try checkChallengeEntryData(disclosedMessages, disclosedIndexes, presentationHeader)
 
-        let challengeDst = apiID
-            .concatenate(with: "H2S_".asAsciiToByteRepresentation())
-
-
-        let R = iArray.count
-        
-        let (Abar, Bbar, C, domain, _, _) = initRes
-
-        if R > 2 ** 64 - 1 || R != msgArray.count { fatalError() }
-
-        
-        if presentationHeader.count > 2 ** 64 - 1 { fatalError() }
-
-        let cArr: [Any] = [Abar, Bbar, C, R] + iArray + msgArray + [domain]
-        let cOcts = try utilities
-            .serialize(input: cArr)
-            .concatenate(with: presentationHeader.count.toBytes(expectedLength: 8))
-            .concatenate(with: presentationHeader)
+        let challengeDst = getChallengeDst(apiID)
+        let cArr = getChallengeArray(initProof, disclosedMessages, disclosedIndexes)
+        let cOcts = try getChallengeOcts(cArr, presentationHeader)
 
         return try utilities.hashToScalar(cOcts, challengeDst)
+    }
+}
+private extension Core {
+    func checkChallengeEntryData(_ disclosedMessages: [BInt], _ disclosedIndexes: [Int], _ presentationHeader: [UInt8]) throws {
+        if disclosedMessages.count != disclosedIndexes.count { throw Error.Challenge.disclosedMessagesMustBeOfTheSameLengthAsDisclosedIndexes }
+        if disclosedIndexes.count > 2 ** 64 - 1 { throw Error.Challenge.tooManyDisclosedIndexes }
+        if presentationHeader.count > 2 ** 64 - 1 { throw Error.Challenge.tooBigPresentationHeader }
+    }
+    func getChallengeArray(_ initProof: ProofInitVector, _ disclosedMessages: [BInt], _ disclosedIndexes: [Int]) -> [Any] { []
+        .appending([initProof.Abar, initProof.Bbar, initProof.D, initProof.T1, initProof.T2])
+        .appending([disclosedIndexes.count])
+        .appending(disclosedIndexes)
+        .appending(disclosedMessages)
+        .appending([initProof.domain])
+    }
+    func getChallengeOcts(_ array: [Any], _ presentationHeader: [UInt8]) throws -> [UInt8] { try utilities
+        .serialize(input: array)
+        .concatenate(with: presentationHeader.count.toBytes(expectedLength: 8))
+        .concatenate(with: presentationHeader)
+    }
+}
+private extension Core {
+    func getChallengeDst(_ apiID: [UInt8]) -> [UInt8] {
+        let challenge = "H2S_".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: challenge)
     }
 }
 
 // MARK: - Proof Finalize
 extension Core {
-    func proofFinalize(initRes: ProofVector, challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) -> [UInt8] {
+    func proofFinalize(initRes: ProofInitVector, challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) -> [UInt8] {
         let U = undisclosedMessages.count
 
         if randomScalars.count != U + 5 { fatalError() }
 
-        let (Abar, Bbar) = (initRes.p1, initRes.p2)
+        //let (Abar, Bbar) = (initRes.p1, initRes.p2)
 
         
 
@@ -184,9 +197,20 @@ enum CoreError {
     enum CoreSign: Swift.Error { case tooLessGenerators, insufficientRandomness }
     enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
     enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
+    enum Challenge: Swift.Error { case disclosedMessagesMustBeOfTheSameLengthAsDisclosedIndexes, tooManyDisclosedIndexes, tooBigPresentationHeader }
 }
 
 
 
-typealias ProofVector = (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, p4: CurvePoint, p5: CurvePoint, scalar: BInt)
+typealias ProofInitVector = (Abar: CurvePoint, Bbar: CurvePoint, D: CurvePoint, T1: CurvePoint, T2: CurvePoint, domain: BInt)
 typealias Signature = (point: CurvePoint, scalar: BInt)
+
+
+
+extension Array {
+    func appending(_ elements: [Element]) -> Self {
+        var array = self
+        array.append(contentsOf: elements)
+        return array
+    }
+}
