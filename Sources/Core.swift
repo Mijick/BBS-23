@@ -45,15 +45,8 @@ private extension Core {
         return scalar
     }
     func createPoint(_ secretKey: BInt, _ scalar: BInt, _ generators: [CurvePoint], _ domain: BInt, _ messages: [BInt]) -> CurvePoint {
-        var B = ciphersuite.p1
-
-        for index in 0..<generators.count {
-            let p1 = generators[index]
-            let p2 = ([domain] + messages)[index]
-
-            B = B + (p1 * p2)
-        }
-
+        let B = getPointB(generators, domain, messages)
+        
         let point = B * (secretKey + scalar).modInverse(ciphersuite.curveG1.r)
         return point
     }
@@ -98,48 +91,21 @@ extension Core {
     func proofInit(publicKey: [UInt8], signature: (point: CurvePoint, scalar: BInt), generators: [CurvePoint], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt) {
         try checkProofInitEntryData(generators, randomScalars, messages, undisclosedIndexes)
 
-
-
-        let (A, e) = signature
-
-
-        let msgGenerators = Array(generators[1..<generators.count])
-
-
-
-        var hj: [CurvePoint] = []
-        for index in undisclosedIndexes {
-            hj.append(msgGenerators[index])
-        }
-
-
-        
-
+        // MARK: Pre-calculated elements
+        let undisclosedMsgGenerators = getGeneratorsForUndisclosedMessages(generators, undisclosedIndexes)
         let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
 
-
-
-        var B = ciphersuite.p1
-
-        for index in 0..<generators.count {
-            let p1 = generators[index]
-            let p2 = ([domain] + messages)[index]
-
-            B = B + (p1 * p2)
-        }
-
-
-
+        // MARK: Points
+        let B = getPointB(generators, domain, messages)
         let D = B * randomScalars[1]
-
-
-        let Abar = A * (randomScalars[0] * randomScalars[1])
-        let Bbar = D * randomScalars[0] + (-(Abar * e))
+        let Abar = signature.point * randomScalars[0] * randomScalars[1]
+        let Bbar = D * randomScalars[0] - Abar * signature.scalar
 
         let T1 = Abar * randomScalars[2] + D * randomScalars[3]
         let T2: CurvePoint? = nil //D * randomScalars[4]
 
 
+        //randomScalars.forEach { print($0.asString(radix: 16, uppercase: false)) }
         print(try! utilities.serialize(input: [T1]).toHexRepresentation())
 
 //
@@ -166,6 +132,7 @@ private extension Core {
         if undisclosedIndexes.count > messages.count { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
         if undisclosedIndexes.contains(where: { $0 < 0 || $0 >= messages.count }) { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
     }
+    func getGeneratorsForUndisclosedMessages(_ generators: [CurvePoint], _ undisclosedIndexes: [Int]) -> [CurvePoint] { undisclosedIndexes.reduce(into: []) { $0.append(Array(generators[1..<generators.count])[$1]) } }
 }
 
 // MARK: - Proof Challenge Calculation
@@ -215,6 +182,9 @@ extension Core {
 
 // MARK: - Helpers
 private extension Core {
+    func getPointB(_ generators: [CurvePoint], _ domain: BInt, _ messages: [BInt]) -> CurvePoint { generators.enumerated().reduce(ciphersuite.p1) { $0 + ($1.element * ([domain] + messages)[$1.offset]) } }
+}
+private extension Core {
     var utilities: Utilities { .init(ciphersuite) }
 }
 
@@ -225,13 +195,4 @@ enum CoreError {
     enum CoreSign: Swift.Error { case tooLessGenerators, insufficientRandomness }
     enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
     enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
-}
-
-
-
-
-
-
-extension Array {
-
 }

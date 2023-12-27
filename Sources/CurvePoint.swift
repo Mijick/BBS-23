@@ -78,7 +78,7 @@ extension CurvePoint: Equatable {
     static func ==(p1: CurvePoint, p2: CurvePoint) -> Bool { p1.xComplex == p2.xComplex && p1.yComplex == p2.yComplex }
 }
 
-// MARK: - Point Addition
+// MARK: - Points Addition
 extension CurvePoint {
     static func +(p1: Self, p2: Self) -> CurvePoint { let p1 = p1.modularized(), p2 = p2.modularized(), curve = p1.curve, p = curve.p
         if p1.isAtInfinity() || p2.isAtInfinity() { return .init(xComplex: [], yComplex: nil, curve) }
@@ -149,6 +149,14 @@ private extension CurvePoint {
 
         return l - yComplex
     }
+}
+
+// MARK: - Points Substraction
+extension CurvePoint {
+    static func -(p1: Self, p2: Self) -> CurvePoint {p1 + (-p2) }
+}
+extension CurvePoint {
+    static prefix func -(p: CurvePoint) -> CurvePoint { .init(xComplex: p.xComplex, yComplex: -p.yComplex, p.curve).modularized() }
 }
 
 // MARK: - Others
