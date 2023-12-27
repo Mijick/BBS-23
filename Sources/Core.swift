@@ -167,22 +167,14 @@ extension Core {
     func proofFinalize(initRes: ProofInitVector, challenge: BInt, e: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) throws -> [UInt8] {
         try checkProofFinalizeEntryData(randomScalars, undisclosedMessages)
 
-        let c = "067fb8c56b2af454562358b1509632f92f2116c020fe7de1ba242effdb36e980".asHexToByteRepresentation().toInteger()
+        let tv1 = randomScalars[1].modInverse(ciphersuite.r)
 
+        let e = (randomScalars[2] + e * challenge).mod(ciphersuite.r)
+        let r1 = (randomScalars[3] - randomScalars[0] * challenge).mod(ciphersuite.r)
+        let r3 = (randomScalars[4] - tv1 * challenge).mod(ciphersuite.r)
+        let m = getMScalars(challenge, randomScalars, undisclosedMessages)
 
-
-        let tv1 = randomScalars[1].modInverse(ciphersuite.curveG1.r)
-
-
-        let e = (randomScalars[2] + e * c).mod(ciphersuite.curveG1.r)
-        let r1 = (randomScalars[3] - randomScalars[0] * c).mod(ciphersuite.curveG1.r)
-        let r3 = (randomScalars[4] - tv1 * c).mod(ciphersuite.curveG1.r)
-
-
-
-
-
-        let proof = (initRes.Abar, initRes.Bbar, initRes.D, e, r1, r3, [BInt](), challenge)
+        let proof = (initRes.Abar, initRes.Bbar, initRes.D, e, r1, r3, m, challenge)
         return try utilities.proofToOctets(proof)
     }
 
@@ -190,6 +182,12 @@ extension Core {
 private extension Core {
     func checkProofFinalizeEntryData(_ randomScalars: [BInt], _ undisclosedMessages: [BInt]) throws {
         if randomScalars.count != undisclosedMessages.count + 5 { throw Error.CoreProofFinalize.tooLessRandomScalars }
+    }
+    func getMScalars(_ challenge: BInt, _ randomScalars: [BInt], _ undisclosedMessages: [BInt]) -> [BInt] { 
+        if randomScalars.count < 6 { return [] }
+
+        let randomScalars = Array(randomScalars[5..<randomScalars.count])
+        return (0..<randomScalars.count).reduce([]) { $0 + [(randomScalars[$1] + undisclosedMessages[$1] * challenge).mod(ciphersuite.r)] }
     }
 }
 
