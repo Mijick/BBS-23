@@ -107,6 +107,12 @@ extension CurveSuite {
         return point.modularized()
     }
 
+    /// Checks whether the given y is negative. Should be used in serialization & deserialization
+    func isNegative(_ y: ComplexValue?) -> Bool {
+        let y = y?.imaginary ?? y?.real ?? 0
+        return y.mod(p) > (p - 1) / 2
+    }
+
     /// Returns a base point on the G subgroup
     func getBasePoint() -> CurvePoint { .init(xComplex: BPx, yComplex: BPy, self) }
 
