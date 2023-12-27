@@ -72,9 +72,7 @@ extension Core {
         let initRes = try proofInit(publicKey: publicKey, signature: signatureResult, generators: generators, randomScalars: randomScalars, header: header, messages: messages, undisclosedIndexes: undisclosedIndexes, apiID: apiID)
         let challenge = try proofChallengeCalculate(initProof: initRes, disclosedMessages: disclosedMessages, disclosedIndexes: disclosedIndexes, presentationHeader: presentationHeader, apiID: apiID)
 
-        print(challenge.mod(ciphersuite.curveG1.r).asString(radix: 16, uppercase: false))
-
-        let proof = proofFinalize(initRes: initRes, challenge: challenge, eValue: signatureResult.scalar, randomScalars: randomScalars, undisclosedMessages: undisclosedMessages)
+        let proof = try proofFinalize(initRes: initRes, challenge: challenge, eValue: signatureResult.scalar, randomScalars: randomScalars, undisclosedMessages: undisclosedMessages)
         return proof
     }
 }
@@ -166,20 +164,22 @@ private extension Core {
 
 // MARK: - Proof Finalize
 extension Core {
-    func proofFinalize(initRes: ProofInitVector, challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) -> [UInt8] {
-        let U = undisclosedMessages.count
-
-        if randomScalars.count != U + 5 { fatalError() }
-
-        //let (Abar, Bbar) = (initRes.p1, initRes.p2)
+    func proofFinalize(initRes: ProofInitVector, challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) throws -> [UInt8] {
+        try checkProofFinalizeEntryData(randomScalars, undisclosedMessages)
 
         
 
 
 
-        fatalError()
+        let proof = (initRes.Abar, initRes.Bbar, initRes.D, BInt(0), BInt(0), BInt(0), [BInt](), challenge)
+        return try utilities.proofToOctets(proof)
     }
 
+}
+private extension Core {
+    func checkProofFinalizeEntryData(_ randomScalars: [BInt], _ undisclosedMessages: [BInt]) throws {
+        if randomScalars.count != undisclosedMessages.count + 5 { throw Error.CoreProofFinalize.tooLessRandomScalars }
+    }
 }
 
 // MARK: - Helpers
@@ -198,11 +198,13 @@ enum CoreError {
     enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
     enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
     enum Challenge: Swift.Error { case disclosedMessagesMustBeOfTheSameLengthAsDisclosedIndexes, tooManyDisclosedIndexes, tooBigPresentationHeader }
+    enum CoreProofFinalize: Swift.Error { case tooLessRandomScalars }
 }
 
 
 
 typealias ProofInitVector = (Abar: CurvePoint, Bbar: CurvePoint, D: CurvePoint, T1: CurvePoint, T2: CurvePoint, domain: BInt)
+typealias Proof = (Abar: CurvePoint, Bbar: CurvePoint, D: CurvePoint, e: BInt, r1: BInt, r3: BInt, m: [BInt], challenge: BInt)
 typealias Signature = (point: CurvePoint, scalar: BInt)
 
 
