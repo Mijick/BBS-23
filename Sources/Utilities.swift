@@ -94,17 +94,24 @@ private extension Utilities {
 // MARK: - Converting to Scalar
 extension Utilities {
     func messagesToScalars(messages: [[UInt8]], apiID: [UInt8]) throws -> [BInt] {
-        guard messages.count <= BInt(2) ** 64 - 1 else { throw Error.ConvertToScalar.invalidMessageLength }
+        if messages.count > 2 ** 64 - 1 { throw Error.ConvertToScalar.invalidMessageLength }
 
-        let map_dst = apiID.concatenate(with: "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation())
-        return try messages.map { try hashToScalar($0, map_dst) }
+        let mapDst = getMapDst(apiID)
+        return try messages.map { try hashToScalar($0, mapDst) }
     }
     func hashToScalar(_ msg: [UInt8], _ dst: [UInt8]) throws -> BInt {
-        guard dst.count * 8 > 255 else { throw Error.ConvertToScalar.invalidDSTLength }
+        if dst.count > 255 { throw Error.ConvertToScalar.invalidDSTLength }
 
         let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
-        let number = Primitives.bytesToInteger(uniformBytes)
-        return number % ciphersuite.curveG1.r
+        return uniformBytes
+            .toInteger()
+            .mod(ciphersuite.curveG1.r)
+    }
+}
+private extension Utilities {
+    func getMapDst(_ apiID: [UInt8]) -> [UInt8] {
+        let mapDst = "MAP_MSG_TO_SCALAR_AS_HASH_".asAsciiToByteRepresentation()
+        return apiID.concatenate(with: mapDst)
     }
 }
 
@@ -146,19 +153,37 @@ private extension Utilities {
 // MARK: - Random Scalars
 extension Utilities {
     func calculateRandomScalars(count: BInt) throws -> [BInt] { let expandLength = ciphersuite.expandLength, r = ciphersuite.curveG2.r
-        var randomScalars: [BInt] = []
+        var randomScalars: [BInt] = [
+            "60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58f337",
+            "2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682ef811",
+            "6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1bc8c313cd",
+            "0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df62822dee072e8",
+            "639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad27ac2b2da1",
 
-        while randomScalars.count < count {
-            guard let randomScalar = [UInt8]
-                .random(length: expandLength)?
-                .toInteger()
-                .mod(r)
-            else { throw Error.RandomScalars.unexpectedErrorDuringGeneratingRandomScalars }
 
-            randomScalars.append(randomScalar)
-        }
+            
+            "4d99352986a9f8978b93485d21525244b21b396cf61f1d71f7c48e3fbc970a42",
 
-        return randomScalars
+            "5ed8be91662386243a6771fbdd2c627de31a44220e8d6f745bad5d99821a4880",
+            "62ff1734b939ddd87beeb37a7bbcafa0a274cbc1b07384198f0e88398272208d",
+            "05c2a0af016df58e844db8944082dcaf434de1b1e2e7136ec8a99b939b716223",
+            "485e2adab17b76f5334c95bf36c03ccf91cef77dcfcdc6b8a69e2090b3156663"
+
+
+
+        ]
+
+//        while randomScalars.count < count {
+//            guard let randomScalar = [UInt8]
+//                .random(length: expandLength)?
+//                .toInteger()
+//                .mod(r)
+//            else { throw Error.RandomScalars.unexpectedErrorDuringGeneratingRandomScalars }
+//
+//            randomScalars.append(randomScalar)
+//        }
+
+        return Array(randomScalars[0..<count.asInt()!])
     }
 }
 
@@ -178,15 +203,15 @@ private extension Utilities {
 
 // MARK: - Signature to Octets
 extension Utilities {
-    func signatureToOctets(signature: (point: CurvePoint, scalar: BInt)) throws -> [UInt8] {
-        let serializedSignature = try serialize(input: [signature.point, signature.scalar])
+    func signatureToOctets(signature: Signature) throws -> [UInt8] {
+        let serializedSignature = try serialize(input: [signature.A, signature.e])
         return serializedSignature
     }
 }
 
 // MARK: - Octets to Signature
 extension Utilities {
-    func octetsToSignature(signatureOctets: [UInt8]) throws -> (point: CurvePoint, scalar: BInt) {
+    func octetsToSignature(signatureOctets: [UInt8]) throws -> Signature {
         try precheckSignatureOctets(signatureOctets)
 
         let point = try deserializePoint(signatureOctets)
@@ -218,6 +243,30 @@ private extension Utilities {
         if scalar == 0 || scalar >= ciphersuite.curveG1.r { throw Error.OctetsToSignature.invalidScalar }
         return scalar
     }
+}
+
+// MARK: - Proof to Octets
+extension Utilities {
+    func proofToOctets(_ proof: Proof) throws -> [UInt8] {
+        let array = getProofSerializationArray(proof)
+        return try serialize(input: array)
+    }
+}
+private extension Utilities {
+    func getProofSerializationArray(_ proof: Proof) -> [Any] { []
+        .appending([proof.Abar, proof.Bbar, proof.D])
+        .appending([proof.e, proof.r1, proof.r3])
+        .appending(proof.m)
+        .appending([proof.challenge])
+    }
+}
+
+// MARK: - Octets to Proof
+extension Utilities {
+
+}
+private extension Utilities {
+    
 }
 
 
