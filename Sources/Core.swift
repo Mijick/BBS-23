@@ -88,41 +88,23 @@ private extension Core {
 
 // MARK: - Proof Init
 extension Core {
-    func proofInit(publicKey: [UInt8], signature: (point: CurvePoint, scalar: BInt), generators: [CurvePoint], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt) {
+    func proofInit(publicKey: [UInt8], signature: Signature, generators: [CurvePoint], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> ProofVector {
         try checkProofInitEntryData(generators, randomScalars, messages, undisclosedIndexes)
 
-        // MARK: Pre-calculated elements
-        let undisclosedMsgGenerators = getGeneratorsForUndisclosedMessages(generators, undisclosedIndexes)
         let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
-
-        // MARK: Points
         let B = getPointB(generators, domain, messages)
+
+        // MARK: Proof Points
         let D = B * randomScalars[1]
         let Abar = signature.point * randomScalars[0] * randomScalars[1]
         let Bbar = D * randomScalars[0] - Abar * signature.scalar
-
         let T1 = Abar * randomScalars[2] + D * randomScalars[3]
-        let T2: CurvePoint? = nil //D * randomScalars[4]
+        let T2 = getPointT2(D, generators, randomScalars, undisclosedIndexes)
+
+        print(try! utilities.serialize(input: [T2]).toHexRepresentation())
 
 
-        //randomScalars.forEach { print($0.asString(radix: 16, uppercase: false)) }
-        print(try! utilities.serialize(input: [T1]).toHexRepresentation())
-
-//
-//        let Abar = A * randomScalars.first!
-//        let Bbar = (B * randomScalars.first!) + (-(Abar * e))
-//
-//
-//        var T: CurvePoint = .init(x: 0, y: 0, ciphersuite.curveG1)
-//
-//        let arr = [Abar, Bbar] + hj
-//
-//        for index in 0..<arr.count {
-//            T = T + (arr[index] * randomScalars[index + 1])
-//        }
-
-
-        return (Abar, Bbar, T1, domain)
+        return (Abar, Bbar, D, T1, T2, domain)
     }
 }
 private extension Core {
@@ -132,12 +114,22 @@ private extension Core {
         if undisclosedIndexes.count > messages.count { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
         if undisclosedIndexes.contains(where: { $0 < 0 || $0 >= messages.count }) { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
     }
+    func getPointT2(_ D: CurvePoint, _ generators: [CurvePoint], _ randomScalars: [BInt], _ undisclosedIndexes: [Int]) -> CurvePoint {
+        let generators = [D] + getGeneratorsForUndisclosedMessages(generators, undisclosedIndexes),
+            randomScalars = Array(randomScalars[4..<randomScalars.count])
+
+        var T2 = generators[0] * randomScalars[0]
+        for index in 1..<generators.count { T2 = T2 + generators[index] * randomScalars[index] }
+        return T2
+    }
+}
+private extension Core {
     func getGeneratorsForUndisclosedMessages(_ generators: [CurvePoint], _ undisclosedIndexes: [Int]) -> [CurvePoint] { undisclosedIndexes.reduce(into: []) { $0.append(Array(generators[1..<generators.count])[$1]) } }
 }
 
 // MARK: - Proof Challenge Calculation
 extension Core {
-    func proofChallengeCalculate(initRes: (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt), iArray: [Int], msgArray: [BInt], presentationHeader: [UInt8], apiID: [UInt8]) throws -> BInt {
+    func proofChallengeCalculate(initRes: ProofVector, iArray: [Int], msgArray: [BInt], presentationHeader: [UInt8], apiID: [UInt8]) throws -> BInt {
 
         let challengeDst = apiID
             .concatenate(with: "H2S_".asAsciiToByteRepresentation())
@@ -145,7 +137,7 @@ extension Core {
 
         let R = iArray.count
         
-        let (Abar, Bbar, C, domain) = initRes
+        let (Abar, Bbar, C, domain, _, _) = initRes
 
         if R > 2 ** 64 - 1 || R != msgArray.count { fatalError() }
 
@@ -164,7 +156,7 @@ extension Core {
 
 // MARK: - Proof Finalize
 extension Core {
-    func proofFinalize(initRes: (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt), challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) -> [UInt8] {
+    func proofFinalize(initRes: ProofVector, challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) -> [UInt8] {
         let U = undisclosedMessages.count
 
         if randomScalars.count != U + 5 { fatalError() }
@@ -196,3 +188,8 @@ enum CoreError {
     enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
     enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
 }
+
+
+
+typealias ProofVector = (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, p4: CurvePoint, p5: CurvePoint, scalar: BInt)
+typealias Signature = (point: CurvePoint, scalar: BInt)
