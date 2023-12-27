@@ -41,10 +41,16 @@ extension BBSTests {
 // MARK: - Signature Generation
 extension BBSTests {
     func testSignatureGeneration_1() throws {
-        let message = messages[0]
+        let messages = [messages[0]]
 
-        let signature = try bbs.generateSignature(secretKey: secretKey, publicKey: publicKey, header: header, messages: [message])
-        let expectedSignature = "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1bc0bc75543c681bf061ce7e7f6091fe78c1cb8af103".asHexToByteRepresentation()
+        let signature = try bbs.generateSignature(secretKey: secretKey, publicKey: publicKey, header: header, messages: messages)
+        let expectedSignature = signatures[0]
+
+        XCTAssertEqual(signature, expectedSignature)
+    }
+    func testSignatureGeneration_2() throws {
+        let signature = try bbs.generateSignature(secretKey: secretKey, publicKey: publicKey, header: header, messages: messages)
+        let expectedSignature = signatures[1]
 
         XCTAssertEqual(signature, expectedSignature)
     }
@@ -53,7 +59,7 @@ extension BBSTests {
 // MARK: - Proof Generation
 extension BBSTests {
     func testProofGeneration_1() throws {
-        let messages = [messages[0]], revealedIndexes = [0]
+        let messages = [messages[0]], revealedIndexes = [0], signature = signatures[0]
 
         let proof = try bbs.generateProof(publicKey: publicKey, signature: signature, header: header, presentationHeader: presentationHeader, messages: messages, disclosedIndexes: revealedIndexes)
         let expectedProof = "a7c217109e29ecab846691eaad757beb8cc93356daf889856d310af5fc5587ea4f8b70b0d960c68b7aefa62cae806baa8edeca19ca3dd884fb977fc43d946dc2a0be8778ec9ff7a1dae2b49c1b5d75d775ba37652ae759b9bb70ba484c74c8b2aeea5597befbb651827b5eed5a66f1a959bb46cfd5ca1a817a14475960f69b32c54db7587b5ee3ab665fbd37b506830a0fdc9a7f71072daabd4cdb49038f5c55e84623400d5f78043a18f76b272fd65667373702763570c8a2f7c837574f6c6c7d9619b0834303c0f55b2314cec804b33833c7047865587b8e55619123183f832021dd97439f324fa3ad90ec45417070067fb8c56b2af454562358b1509632f92f2116c020fe7de1ba242effdb36e980".asHexToByteRepresentation()
@@ -61,7 +67,7 @@ extension BBSTests {
         XCTAssertEqual(proof, expectedProof)
     }
     func testProofGeneration_2() throws {
-        let revealedIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        let revealedIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], signature = signatures[1]
 
         let proof = try bbs.generateProof(publicKey: publicKey, signature: signature, header: header, presentationHeader: presentationHeader, messages: messages, disclosedIndexes: revealedIndexes)
         let expectedProof = "a6faacf33f935d1910f21b1bbe380adcd2de006773896a5bd2afce31a13874298f92e602a4d35aef5880786cffc5aaf08978484f303d0c85ce657f463b71905ee7c3c0c9038671d8fb925525f623745dc825b14fc50477f3de79ce8d915d841ba73c8c97264177a76c4a03341956d2ae45ed3438ce598d5cda4f1bf9507fecef47855480b7b30b5e4052c92a4360110c322b4cb2d9796ff2d741979226249dc14d4b1fd5ca1a8f6fdfc16f726fc7683e3605d5ec28d331111a22ed81729cbb3c8c3732c7593e445f802fc3169c26857622ed31bc058fdfe68d25f0c3b9615279719c64048ea9cdb74104b27757c2d01035507d39667d77d990ec5bda22c866fcc9fe70bb5b7826a2b4e861b6b8124fbd".asHexToByteRepresentation()
@@ -74,7 +80,10 @@ extension BBSTests {
 private extension BBSTests {
     var secretKey: BInt { "60e55110f76883a13d030b2f6bd11883422d5abde717569fc0731f51237169fc" }
     var publicKey: [UInt8] { "a820f230f6ae38503b86c70dc50b61c58a77e45c39ab25c0652bbaa8fa136f2851bd4781c9dcde39fc9d1d52c9e60268061e7d7632171d91aa8d460acee0e96f1e7c4cfb12d3ff9ab5d5dc91c277db75c845d649ef3c4f63aebc364cd55ded0c".asHexToByteRepresentation() }
-    var signature: [UInt8] { "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1bc0bc75543c681bf061ce7e7f6091fe78c1cb8af103".asHexToByteRepresentation() }
+    var signatures: [[UInt8]] {[
+        "88c0eb3bc1d97610c3a66d8a3a73f260f95a3028bccf7fff7d9851e2acd9f3f32fdf58a5b34d12df8177adf37aa318a20f72be7d37a8e8d8441d1bc0bc75543c681bf061ce7e7f6091fe78c1cb8af103".asHexToByteRepresentation(),
+        "895cd9c0ccb9aca4de913218655346d718711472f2bf1f3e68916de106a0d93cf2f47200819b45920bbda541db2d91480665df253fedab2843055bdc02535d83baddbbb2803ec3808e074f71f199751e".asHexToByteRepresentation()
+    ]}
     var header: [UInt8] { "11223344556677889900aabbccddeeff".asHexToByteRepresentation() }
     var presentationHeader: [UInt8] { "bed231d880675ed101ead304512e043ade9958dd0241ea70b4b3957fba941501".asHexToByteRepresentation() }
     var messages: [[UInt8]] {[
