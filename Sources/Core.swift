@@ -96,26 +96,24 @@ private extension Core {
 // MARK: - Proof Init
 extension Core {
     func proofInit(publicKey: [UInt8], signature: (point: CurvePoint, scalar: BInt), generators: [CurvePoint], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt) {
-        let L = messages.count
-        let U = undisclosedIndexes.count
+        try checkProofInitEntryData(generators, randomScalars, messages, undisclosedIndexes)
 
-        if randomScalars.count != U + 5 { fatalError() }
-        if generators.count != L + 1 { fatalError() }
+
 
         let (A, e) = signature
 
-        let Q1 = generators.first!
+
         let msgGenerators = Array(generators[1..<generators.count])
 
 
-        if undisclosedIndexes.contains(where: { $0 < 1 || $0 > L }) { fatalError() }
 
         var hj: [CurvePoint] = []
         for index in undisclosedIndexes {
             hj.append(msgGenerators[index])
         }
 
-        if U > L { fatalError() }
+
+        
 
         let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
 
@@ -131,15 +129,18 @@ extension Core {
         }
 
 
+
         let D = B * randomScalars[1]
+
+
         let Abar = A * (randomScalars[0] * randomScalars[1])
         let Bbar = D * randomScalars[0] + (-(Abar * e))
 
-        let T1 = Abar * randomScalars[2] + D * randomScalars[0]
+        let T1 = Abar * randomScalars[2] + D * randomScalars[3]
         let T2: CurvePoint? = nil //D * randomScalars[4]
 
 
-        print(T1.x.mod(ciphersuite.curveG1.p).asString(radix: 16, uppercase: false))
+        print(try! utilities.serialize(input: [T1]).toHexRepresentation())
 
 //
 //        let Abar = A * randomScalars.first!
@@ -156,6 +157,14 @@ extension Core {
 
 
         return (Abar, Bbar, T1, domain)
+    }
+}
+private extension Core {
+    func checkProofInitEntryData(_ generators: [CurvePoint], _ randomScalars: [BInt], _ messages: [BInt], _ undisclosedIndexes: [Int]) throws {
+        if randomScalars.count != undisclosedIndexes.count + 5 { throw Error.CoreProofInit.tooLessRandomScalars }
+        if generators.count != messages.count + 1 { throw Error.CoreProofInit.tooLessGenerators }
+        if undisclosedIndexes.count > messages.count { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
+        if undisclosedIndexes.contains(where: { $0 < 0 || $0 >= messages.count }) { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
     }
 }
 
@@ -191,7 +200,7 @@ extension Core {
     func proofFinalize(initRes: (p1: CurvePoint, p2: CurvePoint, p3: CurvePoint, scalar: BInt), challenge: BInt, eValue: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) -> [UInt8] {
         let U = undisclosedMessages.count
 
-        if randomScalars.count != U + 3 { fatalError() }
+        if randomScalars.count != U + 5 { fatalError() }
 
         let (Abar, Bbar) = (initRes.p1, initRes.p2)
 
@@ -215,6 +224,7 @@ fileprivate typealias Error = CoreError
 enum CoreError {
     enum CoreSign: Swift.Error { case tooLessGenerators, insufficientRandomness }
     enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
+    enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
 }
 
 
