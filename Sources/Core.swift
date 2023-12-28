@@ -60,14 +60,14 @@ private extension Core {
 
 // MARK: - Core Proof Generation
 extension Core {
-    func proofGeneration(publicKey: [UInt8], signature: [UInt8], generators: [CurvePoint], header: [UInt8], presentationHeader: [UInt8], messages: [BInt], disclosedIndexes: [Int], apiID: [UInt8]) throws -> [UInt8] {
+    func proofGeneration(publicKey: [UInt8], signature: [UInt8], generators: [CurvePoint], header: [UInt8], presentationHeader: [UInt8], messages: [BInt], disclosedIndexes: [Int], apiID: [UInt8], mocked: Bool) throws -> [UInt8] {
         try checkProofGenerationEntryData(messages, disclosedIndexes)
 
         let undisclosedIndexes = getUndisclosedIndexes(messages, disclosedIndexes),
             disclosedMessages = getMessages(messages, disclosedIndexes),
             undisclosedMessages = getMessages(messages, undisclosedIndexes),
             signatureResult = try utilities.octetsToSignature(signatureOctets: signature),
-            randomScalars = try getRandomScalars(messages, disclosedIndexes)
+            randomScalars = try getRandomScalars(messages, disclosedIndexes, mocked)
 
         let initRes = try proofInit(publicKey: publicKey, signature: signatureResult, generators: generators, randomScalars: randomScalars, header: header, messages: messages, undisclosedIndexes: undisclosedIndexes, apiID: apiID)
         let challenge = try proofChallengeCalculate(initProof: initRes, disclosedMessages: disclosedMessages, disclosedIndexes: disclosedIndexes, presentationHeader: presentationHeader, apiID: apiID)
@@ -83,7 +83,10 @@ private extension Core {
     }
     func getUndisclosedIndexes(_ messages: [BInt], _ disclosedIndexes: [Int]) -> [Int] { .init(0..<messages.count).filter { !disclosedIndexes.contains($0) } }
     func getMessages(_ messages: [BInt], _ indexes: [Int]) -> [BInt] { indexes.reduce(into: []) { $0.append(messages[$1]) } }
-    func getRandomScalars(_ messages: [BInt], _ disclosedIndexes: [Int]) throws -> [BInt] { try utilities.calculateRandomScalars(count: 5 + messages.count - disclosedIndexes.count) }
+    func getRandomScalars(_ messages: [BInt], _ disclosedIndexes: [Int], _ mocked: Bool) throws -> [BInt] {
+        let n = 5 + messages.count - disclosedIndexes.count
+        return try mocked ? utilities.calculateMockedRandomScalars(count: n) : utilities.calculateRandomScalars(count: n)
+    }
 }
 
 // MARK: - Proof Init

@@ -148,39 +148,35 @@ private extension Utilities {
 
 // MARK: - Random Scalars
 extension Utilities {
-    func calculateRandomScalars(count: BInt) throws -> [BInt] { let expandLength = ciphersuite.expandLength, r = ciphersuite.curveG2.r
-        var randomScalars: [BInt] = [
-            "60ca409f6b0563f687fc471c63d2819f446f39c23bb540925d9d4254ac58f337",
-            "2ceff4982de0c913090f75f081df5ec594c310bb48c17cfdaab5332a682ef811",
-            "6101c4404895f3dff87ab39c34cb995af07e7139e6b3847180ffdd1bc8c313cd",
-            "0dfcffd97a6ecdebef3c9c114b99d7a030c998d938905f357df62822dee072e8",
-            "639e3417007d38e5d34ba8c511e836768ddc2669fdd3faff5c14ad27ac2b2da1",
+    func calculateRandomScalars(count: Int) throws -> [BInt] {
+        try (1...count).map { _ in
+            guard let result = [UInt8]
+                .random(length: ciphersuite.expandLength)?
+                .toInteger()
+                .mod(ciphersuite.r)
+            else { throw Error.RandomScalars.unexpectedErrorDuringGeneratingRandomScalars }
 
-
-            
-            "4d99352986a9f8978b93485d21525244b21b396cf61f1d71f7c48e3fbc970a42",
-
-            "5ed8be91662386243a6771fbdd2c627de31a44220e8d6f745bad5d99821a4880",
-            "62ff1734b939ddd87beeb37a7bbcafa0a274cbc1b07384198f0e88398272208d",
-            "05c2a0af016df58e844db8944082dcaf434de1b1e2e7136ec8a99b939b716223",
-            "485e2adab17b76f5334c95bf36c03ccf91cef77dcfcdc6b8a69e2090b3156663"
-
-
-
-        ]
-
-//        while randomScalars.count < count {
-//            guard let randomScalar = [UInt8]
-//                .random(length: expandLength)?
-//                .toInteger()
-//                .mod(r)
-//            else { throw Error.RandomScalars.unexpectedErrorDuringGeneratingRandomScalars }
-//
-//            randomScalars.append(randomScalar)
-//        }
-
-        return Array(randomScalars[0..<count.asInt()!])
+            return result
+        }
     }
+    func calculateMockedRandomScalars(count: Int) throws -> [BInt] {
+        let outLength = ciphersuite.expandLength * count,
+            v = try ciphersuite.expandMessage.make(mockedRandomScalarsSeed, dst: mockedRandomScalarsDst, expectedLengthInBytes: outLength)
+
+        return (1...count).reduce([]) {
+            let startIndex = ($1 - 1) * ciphersuite.expandLength
+            let endIndex = $1 * ciphersuite.expandLength - 1
+
+            let result = Array(v[startIndex...endIndex])
+                .toInteger()
+                .mod(ciphersuite.r)
+            return $0 + [result]
+        }
+    }
+}
+private extension Utilities {
+    var mockedRandomScalarsSeed: [UInt8] { "332e313431353932363533353839373933323338343632363433333833323739".asHexToByteRepresentation() }
+    var mockedRandomScalarsDst: [UInt8] { "BBS_BLS12381G1_XMD:SHA-256_SSWU_RO_H2G_HM2S_MOCK_RANDOM_SCALARS_DST_".asAsciiToByteRepresentation() }
 }
 
 // MARK: - Octets to Public Key

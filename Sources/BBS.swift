@@ -64,11 +64,11 @@ extension BBS {
 
 // MARK: - Proof Generation
 extension BBS {
-    func generateProof(publicKey: [UInt8], signature: [UInt8], header: [UInt8], presentationHeader: [UInt8], messages: [[UInt8]], disclosedIndexes: [Int]) throws -> [UInt8] {
+    func generateProof(publicKey: [UInt8], signature: [UInt8], header: [UInt8], presentationHeader: [UInt8], messages: [[UInt8]], disclosedIndexes: [Int], mocked: Bool = false) throws -> [UInt8] {
         let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID)
         let generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
 
-        let proof = try core.proofGeneration(publicKey: publicKey, signature: signature, generators: generators, header: header, presentationHeader: presentationHeader, messages: messageScalars, disclosedIndexes: disclosedIndexes, apiID: apiID)
+        let proof = try core.proofGeneration(publicKey: publicKey, signature: signature, generators: generators, header: header, presentationHeader: presentationHeader, messages: messageScalars, disclosedIndexes: disclosedIndexes, apiID: apiID, mocked: mocked)
         return proof
     }
 }
