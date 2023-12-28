@@ -62,6 +62,17 @@ extension BBS {
     }
 }
 
+// MARK: - Signature Verification
+extension BBS {
+    func verifySignature(publicKey: [UInt8], signature: [UInt8], header: [UInt8], messages: [[UInt8]]) throws -> Bool {
+        let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID),
+            generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
+
+        let result = try core.coreSignatureVerify(publicKey: publicKey, signature: signature, generators: generators, header: header, messages: messageScalars, apiID: apiID)
+        return result
+    }
+}
+
 // MARK: - Proof Generation
 extension BBS {
     func generateProof(publicKey: [UInt8], signature: [UInt8], header: [UInt8], presentationHeader: [UInt8], messages: [[UInt8]], disclosedIndexes: [Int], mocked: Bool = false) throws -> [UInt8] {
