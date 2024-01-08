@@ -58,6 +58,44 @@ private extension Core {
     }
 }
 
+// MARK: - Core Signature Verify
+extension Core {
+    func coreSignatureVerify(publicKey: [UInt8], signature: [UInt8], generators: [CurvePoint], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> Bool {
+        try checkSignatureVerifyInput(generators, messages)
+
+        let signatureResult = try utilities.octetsToSignature(signatureOctets: signature)
+        let W = try utilities.octetsToPublicKey(publicKey: publicKey)
+
+        let domain = try utilities.calculateDomain(publicKey: publicKey, points: generators, header: header, apiID: apiID)
+        let B = getPointB(generators, domain, messages)
+
+        let isSignatureValid = try verifyPointsPairing(signatureResult, W, B)
+        return isSignatureValid
+    }
+}
+private extension Core {
+    func checkSignatureVerifyInput(_ generators: [CurvePoint], _ messages: [BInt]) throws {
+        if generators.count != messages.count + 1 { throw Error.CoreSignVerify.tooLessGenerators }
+    }
+    func verifyPointsPairing(_ signature: Signature, _ W: CurvePoint, _ B: CurvePoint) throws -> Bool {
+        let a1 = signature.A
+        let a2 = W + ciphersuite.curveG2.getBasePoint() * signature.e
+        let e1 = Fq12.pair(pG1: a1, pG2: a2)
+
+        let b1 = B
+        let b2 = -ciphersuite.curveG2.getBasePoint()
+        let e2 = Fq12.pair(pG1: b1, pG2: b2)
+
+        let result = e1 * e2
+
+
+        
+
+
+        return false
+    }
+}
+
 // MARK: - Core Proof Generation
 extension Core {
     func proofGeneration(publicKey: [UInt8], signature: [UInt8], generators: [CurvePoint], header: [UInt8], presentationHeader: [UInt8], messages: [BInt], disclosedIndexes: [Int], apiID: [UInt8], mocked: Bool) throws -> [UInt8] {
@@ -205,6 +243,7 @@ private extension Core {
 fileprivate typealias Error = CoreError
 enum CoreError {
     enum CoreSign: Swift.Error { case tooLessGenerators, insufficientRandomness }
+    enum CoreSignVerify: Swift.Error { case tooLessGenerators }
     enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
     enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
     enum Challenge: Swift.Error { case disclosedMessagesMustBeOfTheSameLengthAsDisclosedIndexes, tooManyDisclosedIndexes, tooBigPresentationHeader }
