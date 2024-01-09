@@ -15,9 +15,12 @@ struct Fq6: Field {
     let v0: Fq2
     let v1: Fq2
     let v2: Fq2
-    
-    let primeField: BInt
 }
+extension Fq6 {
+    init(_ values: [BInt]...) { self.v0 = .init(values.get(0) ?? []); self.v1 = .init(values.get(1) ?? []); self.v2 = .init(values.get(2) ?? []) }
+}
+
+// MARK: - Operations
 extension Fq6 {
     static func * (lhs: Fq6, rhs: Fq6) -> Fq6 {
         let t0 = lhs.v0 * rhs.v0
@@ -29,21 +32,18 @@ extension Fq6 {
         return .init(
             v0: t0 + t3,
             v1: t1 + t4,
-            v2: t2,
-            primeField: lhs.primeField
+            v2: t2
         )
     }
     static func * (lhs: Fq6, rhs: BInt) -> Fq6 { .init(
         v0: lhs.v0 * rhs,
         v1: lhs.v1 * rhs,
-        v2: lhs.v2 * rhs,
-        primeField: lhs.primeField
+        v2: lhs.v2 * rhs
     )}
     static func + (lhs: Fq6, rhs: Fq6) -> Fq6 { .init(
         v0: lhs.v0 + rhs.v0,
         v1: lhs.v1 + rhs.v1,
-        v2: lhs.v2 + rhs.v2,
-        primeField: lhs.primeField
+        v2: lhs.v2 + rhs.v2
     )}
 }
 extension Fq6 {
@@ -56,14 +56,12 @@ extension Fq6 {
         return .init(
             v0: t0 * factor,
             v1: t1 * factor,
-            v2: t2 * factor,
-            primeField: primeField
+            v2: t2 * factor
         )
     }
     func mulNonRes() -> Fq6 { .init(
         v0: v2.mulNonRes(),
         v1: v0,
-        v2: v1,
-        primeField: primeField
+        v2: v1
     )}
 }

@@ -12,8 +12,6 @@
 import BigInt
 
 protocol Field: Equatable {
-    var primeField: BInt { get }
-
     static func + (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: BInt) -> Self
@@ -21,8 +19,15 @@ protocol Field: Equatable {
     func modInverse() -> Self
     func mulNonRes() -> Self
 }
+
+// MARK: - Other Operations
 extension Field {
     static func * (lhs: BInt, rhs: Self) -> Self { rhs * lhs }
     static func - (lhs: Self, rhs: Self) -> Self { lhs + (-rhs) }
     static prefix func - (x: Self) -> Self { x * (-1) }
+}
+
+// MARK: - Helpers
+extension Field {
+    var p: BInt { BBSSettings.ciphersuite.p }
 }

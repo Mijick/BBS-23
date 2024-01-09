@@ -13,27 +13,24 @@ import BigInt
 
 struct Fq1: Field {
     let t0: BInt
-
-    let primeField: BInt
 }
+extension Fq1 {
+    init(_ t0: BInt) { self.t0 = t0 }
+}
+
+// MARK: - Operations
 extension Fq1 {
     static func * (lhs: Fq1, rhs: Fq1) -> Fq1 { .init(
-        t0: (lhs.t0 * rhs.t0).mod(lhs.primeField),
-        primeField: lhs.primeField
+        t0: (lhs.t0 * rhs.t0).mod(lhs.p)
     )}
     static func * (lhs: Fq1, rhs: BInt) -> Fq1 { .init(
-        t0: (lhs.t0 * rhs).mod(lhs.primeField),
-        primeField: lhs.primeField
+        t0: (lhs.t0 * rhs).mod(lhs.p)
     )}
     static func + (lhs: Fq1, rhs: Fq1) -> Fq1 { .init(
-        t0: (lhs.t0 + rhs.t0).mod(lhs.primeField),
-        primeField: lhs.primeField
+        t0: (lhs.t0 + rhs.t0).mod(lhs.p)
     )}
 }
 extension Fq1 {
-    func modInverse() -> Fq1 { .init(
-        t0: t0.modInverse(primeField),
-        primeField: primeField
-    )}
+    func modInverse() -> Fq1 { .init(t0: t0.modInverse(p))}
     func mulNonRes() -> Fq1 { self }
 }

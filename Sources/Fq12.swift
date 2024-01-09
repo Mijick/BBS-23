@@ -14,24 +14,24 @@ import BigInt
 struct Fq12: Field {
     let w0: Fq6
     let w1: Fq6
-    
-    let primeField: BInt
 }
+extension Fq12 {
+    init(_ w0: Fq6, _ w1: Fq6) { self.w0 = w0; self.w1 = w1 }
+}
+
+// MARK: - Operations
 extension Fq12 {
     static func * (lhs: Fq12, rhs: Fq12) -> Fq12 { .init(
         w0: lhs.w0 * rhs.w0 + (lhs.w1 * rhs.w1).mulNonRes(),
-        w1: lhs.w1 * rhs.w0 + lhs.w0 * rhs.w1,
-        primeField: lhs.primeField
+        w1: lhs.w1 * rhs.w0 + lhs.w0 * rhs.w1
     )}
     static func * (lhs: Fq12, rhs: BInt) -> Fq12 { .init(
         w0: lhs.w0 * rhs,
-        w1: lhs.w1 * rhs,
-        primeField: lhs.primeField
+        w1: lhs.w1 * rhs
     )}
     static func + (lhs: Fq12, rhs: Fq12) -> Fq12 { .init(
         w0: lhs.w0 + rhs.w0,
-        w1: rhs.w1 + rhs.w1,
-        primeField: lhs.primeField
+        w1: rhs.w1 + rhs.w1
     )}
 }
 extension Fq12 {
@@ -40,8 +40,7 @@ extension Fq12 {
 
         return .init(
             w0: w0 * factor,
-            w1: -w1 * factor, 
-            primeField: primeField
+            w1: -w1 * factor
         )
     }
     func mulNonRes() -> Fq12 { fatalError() }
