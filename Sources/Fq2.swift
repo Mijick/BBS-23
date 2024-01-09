@@ -16,6 +16,7 @@ struct Fq2: Field {
     let u1: Fq1
 }
 extension Fq2 {
+    init(_ values: BInt...) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
     init(_ values: [BInt]) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
 }
 

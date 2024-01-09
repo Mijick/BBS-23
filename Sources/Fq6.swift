@@ -18,6 +18,7 @@ struct Fq6: Field {
 }
 extension Fq6 {
     init(_ values: [BInt]...) { self.v0 = .init(values.get(0) ?? []); self.v1 = .init(values.get(1) ?? []); self.v2 = .init(values.get(2) ?? []) }
+    init(_ values: BInt...) { self.v0 = .init(values.get(0) ?? 0); self.v1 = .init(values.get(1) ?? 0); self.v2 = .init(values.get(2) ?? 0); }
 }
 
 // MARK: - Operations
