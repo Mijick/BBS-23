@@ -163,7 +163,7 @@ extension NewPoint {
     }
 }
 private extension NewPoint {
-    static func addCalculateLambda(_ p1: Self, _ p2: Self) -> F { (p2.y - p1.y) * (p2.x - p1.x).modInverse() }
+    static func addCalculateLambda(_ p1: Self, _ p2: Self) -> F { (p2.y - p1.y) * ((p2.x - p1.x).modInverse()) }
     static func addCalculateX(_ p1: Self, _ p2: Self, _ λ: F) -> F { (λ * λ) - p1.x - p2.x }
     static func addCalculateY(_ p1: Self, _ x: F, _ λ: F) -> F { λ * (p1.x - x) - p1.y }
 }
@@ -191,19 +191,9 @@ private extension NewPoint {
     }
 }
 private extension NewPoint {
-    func doubleCalculateLambda(_ x: F, _ y: F) -> F {
-        let lλ = 3 * x * x
-        let rλ = (2 * y).modInverse()
-
-        return lλ * rλ
-    }
+    func doubleCalculateLambda(_ x: F, _ y: F) -> F { (3 * x * x) * ((2 * y).modInverse()) }
     func doubleCalculateX(_ x: F, _ λ: F) -> F { (λ * λ) - 2 * x }
-    func doubleCalculateY(_ newX: F, _ λ: F) -> F {
-        let lr = x - newX
-        let l = λ * lr
-
-        return l - y
-    }
+    func doubleCalculateY(_ newX: F, _ λ: F) -> F { (λ * x - newX) - y }
 }
 
 // MARK: - Points Substraction
