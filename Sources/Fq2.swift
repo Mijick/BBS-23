@@ -15,9 +15,10 @@ struct Fq2: Field {
     let u0: Fq1
     let u1: Fq1
 }
-extension Fq2 {
+extension Fq2: ExpressibleByArrayLiteral {
     init(_ values: BInt...) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
     init(_ values: [BInt]) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
+    init(arrayLiteral elements: String...) { self.u0 = .init(stringLiteral: elements.get(0) ?? "0"); self.u1 = .init(stringLiteral: elements.get(1) ?? "0") }
     static var zero: Fq2 { .init(0) }
 }
 
