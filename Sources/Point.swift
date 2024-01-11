@@ -122,13 +122,6 @@ extension Fq12 {
 }
 
 
-extension Field {
-    func pow(_ p: BInt) -> Self {
-        fatalError()
-    }
-}
-
-
 
 
 
