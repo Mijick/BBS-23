@@ -163,21 +163,9 @@ extension NewPoint {
     }
 }
 private extension NewPoint {
-    static func addCalculateLambda(_ p1: Self, _ p2: Self) -> F {
-        let lλ = p2.y - p1.y
-        let rλ = (p2.x - p1.x).modInverse()
-
-        return lλ * rλ
-    }
-    static func addCalculateX(_ p1: Self, _ p2: Self, _ λ: F) -> F {
-        (λ * λ) - p1.x - p2.x
-    }
-    static func addCalculateY(_ p1: Self, _ x: F, _ λ: F) -> F {
-        let lr = (p1.x - x)
-        let l = λ * lr
-
-        return l - p1.y
-    }
+    static func addCalculateLambda(_ p1: Self, _ p2: Self) -> F { (p2.y - p1.y) * (p2.x - p1.x).modInverse() }
+    static func addCalculateX(_ p1: Self, _ p2: Self, _ λ: F) -> F { (λ * λ) - p1.x - p2.x }
+    static func addCalculateY(_ p1: Self, _ x: F, _ λ: F) -> F { λ * (p1.x - x) - p1.y }
 }
 
 // MARK: - Point x Scalar
