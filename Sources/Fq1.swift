@@ -14,9 +14,11 @@ import BigInt
 struct Fq1: Field {
     let t0: BInt
 }
-extension Fq1: ExpressibleByStringLiteral {
+extension Fq1: ExpressibleByStringLiteral, ExpressibleByIntegerLiteral {
     init(_ t0: BInt) { self.t0 = t0 }
     init(stringLiteral value: StringLiteralType) { self.t0 = .init(hex: value) }
+    init(integerLiteral value: IntegerLiteralType) { self.t0 = .init(value) }
+
     static var zero: Fq1 { .init(0) }
 }
 
@@ -37,4 +39,5 @@ extension Fq1 {
     func modInverse() -> Fq1 { .init(t0: t0.modInverse(p))}
     func mulNonRes() -> Fq1 { self }
     func exp(_ x: BInt) -> Fq1 { .init(t0.expMod(x, p)) }
+    func squareRoot() -> Fq1 { .init(t0.sqrtMod(p)!) }
 }

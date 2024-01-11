@@ -162,7 +162,7 @@ private extension NewPoint {
 
 // MARK: - Point x Scalar
 extension NewPoint {
-    static func *(point: Self, scalar: BInt) -> NewPoint {
+    static func * (point: Self, scalar: BInt) -> NewPoint {
         if point.isAtInfinity() { return .init(x: .zero, y: nil) }
         if scalar == 0 { return .init(x: .zero, y: .zero) }
         if scalar == 1 { return point }
@@ -170,7 +170,7 @@ extension NewPoint {
 
         return point.double() * (scalar / 2)
     }
-    static func *(scalar: BInt, point: Self) -> NewPoint { point * scalar }
+    static func * (scalar: BInt, point: Self) -> NewPoint { point * scalar }
 }
 private extension NewPoint {
     func double() -> NewPoint {
@@ -190,10 +190,10 @@ private extension NewPoint {
 
 // MARK: - Points Substraction
 extension NewPoint {
-    static func -(p1: Self, p2: Self) -> NewPoint { p1 + (-p2) }
+    static func - (p1: Self, p2: Self) -> NewPoint { p1 + (-p2) }
 }
 extension NewPoint {
-    static prefix func -(p: NewPoint) -> NewPoint { .init(x: p.x, y: -p.y).modularized() }
+    static prefix func - (p: NewPoint) -> NewPoint { .init(x: p.x, y: -p.y).modularized() }
 }
 
 // MARK: - Others

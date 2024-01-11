@@ -18,7 +18,8 @@ struct Fq2: Field {
 extension Fq2: ExpressibleByArrayLiteral {
     init(_ values: BInt...) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
     init(_ values: [BInt]) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
-    init(arrayLiteral elements: String...) { self.u0 = .init(stringLiteral: elements.get(0) ?? "0"); self.u1 = .init(stringLiteral: elements.get(1) ?? "0") }
+    init(arrayLiteral elements: BInt...) { self.u0 = .init(elements.get(0) ?? 0); self.u1 = .init(elements.get(1) ?? 0) }
+
     static var zero: Fq2 { .init(0) }
 }
 
@@ -52,7 +53,7 @@ extension Fq2 {
         u1: u0 + u1
     )}
     func exp(_ x: BInt) -> Fq2 { let bits = Array(x.asString(radix: 2).reversed())
-        var c: Fq2 = .init(u0: .init(1), u1: .zero)
+        var c: Fq2 = [1, 0]
 
         for i in 0..<381 {
             c = c * c
@@ -60,5 +61,21 @@ extension Fq2 {
         }
 
         return c
+    }
+    func squareRoot() -> Fq2 {
+        let c1 = (p - 3) * BInt(4).modInverse(p),
+            c2 = (p - 1) * BInt(2).modInverse(p)
+
+        let tv1 = exp(c1)
+        let tv2 = tv1 * tv1 * self
+        let tv3 = ([1, 0] + tv2).exp(c2)
+        let tv4 = tv1 * self
+
+        let neg = Fq2(u0: -1, u1: 0).mod()
+
+        switch tv2 == neg {
+            case true: return [0, 1] * tv4
+            case false: return tv3 * tv4
+        }
     }
 }

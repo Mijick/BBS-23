@@ -20,6 +20,7 @@ protocol Field: Equatable {
     func modInverse() -> Self
     func mulNonRes() -> Self
     func exp(_ x: BInt) -> Self
+    func squareRoot() -> Self
 
     static var zero: Self { get }
 }

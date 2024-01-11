@@ -19,6 +19,7 @@ struct Fq6: Field {
 extension Fq6 {
     init(_ values: [BInt]...) { self.v0 = .init(values.get(0) ?? []); self.v1 = .init(values.get(1) ?? []); self.v2 = .init(values.get(2) ?? []) }
     init(_ values: BInt...) { self.v0 = .init(values.get(0) ?? 0); self.v1 = .init(values.get(1) ?? 0); self.v2 = .init(values.get(2) ?? 0); }
+    
     static var zero: Fq6 { .init(0) }
 }
 
@@ -68,4 +69,5 @@ extension Fq6 {
         v2: v1
     )}
     func exp(_ x: BInt) -> Fq6 { fatalError() }
+    func squareRoot() -> Fq6 { fatalError() }
 }
