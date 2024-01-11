@@ -16,8 +16,12 @@ protocol Field: Equatable {
     static func * (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: BInt) -> Self
 
+    func mod() -> Self
     func modInverse() -> Self
     func mulNonRes() -> Self
+    func exp(_ x: BInt) -> Self
+
+    static var zero: Self { get }
 }
 
 // MARK: - Other Operations

@@ -16,6 +16,7 @@ struct Fq1: Field {
 }
 extension Fq1 {
     init(_ t0: BInt) { self.t0 = t0 }
+    static var zero: Fq1 { .init(0) }
 }
 
 // MARK: - Operations
@@ -31,6 +32,8 @@ extension Fq1 {
     )}
 }
 extension Fq1 {
+    func mod() -> Fq1 { .init(t0: t0.mod(p)) }
     func modInverse() -> Fq1 { .init(t0: t0.modInverse(p))}
     func mulNonRes() -> Fq1 { self }
+    func exp(_ x: BInt) -> Fq1 { .init(t0.expMod(x, p)) }
 }

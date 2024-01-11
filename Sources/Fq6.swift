@@ -19,6 +19,7 @@ struct Fq6: Field {
 extension Fq6 {
     init(_ values: [BInt]...) { self.v0 = .init(values.get(0) ?? []); self.v1 = .init(values.get(1) ?? []); self.v2 = .init(values.get(2) ?? []) }
     init(_ values: BInt...) { self.v0 = .init(values.get(0) ?? 0); self.v1 = .init(values.get(1) ?? 0); self.v2 = .init(values.get(2) ?? 0); }
+    static var zero: Fq6 { .init(0) }
 }
 
 // MARK: - Operations
@@ -48,6 +49,7 @@ extension Fq6 {
     )}
 }
 extension Fq6 {
+    func mod() -> Fq6 { .init(v0: v0.mod(), v1: v1.mod(), v2: v2.mod()) }
     func modInverse() -> Fq6 {
         let t0 = v0 * v0 - (v1 * v2).mulNonRes()
         let t1 = (v2 * v2).mulNonRes() - v0 * v1
@@ -65,4 +67,5 @@ extension Fq6 {
         v1: v0,
         v2: v1
     )}
+    func exp(_ x: BInt) -> Fq6 { fatalError() }
 }

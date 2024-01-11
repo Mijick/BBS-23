@@ -17,6 +17,7 @@ struct Fq12: Field {
 }
 extension Fq12 {
     init(_ w0: Fq6, _ w1: Fq6) { self.w0 = w0; self.w1 = w1 }
+    static var zero: Fq12 { .init(.zero, .zero) }
 }
 
 // MARK: - Operations
@@ -35,6 +36,7 @@ extension Fq12 {
     )}
 }
 extension Fq12 {
+    func mod() -> Fq12 { .init(w0: w0.mod(), w1: w1.mod()) }
     func modInverse() -> Fq12 {
         let factor = (w0 * w0 - (w1 * w1).mulNonRes()).modInverse()
 
@@ -44,4 +46,5 @@ extension Fq12 {
         )
     }
     func mulNonRes() -> Fq12 { fatalError() }
+    func exp(_ x: BInt) -> Fq12 { fatalError() }
 }

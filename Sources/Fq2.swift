@@ -18,6 +18,7 @@ struct Fq2: Field {
 extension Fq2 {
     init(_ values: BInt...) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
     init(_ values: [BInt]) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
+    static var zero: Fq2 { .init(0) }
 }
 
 // MARK: - Operations
@@ -36,6 +37,7 @@ extension Fq2 {
     )}
 }
 extension Fq2 {
+    func mod() -> Fq2 { .init(u0: u0.mod(), u1: u1.mod()) }
     func modInverse() -> Fq2 {
         let factor = (u0 * u0 + u1 * u1).modInverse()
 
@@ -48,4 +50,14 @@ extension Fq2 {
         u0: u0 - u1,
         u1: u0 + u1
     )}
+    func exp(_ x: BInt) -> Fq2 { let bits = Array(x.asString(radix: 2).reversed())
+        var c: Fq2 = .init(u0: .init(1), u1: .zero)
+
+        for i in 0..<381 {
+            c = c * c
+            if bits.count > 380 - i && bits[380 - i] == "1" { c = (c * self) }
+        }
+
+        return c
+    }
 }

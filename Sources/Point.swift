@@ -20,25 +20,25 @@ struct Point<F: Field> {
 
 extension Point where F == Fq2 {
     func untwist() -> Point<Fq12> {
-        let root = createFq6([0], [1], [0])
+        let root = Fq6([0], [1], [0])
 
         // MARK: New X
-        let ax = createFq12(
-            createFq6([x.u0.t0, x.u1.t0]),
-            createFq6([0])
+        let ax = Fq12(
+            Fq6([x.u0.t0, x.u1.t0]),
+            Fq6(0)
         )
-        let bx = createFq12(
+        let bx = Fq12(
             root,
-            createFq6([0])
+            Fq6(0)
         ).modInverse()
 
         // MARK: New Y
-        let aY = createFq12(
-            createFq6([y.u0.t0, y.u1.t0]),
-            createFq6([0])
+        let aY = Fq12(
+            Fq6([y.u0.t0, y.u1.t0]),
+            Fq6(0)
         )
-        let bY = createFq12(
-            createFq6([0]),
+        let bY = Fq12(
+            Fq6(0),
             root
         ).modInverse()
 
@@ -49,26 +49,186 @@ extension Point where F == Fq2 {
 
 
 
-private extension Point {
-    func createFq1(_ t0: BInt) -> Fq1 { .init(
-        t0: t0,
-        primeField: curve.p
-    )}
-    func createFq2(_ values: [BInt]) -> Fq2 { .init(
-        u0: createFq1(values.get(0) ?? 0),
-        u1: createFq1(values.get(1) ?? 0),
-        primeField: curve.p
-    )}
-    func createFq6(_ values: [BInt]...) -> Fq6 { .init(
-        v0: createFq2(values.get(0) ?? []),
-        v1: createFq2(values.get(1) ?? []),
-        v2: createFq2(values.get(2) ?? []),
-        primeField: curve.p
-    )}
-    func createFq12(_ w0: Fq6, _ w1: Fq6) -> Fq12 { .init(
-        w0: w0,
-        w1: w1,
-        primeField: curve.p
-    )}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// MARK: - Double Eval
+extension Fq12 {
+    static func doubleEval(_ p: Point<Fq1>, _ r: Point<Fq2>) -> Fq12 {
+        let wideR = r.untwist()
+        let slope = (3 * (wideR.x * wideR.x)) * (2 * wideR.y).modInverse()
+        let v = wideR.y - slope * wideR.x
+
+
+
+//        let p1 = Fq12(
+//            .init([[p.y.t0]]),
+//            .init([[0]]),
+//            p.primeField
+//        )
+//        let p2 = createFq12(
+//            createFq6([p.x.t0]),
+//            createFq6([0])
+//        ) * slope
+
+
+
+        fatalError()
+    }
 }
 
+
+// MARK: - Add Eval
+extension Fq12 {
+    static func addEval(_ p: Point<Fq1>, q: Point<Fq2>, r: Point<Fq2>) -> Fq12 {
+        fatalError()
+    }
+}
+private extension Fq12 {
+
+}
+
+
+// MARK: - Miller
+extension Fq12 {
+    static func miller(_ p: Point<Fq1>, q: Point<Fq2>) -> Fq12 {
+        fatalError()
+    }
+}
+
+// MARK: - Pairing
+extension Fq12 {
+    static func pairing(_ pG1: Point<Fq1>, pG2: Point<Fq2>) -> Fq12 {
+        fatalError()
+    }
+}
+
+
+
+extension Fq12 {
+    static func pair(pG1: CurvePoint, pG2: CurvePoint) -> Fq12 {
+        fatalError()
+    }
+}
+
+
+extension Field {
+    func pow(_ p: BInt) -> Self {
+        fatalError()
+    }
+}
+
+
+
+
+
+
+struct NewPoint<F: Field> {
+    var x: F
+    var y: F!
+    let curve: CurveSuite
+}
+
+// MARK: - Initializers Helpers
+extension NewPoint {
+    func modularized() -> NewPoint { .init(x: x.mod(), y: y?.mod(), curve: curve) }
+}
+
+// MARK: - Comparing Points
+extension NewPoint: Equatable {
+    static func == (p1: NewPoint, p2: NewPoint) -> Bool { p1.x == p2.x && p1.y == p2.y }
+}
+
+// MARK: - Points Addition
+extension NewPoint {
+    static func + (p1: Self, p2: Self) -> Self { let curve = p1.curve
+        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: .zero, y: nil, curve: curve) }
+
+        let λ = addCalculateLambda(p1, p2)
+        let x = addCalculateX(p1, p2, λ)
+        let y = addCalculateY(p1, x, λ)
+
+        let point = NewPoint(x: x, y: y, curve: curve)
+        return point.modularized()
+    }
+}
+private extension NewPoint {
+    static func addCalculateLambda(_ p1: Self, _ p2: Self) -> F {
+        let lλ = p2.y - p1.y
+        let rλ = (p2.x - p1.x).modInverse()
+
+        return lλ * rλ
+    }
+    static func addCalculateX(_ p1: Self, _ p2: Self, _ λ: F) -> F {
+        (λ * λ) - p1.x - p2.x
+    }
+    static func addCalculateY(_ p1: Self, _ x: F, _ λ: F) -> F {
+        let lr = (p1.x - x)
+        let l = λ * lr
+
+        return l - p1.y
+    }
+}
+
+// MARK: - Point x Scalar
+extension NewPoint {
+    static func *(point: Self, scalar: BInt) -> NewPoint {
+        if point.isAtInfinity() { return .init(x: .zero, y: nil, curve: point.curve) }
+        if scalar == 0 { return .init(x: .zero, y: .zero, curve: point.curve) }
+        if scalar == 1 { return point }
+        if scalar % 2 == 1 { return point + point * (scalar - 1) }
+
+        return point.double() * (scalar / 2)
+    }
+    static func *(scalar: BInt, point: Self) -> NewPoint { point * scalar }
+}
+private extension NewPoint {
+    func double() -> NewPoint {
+        let λ = doubleCalculateLambda(x, y)
+        let newX = doubleCalculateX(x, λ)
+        let newY = doubleCalculateY(newX, λ)
+
+        let point = NewPoint(x: newX, y: newY, curve: curve)
+        return point.modularized()
+    }
+}
+private extension NewPoint {
+    func doubleCalculateLambda(_ x: F, _ y: F) -> F {
+        let lλ = 3 * x * x
+        let rλ = (2 * y).modInverse()
+
+        return lλ * rλ
+    }
+    func doubleCalculateX(_ x: F, _ λ: F) -> F { (λ * λ) - 2 * x }
+    func doubleCalculateY(_ newX: F, _ λ: F) -> F {
+        let lr = x - newX
+        let l = λ * lr
+
+        return l - y
+    }
+}
+
+// MARK: - Points Substraction
+extension NewPoint {
+    static func -(p1: Self, p2: Self) -> NewPoint { p1 + (-p2) }
+}
+extension NewPoint {
+    static prefix func -(p: NewPoint) -> NewPoint { .init(x: p.x, y: -p.y, curve: p.curve).modularized() }
+}
+
+// MARK: - Others
+extension NewPoint {
+    func isAtInfinity() -> Bool { y == nil }
+    func isPointOfG1() -> Bool { curve is Curve.BLS12_381_G1 }
+    func isPointOfG2() -> Bool { curve is Curve.BLS12_381_G2 }
+}
