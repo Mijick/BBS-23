@@ -136,12 +136,11 @@ extension Field {
 struct NewPoint<F: Field> {
     var x: F
     var y: F!
-    let curve: CurveSuite
 }
 
 // MARK: - Initializers Helpers
 extension NewPoint {
-    func modularized() -> NewPoint { .init(x: x.mod(), y: y?.mod(), curve: curve) }
+    func modularized() -> NewPoint { .init(x: x.mod(), y: y?.mod()) }
 }
 
 // MARK: - Comparing Points
@@ -151,14 +150,14 @@ extension NewPoint: Equatable {
 
 // MARK: - Points Addition
 extension NewPoint {
-    static func + (p1: Self, p2: Self) -> Self { let curve = p1.curve
-        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: .zero, y: nil, curve: curve) }
+    static func + (p1: Self, p2: Self) -> Self {
+        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: .zero, y: nil) }
 
         let λ = addCalculateLambda(p1, p2)
         let x = addCalculateX(p1, p2, λ)
         let y = addCalculateY(p1, x, λ)
 
-        let point = NewPoint(x: x, y: y, curve: curve)
+        let point = NewPoint(x: x, y: y)
         return point.modularized()
     }
 }
@@ -171,8 +170,8 @@ private extension NewPoint {
 // MARK: - Point x Scalar
 extension NewPoint {
     static func *(point: Self, scalar: BInt) -> NewPoint {
-        if point.isAtInfinity() { return .init(x: .zero, y: nil, curve: point.curve) }
-        if scalar == 0 { return .init(x: .zero, y: .zero, curve: point.curve) }
+        if point.isAtInfinity() { return .init(x: .zero, y: nil) }
+        if scalar == 0 { return .init(x: .zero, y: .zero) }
         if scalar == 1 { return point }
         if scalar % 2 == 1 { return point + point * (scalar - 1) }
 
@@ -186,7 +185,7 @@ private extension NewPoint {
         let newX = doubleCalculateX(x, λ)
         let newY = doubleCalculateY(newX, λ)
 
-        let point = NewPoint(x: newX, y: newY, curve: curve)
+        let point = NewPoint(x: newX, y: newY)
         return point.modularized()
     }
 }
@@ -201,12 +200,12 @@ extension NewPoint {
     static func -(p1: Self, p2: Self) -> NewPoint { p1 + (-p2) }
 }
 extension NewPoint {
-    static prefix func -(p: NewPoint) -> NewPoint { .init(x: p.x, y: -p.y, curve: p.curve).modularized() }
+    static prefix func -(p: NewPoint) -> NewPoint { .init(x: p.x, y: -p.y).modularized() }
 }
 
 // MARK: - Others
 extension NewPoint {
     func isAtInfinity() -> Bool { y == nil }
-    func isPointOfG1() -> Bool { curve is Curve.BLS12_381_G1 }
-    func isPointOfG2() -> Bool { curve is Curve.BLS12_381_G2 }
+    func isPointOfG1() -> Bool { F.self == Fq1.self }
+    func isPointOfG2() -> Bool { F.self == Fq2.self }
 }
