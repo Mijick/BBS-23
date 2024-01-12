@@ -21,10 +21,15 @@ protocol Field: Equatable, ExpressibleByIntegerLiteral {
     func mulNonRes() -> Self
     func exp(_ x: BInt) -> Self
     func squareRoot() -> Self
+
+    init(_ v: [BInt])
 }
 
 // MARK: - Other Operations
 extension Field {
+    init(integerLiteral value: Int) { self.init([BInt(value)]) }
+    init(_ v: BInt...) { self.init(Array(v)) }
+
     static func * (lhs: BInt, rhs: Self) -> Self { rhs * lhs }
     static func - (lhs: Self, rhs: Self) -> Self { lhs + (-rhs) }
     static prefix func - (x: Self) -> Self { x * (-1) }
