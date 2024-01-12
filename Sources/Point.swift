@@ -101,7 +101,7 @@ extension Fq12 {
 
 
 extension Fq12 {
-    static func pair(pG1: CurvePoint, pG2: CurvePoint) -> Fq12 {
+    static func pair(pG1: CurvePoint<Fq1>, pG2: CurvePoint<Fq2>) -> Fq12 {
         fatalError()
     }
 }
@@ -111,79 +111,4 @@ extension Fq12 {
 
 
 
-struct NewPoint<F: Field> {
-    var x: F
-    var y: F!
-}
 
-// MARK: - Initializers Helpers
-extension NewPoint {
-    func modularized() -> NewPoint { .init(x: x.mod(), y: y?.mod()) }
-}
-
-// MARK: - Comparing Points
-extension NewPoint: Equatable {
-    static func == (p1: NewPoint, p2: NewPoint) -> Bool { p1.x == p2.x && p1.y == p2.y }
-}
-
-// MARK: - Points Addition
-extension NewPoint {
-    static func + (p1: Self, p2: Self) -> Self {
-        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: 0, y: nil) }
-
-        let λ = addCalculateLambda(p1, p2)
-        let x = addCalculateX(p1, p2, λ)
-        let y = addCalculateY(p1, x, λ)
-
-        let point = NewPoint(x: x, y: y)
-        return point.modularized()
-    }
-}
-private extension NewPoint {
-    static func addCalculateLambda(_ p1: Self, _ p2: Self) -> F { (p2.y - p1.y) * ((p2.x - p1.x).modInverse()) }
-    static func addCalculateX(_ p1: Self, _ p2: Self, _ λ: F) -> F { (λ * λ) - p1.x - p2.x }
-    static func addCalculateY(_ p1: Self, _ x: F, _ λ: F) -> F { λ * (p1.x - x) - p1.y }
-}
-
-// MARK: - Point x Scalar
-extension NewPoint {
-    static func * (point: Self, scalar: BInt) -> NewPoint {
-        if point.isAtInfinity() { return .init(x: 0, y: nil) }
-        if scalar == 0 { return .init(x: 0, y: 0) }
-        if scalar == 1 { return point }
-        if scalar % 2 == 1 { return point + point * (scalar - 1) }
-
-        return point.double() * (scalar / 2)
-    }
-    static func * (scalar: BInt, point: Self) -> NewPoint { point * scalar }
-}
-private extension NewPoint {
-    func double() -> NewPoint {
-        let λ = doubleCalculateLambda(x, y)
-        let newX = doubleCalculateX(x, λ)
-        let newY = doubleCalculateY(newX, λ)
-
-        let point = NewPoint(x: newX, y: newY)
-        return point.modularized()
-    }
-}
-private extension NewPoint {
-    func doubleCalculateLambda(_ x: F, _ y: F) -> F { (3 * x * x) * ((2 * y).modInverse()) }
-    func doubleCalculateX(_ x: F, _ λ: F) -> F { (λ * λ) - 2 * x }
-    func doubleCalculateY(_ newX: F, _ λ: F) -> F { (λ * x - newX) - y }
-}
-
-// MARK: - Points Substraction
-extension NewPoint {
-    static func - (p1: Self, p2: Self) -> NewPoint { p1 + (-p2) }
-}
-extension NewPoint {
-    static prefix func - (p: NewPoint) -> NewPoint { .init(x: p.x, y: -p.y).modularized() }
-}
-
-// MARK: - Others
-extension NewPoint {
-    func isAtInfinity() -> Bool { y == nil }
-    func isPointOfG1() -> Bool { F.self == Fq1.self }
-    func isPointOfG2() -> Bool { F.self == Fq2.self }
-}

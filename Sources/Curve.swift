@@ -62,13 +62,13 @@ protocol CurveSuite<F> {
     // MARK: Methods
 
     /// Returns the canonical representation of the point P for the selected subgroup
-    func serializePoint(_ point: CurvePoint) throws -> [UInt8]
+    func serializePoint(_ point: CurvePoint<F>) throws -> [UInt8]
 
     /// Returns the point P in the subgroup corresponding to the canonical representation
-    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint
+    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint<F>
 
     /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
-    func mapToCurve(_ u: F) -> CurvePoint
+    func mapToCurve(_ u: F) -> CurvePoint<F>
 
 
     // MARK: Isogeny Map Values
@@ -87,7 +87,7 @@ protocol CurveSuite<F> {
 // MARK: - Helpers
 extension CurveSuite {
     /// Encodes a byte string to a point in G
-    func hashToCurve(_ bytes: [UInt8], dst: [UInt8]? = nil) throws -> CurvePoint {
+    func hashToCurve(_ bytes: [UInt8], dst: [UInt8]? = nil) throws -> CurvePoint<F> {
         let fieldElements = try hashToField(bytes, 2, dst)
 
         let point1 = mapToCurve(fieldElements[0])
@@ -99,16 +99,16 @@ extension CurveSuite {
     }
 
     /// Takes as input a point on E' and produces as output a point on E
-    func isoMap(_ point: CurvePoint) -> CurvePoint {
+    func isoMap(_ point: CurvePoint<F>) -> CurvePoint<F> {
         // MARK: Calculating X
-        let xNum = calculateNum(.init(point.xComplex), xNumConstants), xDen = calculateDen(.init(point.xComplex), xDenConstants)
+        let xNum = calculateNum(point.x, xNumConstants), xDen = calculateDen(point.x, xDenConstants)
         let x = xNum * xDen.modInverse()
 
         // MARK: Calculating Y
-        let yNum = calculateNum(.init(point.xComplex), yNumConstants), yDen = calculateDen(.init(point.xComplex), yDenConstants)
-        let y = .init(point.yComplex) * yNum * yDen.modInverse()
+        let yNum = calculateNum(point.x, yNumConstants), yDen = calculateDen(point.x, yDenConstants)
+        let y = point.y * yNum * yDen.modInverse()
 
-        let point = CurvePoint(xComplex: .init(x), yComplex: .init(y), self)
+        let point = CurvePoint(x: x, y: y)
         return point.modularized()
     }
 
@@ -124,7 +124,7 @@ extension CurveSuite {
     }
 
     /// Returns a base point on the G subgroup
-    func getBasePoint() -> CurvePoint { .init(xComplex: .init(BPx), yComplex: .init(BPy), self) }
+    func getBasePoint() -> CurvePoint<F> { .init(x: BPx, y: BPy) }
 
     /// Function that defines the basic curve
     func f(_ x: F) -> F { x * x * x + A * x + B }
@@ -144,7 +144,7 @@ private extension CurveSuite {
     }
 
     /// Sends any point on the curve E to the subgroup G of E
-    func clearCofactor(_ point: CurvePoint) -> CurvePoint { point * hEff }
+    func clearCofactor(_ point: CurvePoint<F>) -> CurvePoint<F> { point * hEff }
 }
 
 // MARK: - Iso Map Helpers
