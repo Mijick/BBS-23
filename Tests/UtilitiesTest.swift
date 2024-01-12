@@ -126,10 +126,9 @@ private extension UtilitiesTest {
 // MARK: - Signature to Octets
 extension UtilitiesTest {
     func testSignatureToOctets() throws {
-        let point = CurvePoint(
-            x: .init(decimal: "1031246738451272257918307649645427926126395098676218623157461618035668551328720548531524570871230389539697713933182"),
-            y: .init(decimal: "3770865391344759460897441956007821360607472141384078872418818486419925991873542360161539566057289824728296659129050"),
-            utilities.ciphersuite.curveG1
+        let point = CurvePoint<Fq1>(
+            x: "6b33cb8414e56bdd5d7b4b8a1f07492061d54ab788eba8614dc529578876188b6396eae57e49cb75831def97c5eeb7e",
+            y: "187ff356ffe7027e926f0f9e0e917e9d28898fd3eaaaa6670a60e696fad8367110cc03f19043b9c3b8482e435e1892da"
         )
         let scalar = BInt(hex: "1004262112c3eaa95941b2b0d1311c09c845db0099a50e67eda628ad26b43083")
         let signature = (A: point, e: scalar)
