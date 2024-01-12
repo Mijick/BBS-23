@@ -54,7 +54,7 @@ extension Fq2 {
 
         for i in 0..<381 {
             c = c * c
-            if bits.count > 380 - i && bits[380 - i] == "1" { c = (c * self) }
+            if bits.count > 380 - i && bits[380 - i] == "1" { c = c * self }
         }
 
         return c
