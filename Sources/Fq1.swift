@@ -15,8 +15,7 @@ struct Fq1: Field {
     let t0: BInt
 }
 extension Fq1: ExpressibleByStringLiteral {
-    init(_ t0: BInt) { self.t0 = t0 }
-    init(integerLiteral value: IntegerLiteralType) { self.t0 = .init(value) }
+    init(_ v: [BInt]) { self.t0 = v.first ?? 0 }
     init(stringLiteral value: StringLiteralType) { self.t0 = .init(hex: value) }
 }
 
@@ -36,6 +35,6 @@ extension Fq1 {
     func mod() -> Fq1 { .init(t0: t0.mod(p)) }
     func modInverse() -> Fq1 { .init(t0: t0.modInverse(p))}
     func mulNonRes() -> Fq1 { self }
-    func exp(_ x: BInt) -> Fq1 { .init(t0.expMod(x, p)) }
-    func squareRoot() -> Fq1 { .init(t0.sqrtMod(p)!) }
+    func exp(_ x: BInt) -> Fq1 { .init(t0: t0.expMod(x, p)) }
+    func squareRoot() -> Fq1 { .init(t0: t0.sqrtMod(p)!) }
 }

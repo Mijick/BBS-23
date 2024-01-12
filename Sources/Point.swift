@@ -22,27 +22,12 @@ extension Point where F == Fq2 {
     func untwist() -> Point<Fq12> {
         let root = Fq6([0], [1], [0])
 
-        // MARK: New X
-        let ax = Fq12(
-            Fq6([x.u0.t0, x.u1.t0]),
-            Fq6(0)
-        )
-        let bx = Fq12(
-            root,
-            Fq6(0)
-        ).modInverse()
+        let ax = Fq12(w0: [[x.u0.t0], [x.u1.t0]], w1: 0)
+        let bx = Fq12(w0: root, w1: 0).modInverse()
 
-        // MARK: New Y
-        let aY = Fq12(
-            Fq6([y.u0.t0, y.u1.t0]),
-            Fq6(0)
-        )
-        let bY = Fq12(
-            Fq6(0),
-            root
-        ).modInverse()
+        let aY = Fq12(w0: [[y.u0.t0, y.u1.t0]], w1: 0)
+        let bY = Fq12(w0: 0, w1: root).modInverse()
 
-        // MARK: Untwisted point
         return .init(x: ax * bx, y: aY * bY, curve: curve)
     }
 }

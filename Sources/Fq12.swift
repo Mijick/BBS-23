@@ -16,8 +16,7 @@ struct Fq12: Field {
     let w1: Fq6
 }
 extension Fq12 {
-    init(_ w0: Fq6, _ w1: Fq6) { self.w0 = w0; self.w1 = w1 }
-    init(integerLiteral value: IntegerLiteralType) { self.w0 = .init(integerLiteral: value); self.w1 = .init(0) }
+    init(_ v: [BInt]) { self.w0 = .init(v.get(0) ?? 0); self.w1 = .init(v.get(1) ?? 0) }
 }
 
 // MARK: - Operations
