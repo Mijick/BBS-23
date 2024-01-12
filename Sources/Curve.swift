@@ -13,8 +13,6 @@ import BigInt
 
 enum Curve {}
 protocol CurveSuite<F> {
-    associatedtype F: Field
-
 
     // MARK: Attributes
 
@@ -46,7 +44,7 @@ protocol CurveSuite<F> {
     var L: Int { get }
 
     /// A non-zero element of F
-    var Z: ComplexValue { get }
+    var Z: F { get }
 
     /// Scalar parameter for clearCofactor method
     var hEff: BInt { get }
@@ -80,6 +78,10 @@ protocol CurveSuite<F> {
 
     var yNumConstants: [ComplexValue] { get }
     var yDenConstants: [ComplexValue] { get }
+
+
+    // MARK: Associated Types
+    associatedtype F: Field
 }
 
 // MARK: - Helpers

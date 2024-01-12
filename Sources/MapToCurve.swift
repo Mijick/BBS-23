@@ -141,7 +141,7 @@ private extension MapToCurve {
     var Aʹ: F { curve.Aʹ }
     var B: F { curve.B }
     var Bʹ: F { curve.Bʹ }
-    var Z: F { .init(curve.Z) }
+    var Z: F { curve.Z }
 }
 
 
