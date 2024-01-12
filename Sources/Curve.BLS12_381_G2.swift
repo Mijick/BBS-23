@@ -29,7 +29,7 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
 
 // MARK: - Point Serialization
 extension Curve.BLS12_381_G2 {
-    func serializePoint(_ point: CurvePoint) throws -> [UInt8] {
+    func serializePoint(_ point: CurvePoint<Fq2>) throws -> [UInt8] {
         switch point.isAtInfinity() {
             case true: return try serializePointAtInfinity()
             case false: return try serializeRegularPoint(point)
@@ -42,18 +42,18 @@ private extension Curve.BLS12_381_G2 {
         result[0] += serializationCompressionFlag
         return result
     }
-    func serializeRegularPoint(_ point: CurvePoint) throws -> [UInt8] {
+    func serializeRegularPoint(_ point: CurvePoint<Fq2>) throws -> [UInt8] {
         var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
         result.replaceSubrange(0..<48, with: try calculateSerializationLeftSide(point))
         result.replaceSubrange(48..<96, with: try calculateSerializationRightSide(point))
         result[0] += serializationCompressionFlag
-        result[0] += calculateSerializationYFlag(.init(point.yComplex))
+        result[0] += calculateSerializationYFlag(point.y)
         return result
     }
 }
 private extension Curve.BLS12_381_G2 {
-    func calculateSerializationLeftSide(_ point: CurvePoint) throws -> [UInt8] { try point.xComplex.imaginary!.toBytes(expectedLength: 48) }
-    func calculateSerializationRightSide(_ point: CurvePoint) throws -> [UInt8] { try point.xComplex.real.toBytes(expectedLength: 48) }
+    func calculateSerializationLeftSide(_ point: CurvePoint<Fq2>) throws -> [UInt8] { try point.x.u1.t0.toBytes(expectedLength: 48) }
+    func calculateSerializationRightSide(_ point: CurvePoint<Fq2>) throws -> [UInt8] { try point.x.u0.t0.toBytes(expectedLength: 48) }
     func calculateSerializationYFlag(_ y: Fq2?) -> UInt8 { isNegative(y) ? serializationYFlag : 0 }
 }
 private extension Curve.BLS12_381_G2 {
@@ -64,7 +64,7 @@ private extension Curve.BLS12_381_G2 {
 
 // MARK: - Point Deserialization
 extension Curve.BLS12_381_G2 {
-    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint {
+    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint<Fq2> {
         try precheckPoint(bytes)
 
         switch isPointAtInfinity(bytes) {
@@ -74,11 +74,11 @@ extension Curve.BLS12_381_G2 {
     }
 }
 private extension Curve.BLS12_381_G2 {
-    func deserializePointAtInfinity(_ bytes: [UInt8]) throws -> CurvePoint {
+    func deserializePointAtInfinity(_ bytes: [UInt8]) throws -> CurvePoint<Fq2> {
         try checkPointAtInfinity(bytes)
-        return .init(xComplex: [0, 0], yComplex: nil, self)
+        return .init(x: 0, y: nil)
     }
-    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> CurvePoint {
+    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> CurvePoint<Fq2> {
         var point = createRegularPoint(bytes)
         try checkRegularPoint(point)
 
@@ -94,34 +94,36 @@ private extension Curve.BLS12_381_G2 {
         if bytes[0] & 63 != 0 { throw Error.Deserialization.invalidPoint }
         for byte in bytes.dropFirst() { if byte != 0 { throw Error.Deserialization.invalidPoint } }
     }
-    func checkRegularPoint(_ point: CurvePoint) throws {
-        if point.xComplex.real >= p || point.xComplex.imaginary! >= p { throw Error.Deserialization.invalidPoint }
+    func checkRegularPoint(_ point: CurvePoint<Fq2>) throws {
+        if point.x.u0.t0 >= p || point.x.u1.t0 >= p { throw Error.Deserialization.invalidPoint }
         if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
     }
 }
 private extension Curve.BLS12_381_G2 {
     func isPointAtInfinity(_ bytes: [UInt8]) -> Bool { bytes[0] & 64 != 0 }
-    func createRegularPoint(_ bytes: [UInt8]) -> CurvePoint {
+    func createRegularPoint(_ bytes: [UInt8]) -> CurvePoint<Fq2> {
         var bytes = bytes
         bytes[0] &= 31
 
-        let xRealCoordinate = Primitives.bytesToInteger(.init(bytes[48..<96]))
-        let xImaginaryCoordinate = Primitives.bytesToInteger(.init(bytes[0..<48]))
+        let x: Fq2 = [
+            Primitives.bytesToInteger(.init(bytes[48..<96])),
+            Primitives.bytesToInteger(.init(bytes[0..<48]))
+        ]
+        let y = f(x).squareRoot()
 
-        let point = CurvePoint(xComplex: [xRealCoordinate, xImaginaryCoordinate], self)
-        return point
+        return .init(x: x, y: y)
     }
-    func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint) {
+    func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint<Fq2>) {
         let yFlag = (bytes[0] & serializationYFlag) > 0
-        let yComparisonFlag = isNegative(.init(point.yComplex ?? [0]))
+        let yComparisonFlag = isNegative(point.y)
 
-        if yFlag != yComparisonFlag { point.yComplex.negate() }
+        if yFlag != yComparisonFlag { point.y = -point.y }
     }
 }
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G2 {
-    func mapToCurve(_ u: Fq2) -> CurvePoint { MapToCurve(curve: self).sswu(u) }
+    func mapToCurve(_ u: Fq2) -> CurvePoint<Fq2> { MapToCurve(curve: self).sswu(u) }
 }
 
 // MARK: - Base Point
