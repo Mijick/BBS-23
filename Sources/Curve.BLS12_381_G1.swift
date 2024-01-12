@@ -107,7 +107,7 @@ private extension Curve.BLS12_381_G1 {
     }
     func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint) {
         let yFlag = (bytes[0] & serializationYFlag) > 0
-        let yComparisonFlag = isNegative(point.yComplex)
+        let yComparisonFlag = isNegative(.init(point.yComplex))
 
         if yFlag != yComparisonFlag { point.y.negate() }
     }

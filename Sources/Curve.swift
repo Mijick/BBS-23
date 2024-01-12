@@ -113,8 +113,13 @@ extension CurveSuite {
     }
 
     /// Checks whether the given y is negative. Should be used in serialization & deserialization
-    func isNegative(_ y: ComplexValue?) -> Bool {
-        let y = y?.imaginary ?? y?.real ?? 0
+    func isNegative(_ y: F?) -> Bool {
+        let y = {
+            if let y = y as? Fq1 { return y.t0 }
+            if let y = y as? Fq2 { return y.u1.t0 }
+            return 0
+        }()
+
         return y.mod(p) > (p - 1) / 2
     }
 
