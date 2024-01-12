@@ -17,6 +17,7 @@ struct Fq12: Field {
 }
 extension Fq12 {
     init(_ v: [BInt]) { self.w0 = .init(v.get(0) ?? 0); self.w1 = .init(v.get(1) ?? 0) }
+    init(arrayLiteral elements: BInt...) { self.w0 = .init(elements.get(0) ?? 0); self.w1 = .init(elements.get(1) ?? 0) }
 }
 
 // MARK: - Operations

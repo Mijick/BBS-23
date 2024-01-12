@@ -20,7 +20,7 @@ struct Point<F: Field> {
 
 extension Point where F == Fq2 {
     func untwist() -> Point<Fq12> {
-        let root = Fq6([0], [1], [0])
+        let root = Fq6(v0: 0, v1: 1, v2: 0)
 
         let ax = Fq12(w0: [[x.u0.t0], [x.u1.t0]], w1: 0)
         let bx = Fq12(w0: root, w1: 0).modInverse()

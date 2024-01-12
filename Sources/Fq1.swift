@@ -16,6 +16,7 @@ struct Fq1: Field {
 }
 extension Fq1: ExpressibleByStringLiteral {
     init(_ v: [BInt]) { self.t0 = v.first ?? 0 }
+    init(arrayLiteral elements: BInt...) { self.t0 = elements.first ?? 0 }
     init(stringLiteral value: StringLiteralType) { self.t0 = .init(hex: value) }
 }
 

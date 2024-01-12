@@ -16,10 +16,9 @@ struct Fq6: Field {
     let v1: Fq2
     let v2: Fq2
 }
-extension Fq6 {
-    init(_ values: [BInt]...) { self.v0 = .init(values.get(0) ?? []); self.v1 = .init(values.get(1) ?? []); self.v2 = .init(values.get(2) ?? []) }
-    init(_ values: BInt...) { self.v0 = .init(values.get(0) ?? 0); self.v1 = .init(values.get(1) ?? 0); self.v2 = .init(values.get(2) ?? 0); }
-    init(integerLiteral value: IntegerLiteralType) { self.v0 = .init(integerLiteral: value); self.v1 = .init(0); self.v2 = .init(0) }
+extension Fq6: ExpressibleByArrayLiteral {
+    init(_ v: [BInt]) { self.v0 = .init(arrayLiteral: v.get(0) ?? 0); self.v1 = .init(arrayLiteral: v.get(1) ?? 0); self.v2 = .init(arrayLiteral: v.get(2) ?? 0) }
+    init(arrayLiteral elements: [BInt]...) { self.v0 = .init(elements.get(0) ?? []); self.v1 = .init(elements.get(1) ?? []); self.v2 = .init(elements.get(2) ?? []) }
 }
 
 // MARK: - Operations
