@@ -73,11 +73,11 @@ protocol CurveSuite<F> {
 
     // MARK: Isogeny Map Values
 
-    var xNumConstants: [ComplexValue] { get }
-    var xDenConstants: [ComplexValue] { get }
+    var xNumConstants: [F] { get }
+    var xDenConstants: [F] { get }
 
-    var yNumConstants: [ComplexValue] { get }
-    var yDenConstants: [ComplexValue] { get }
+    var yNumConstants: [F] { get }
+    var yDenConstants: [F] { get }
 
 
     // MARK: Associated Types
@@ -101,14 +101,14 @@ extension CurveSuite {
     /// Takes as input a point on E' and produces as output a point on E
     func isoMap(_ point: CurvePoint) -> CurvePoint {
         // MARK: Calculating X
-        let xNum = calculateNum(point.xComplex, xNumConstants), xDen = calculateDen(point.xComplex, xDenConstants)
-        let x = xNum * (xDen.modInverse(p))
+        let xNum = calculateNum(.init(point.xComplex), xNumConstants), xDen = calculateDen(.init(point.xComplex), xDenConstants)
+        let x = xNum * xDen.modInverse()
 
         // MARK: Calculating Y
-        let yNum = calculateNum(point.xComplex, yNumConstants), yDen = calculateDen(point.xComplex, yDenConstants)
-        let y = point.yComplex * yNum * yDen.modInverse(p)
+        let yNum = calculateNum(.init(point.xComplex), yNumConstants), yDen = calculateDen(.init(point.xComplex), yDenConstants)
+        let y = .init(point.yComplex) * yNum * yDen.modInverse()
 
-        let point = CurvePoint(xComplex: x, yComplex: y, self)
+        let point = CurvePoint(xComplex: .init(x), yComplex: .init(y), self)
         return point.modularized()
     }
 
@@ -144,22 +144,22 @@ private extension CurveSuite {
 
 // MARK: - Iso Map Helpers
 private extension CurveSuite {
-    func calculateNum(_ x: ComplexValue, _ array: [ComplexValue]) -> ComplexValue {
-        var result = ComplexValue(real: 0, imaginary: x.imaginary != nil ? 0 : nil)
+    func calculateNum(_ x: F, _ array: [F]) -> F {
+        var result: F = 0
 
         for i in 0..<array.count {
-            let valueToAdd = array[i] * x.exp(BInt(i), p)
-            result = (result + valueToAdd).mod(p)
+            let valueToAdd = array[i] * x.exp(BInt(i))
+            result = (result + valueToAdd).mod()
         }
 
         return result
     }
-    func calculateDen(_ x: ComplexValue, _ array: [ComplexValue]) -> ComplexValue {
-        var result = ComplexValue(real: 0, imaginary: x.imaginary != nil ? 0 : nil)
+    func calculateDen(_ x: F, _ array: [F]) -> F {
+        var result: F = 0
 
         for i in 0...array.count {
-            let valueToAdd = i < array.count ? array[i] * x.exp(BInt(i), p) : x.exp(BInt(i), p)
-            result = (result + valueToAdd).mod(p)
+            let valueToAdd = i < array.count ? array[i] * x.exp(BInt(i)) : x.exp(BInt(i))
+            result = (result + valueToAdd).mod()
         }
 
         return result
