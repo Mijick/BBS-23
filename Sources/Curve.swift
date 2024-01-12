@@ -68,7 +68,7 @@ protocol CurveSuite<F> {
     func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint
 
     /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
-    func mapToCurve(_ u: ComplexValue) -> CurvePoint
+    func mapToCurve(_ u: F) -> CurvePoint
 
 
     // MARK: Isogeny Map Values
@@ -126,7 +126,7 @@ extension CurveSuite {
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
-    func hashToField(_ bytes: [UInt8], _ count: Int, _ customDst: [UInt8]?) throws -> [ComplexValue] {
+    func hashToField(_ bytes: [UInt8], _ count: Int, _ customDst: [UInt8]?) throws -> [F] {
         let uniformBytes = try expandMessage.make(
             bytes,
             dst: customDst ?? dst.asAsciiToByteRepresentation(),
@@ -134,8 +134,8 @@ private extension CurveSuite {
         )
 
         let listOfElements = createListOfElements(uniformBytes, count)
-        let complexValues = listOfElements.map { ComplexValue(real: $0.first!, imaginary: $0.first == $0.last ? nil : $0.last) }
-        return complexValues
+        let fields = listOfElements.map(F.init)
+        return fields
     }
 
     /// Sends any point on the curve E to the subgroup G of E
