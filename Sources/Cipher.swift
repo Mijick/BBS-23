@@ -19,7 +19,7 @@ protocol CipherSuite {
     var octetPointLength: Int { get }
     var expandLength: Int { get }
     var hash: HashType { get }
-    var p1: CurvePoint { get }
+    var p1: CurvePoint<Fq1> { get }
     var curveG1: any CurveSuite<Fq1> { get }
     var curveG2: any CurveSuite<Fq2> { get }
     var expandMessage: MessageExpander { get }

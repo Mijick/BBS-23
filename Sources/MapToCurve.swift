@@ -18,7 +18,7 @@ struct MapToCurve<F: Field> {
 
 // MARK: - Shallue-van de Woestijne method
 extension MapToCurve {
-    func svdw(_ u: F) -> CurvePoint {
+    func svdw(_ u: F) -> CurvePoint<F> {
         // MARK: Pre-calculated
         let c1 = f(Z),
             c2 = u * u * c1,
@@ -35,7 +35,7 @@ extension MapToCurve {
         // MARK: Calculating x and y
         let x = svdwCalculateX(tv2, tv3, tv5, tv6)
         let y = svdwCalculateY(x, u)
-        return .init(xComplex: .init(x), yComplex: .init(y), curve).modularized()
+        return .init(x: x, y: y).modularized()
     }
 }
 private extension MapToCurve {
@@ -57,7 +57,7 @@ private extension MapToCurve {
 
 // MARK: - Simplified Shallue-van de Woestijne-Ulas method
 extension MapToCurve {
-    func swu(_ u: F, A: F? = nil, B: F? = nil) -> CurvePoint { let A = A ?? self.A, B = B ?? self.B
+    func swu(_ u: F, A: F? = nil, B: F? = nil) -> CurvePoint<F> { let A = A ?? self.A, B = B ?? self.B
         let c1 = u.exp(2),
             c2 = (c1 * c1).mod()
 
@@ -65,7 +65,7 @@ extension MapToCurve {
 
         var (x, y) = swuCalculateCoordinates(c1, tv1, A, B)
         if isNegative(u) != isNegative(y) { y = -y }
-        return .init(xComplex: .init(x), yComplex: .init(y), curve).modularized()
+        return .init(x: x, y: y).modularized()
     }
 }
 private extension MapToCurve {
@@ -90,7 +90,7 @@ private extension MapToCurve {
 
 // MARK: - Simplified SWU for AB == 0
 extension MapToCurve {
-    func sswu(_ u: F) -> CurvePoint {
+    func sswu(_ u: F) -> CurvePoint<F> {
         let curvePointʹ = swu(u, A: Aʹ, B: Bʹ)
         let curvePoint = curve.isoMap(curvePointʹ)
 
@@ -142,27 +142,4 @@ private extension MapToCurve {
     var B: F { curve.B }
     var Bʹ: F { curve.Bʹ }
     var Z: F { curve.Z }
-}
-
-
-
-
-
-
-
-
-extension Field {
-    init(_ complexValue: ComplexValue) {
-        if Self.self == Fq1.self { self = Fq1(complexValue.real) as! Self }
-        else { self = Fq2(u0: .init(complexValue.real), u1: .init(complexValue.imaginary!)) as! Self }
-    }
-}
-
-
-extension ComplexValue {
-    init<F: Field>(_ f: F) {
-        if let f = f as? Fq1 { self = .init(f.t0) }
-        else if let f = f as? Fq2 { self = .init(real: f.u0.t0, imaginary: f.u1.t0) }
-        else { fatalError() }
-    }
 }

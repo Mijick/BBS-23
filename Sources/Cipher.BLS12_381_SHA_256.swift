@@ -18,7 +18,7 @@ extension Cipher { struct BLS12_381_SHA_256: CipherSuite {
     let octetPointLength: Int = 48
     let expandLength: Int = 48
     let hash: HashType = Hash.SHA256()
-    let p1: CurvePoint
+    let p1: CurvePoint<Fq1>
     let curveG1: any CurveSuite<Fq1>
     let curveG2: any CurveSuite<Fq2>
     let expandMessage: MessageExpander
