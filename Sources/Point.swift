@@ -144,7 +144,7 @@ extension NewPoint: Equatable {
 // MARK: - Points Addition
 extension NewPoint {
     static func + (p1: Self, p2: Self) -> Self {
-        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: .zero, y: nil) }
+        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: 0, y: nil) }
 
         let λ = addCalculateLambda(p1, p2)
         let x = addCalculateX(p1, p2, λ)
@@ -163,8 +163,8 @@ private extension NewPoint {
 // MARK: - Point x Scalar
 extension NewPoint {
     static func * (point: Self, scalar: BInt) -> NewPoint {
-        if point.isAtInfinity() { return .init(x: .zero, y: nil) }
-        if scalar == 0 { return .init(x: .zero, y: .zero) }
+        if point.isAtInfinity() { return .init(x: 0, y: nil) }
+        if scalar == 0 { return .init(x: 0, y: 0) }
         if scalar == 1 { return point }
         if scalar % 2 == 1 { return point + point * (scalar - 1) }
 

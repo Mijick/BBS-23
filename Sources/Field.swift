@@ -11,7 +11,7 @@
 
 import BigInt
 
-protocol Field: Equatable {
+protocol Field: Equatable, ExpressibleByIntegerLiteral {
     static func + (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: BInt) -> Self
@@ -21,8 +21,6 @@ protocol Field: Equatable {
     func mulNonRes() -> Self
     func exp(_ x: BInt) -> Self
     func squareRoot() -> Self
-
-    static var zero: Self { get }
 }
 
 // MARK: - Other Operations

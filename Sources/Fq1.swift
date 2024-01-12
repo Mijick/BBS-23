@@ -14,12 +14,9 @@ import BigInt
 struct Fq1: Field {
     let t0: BInt
 }
-extension Fq1: ExpressibleByStringLiteral, ExpressibleByIntegerLiteral {
+extension Fq1 {
     init(_ t0: BInt) { self.t0 = t0 }
-    init(stringLiteral value: StringLiteralType) { self.t0 = .init(hex: value) }
     init(integerLiteral value: IntegerLiteralType) { self.t0 = .init(value) }
-
-    static var zero: Fq1 { .init(0) }
 }
 
 // MARK: - Operations

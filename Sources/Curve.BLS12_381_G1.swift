@@ -115,7 +115,7 @@ private extension Curve.BLS12_381_G1 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G1 {
-    func mapToCurve(_ u: ComplexValue) -> CurvePoint { MapToCurve(self).sswu(u) }
+    func mapToCurve(_ u: ComplexValue) -> CurvePoint { MapToCurve<Fq1>(self).sswu(u) }
 }
 
 // MARK: - Base Point

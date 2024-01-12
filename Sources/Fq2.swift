@@ -19,8 +19,7 @@ extension Fq2: ExpressibleByArrayLiteral {
     init(_ values: BInt...) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
     init(_ values: [BInt]) { self.u0 = .init(values.get(0) ?? 0); self.u1 = .init(values.get(1) ?? 0) }
     init(arrayLiteral elements: BInt...) { self.u0 = .init(elements.get(0) ?? 0); self.u1 = .init(elements.get(1) ?? 0) }
-
-    static var zero: Fq2 { .init(0) }
+    init(integerLiteral value: IntegerLiteralType) { self.u0 = .init(integerLiteral: value); self.u1 = 0 }
 }
 
 // MARK: - Operations
@@ -52,7 +51,7 @@ extension Fq2 {
         u0: u0 - u1,
         u1: u0 + u1
     )}
-    func exp(_ x: BInt) -> Fq2 { let bits = Array(x.asString(radix: 2).reversed())
+    func exp(_ x: BInt) -> Fq2 { let bits = Array(x.mod(p).asString(radix: 2).reversed())
         var c: Fq2 = [1, 0]
 
         for i in 0..<381 {
