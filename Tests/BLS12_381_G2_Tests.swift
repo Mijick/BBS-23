@@ -39,7 +39,7 @@ extension BLS12_381_G2_Tests {
         )
         XCTAssertEqual(result, expectedResult)
     }
-    func test_hasToCurve_2() {
+    func test_hashToCurve_2() {
         let bytes = "abc".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 
@@ -50,7 +50,7 @@ extension BLS12_381_G2_Tests {
         )
         XCTAssertEqual(result, expectedResult)
     }
-    func test_hasToCurve_3() {
+    func test_hashToCurve_3() {
         let bytes = "abcdef0123456789".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 
@@ -61,7 +61,7 @@ extension BLS12_381_G2_Tests {
         )
         XCTAssertEqual(result, expectedResult)
     }
-    func test_hasToCurve_4() {
+    func test_hashToCurve_4() {
         let bytes = "q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 
@@ -72,7 +72,7 @@ extension BLS12_381_G2_Tests {
         )
         XCTAssertEqual(result, expectedResult)
     }
-    func test_hasToCurve_5() {
+    func test_hashToCurve_5() {
         let bytes = "a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".asAsciiToByteRepresentation()
         let result = try! curve.hashToCurve(bytes)
 

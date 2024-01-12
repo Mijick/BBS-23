@@ -12,10 +12,8 @@
 import Foundation
 import BigInt
 
-class MapToCurve<F: Field> {
-    let curve: CurveSuite
-
-    init(_ curve: CurveSuite) { self.curve = curve }
+struct MapToCurve<F: Field> {
+    let curve: any CurveSuite<F>
 }
 
 // MARK: - Shallue-van de Woestijne method
@@ -135,14 +133,14 @@ private extension MapToCurve {
 
 // MARK: - Curve Helpers
 private extension MapToCurve {
-    func f(_ x: F) -> F { .init(curve.f(.init(x))) }
+    func f(_ x: F) -> F { curve.f(x) }
 }
 private extension MapToCurve {
     var p: BInt { BBSSettings.ciphersuite.p }
-    var A: F { .init(curve.A) }
-    var Aʹ: F { .init(curve.Aʹ) }
-    var B: F { .init(curve.B) }
-    var Bʹ: F { .init(curve.Bʹ) }
+    var A: F { curve.A }
+    var Aʹ: F { curve.Aʹ }
+    var B: F { curve.B }
+    var Bʹ: F { curve.Bʹ }
     var Z: F { .init(curve.Z) }
 }
 
