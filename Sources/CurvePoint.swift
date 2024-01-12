@@ -15,30 +15,30 @@ import BigInt
 struct CurvePoint {
     private var _x: ComplexValue
     private var _y: ComplexValue!
-    private let curve: CurveSuite
+    private let curve: any CurveSuite
 }
 
 // MARK: - Initialisers
 extension CurvePoint {
     // MARK: Real
-    init(x: BInt, _ curve: CurveSuite) {
+    init(x: BInt, _ curve: some CurveSuite) {
         self._x = .init(x)
-        self._y = .init(curve.f([x]).sqrtMod(curve.p))
+        self._y = .init(.init(curve.f(.init([x]))).sqrtMod(curve.p))
         self.curve = curve
     }
-    init(x: BInt, y: BInt?, _ curve: CurveSuite) {
+    init(x: BInt, y: BInt?, _ curve: any CurveSuite) {
         self._x = .init(x)
         self._y = .init(y)
         self.curve = curve
     }
 
     // MARK: Complex
-    init(xComplex: ComplexValue, _ curve: CurveSuite) {
+    init(xComplex: ComplexValue, _ curve: some CurveSuite) {
         self._x = xComplex
-        self._y = .init(curve.f(xComplex).sqrtMod(curve.p))
+        self._y = .init(.init(curve.f(.init(xComplex))).sqrtMod(curve.p))
         self.curve = curve
     }
-    init(xComplex: ComplexValue, yComplex: ComplexValue?, _ curve: CurveSuite) {
+    init(xComplex: ComplexValue, yComplex: ComplexValue?, _ curve: any CurveSuite) {
         self._x = xComplex
         self._y = yComplex
         self.curve = curve

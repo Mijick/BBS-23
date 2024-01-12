@@ -14,7 +14,7 @@ import BigInt
 struct Point<F: Field> {
     let x: F
     let y: F
-    let curve: CurveSuite
+    let curve: any CurveSuite
 }
 
 

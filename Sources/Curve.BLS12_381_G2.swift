@@ -14,10 +14,10 @@ import BigInt
 
 extension Curve { struct BLS12_381_G2: CurveSuite {
     let dst: String = "QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SSWU_RO_"
-    let A: ComplexValue = [0, 0]
-    let Aʹ: ComplexValue = [0, 240]
-    let B: ComplexValue = [4, 4]
-    let Bʹ: ComplexValue = [1012, 1012]
+    let A: Fq2 = [0, 0]
+    let Aʹ: Fq2 = [0, 240]
+    let B: Fq2 = [4, 4]
+    let Bʹ: Fq2 = [1012, 1012]
     let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
     let r: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
     let m: Int = 2

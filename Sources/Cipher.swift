@@ -20,8 +20,8 @@ protocol CipherSuite {
     var expandLength: Int { get }
     var hash: HashType { get }
     var p1: CurvePoint { get }
-    var curveG1: CurveSuite { get }
-    var curveG2: CurveSuite { get }
+    var curveG1: any CurveSuite<Fq1> { get }
+    var curveG2: any CurveSuite<Fq2> { get }
     var expandMessage: MessageExpander { get }
 }
 extension CipherSuite {

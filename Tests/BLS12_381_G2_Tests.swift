@@ -87,5 +87,5 @@ extension BLS12_381_G2_Tests {
 
 // MARK: - Helpers
 private extension BLS12_381_G2_Tests {
-    var curve: CurveSuite { Cipher.BLS12_381_SHA_256().curveG2 }
+    var curve: any CurveSuite { Cipher.BLS12_381_SHA_256().curveG2 }
 }
