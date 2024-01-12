@@ -53,10 +53,10 @@ protocol CurveSuite<F> {
     var expandMessage: MessageExpander { get }
 
     /// Constant point (X coordinate) on the G subgroup
-    var BPx: ComplexValue { get }
+    var BPx: F { get }
 
     /// Constant point (T coordinate) on the G subgroup
-    var BPy: ComplexValue { get }
+    var BPy: F { get }
 
 
     // MARK: Methods
@@ -119,7 +119,7 @@ extension CurveSuite {
     }
 
     /// Returns a base point on the G subgroup
-    func getBasePoint() -> CurvePoint { .init(xComplex: BPx, yComplex: BPy, self) }
+    func getBasePoint() -> CurvePoint { .init(xComplex: .init(BPx), yComplex: .init(BPy), self) }
 
     /// Function that defines the basic curve
     func f(_ x: F) -> F { x * x * x + A * x + B }

@@ -120,8 +120,8 @@ extension Curve.BLS12_381_G1 {
 
 // MARK: - Base Point
 extension Curve.BLS12_381_G1 {
-    var BPx: ComplexValue { fatalError() }
-    var BPy: ComplexValue { fatalError() }
+    var BPx: Fq1 { fatalError() }
+    var BPy: Fq1 { fatalError() }
 }
 
 // MARK: - Isogeny Map Values
