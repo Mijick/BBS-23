@@ -32,5 +32,15 @@ extension Field {
 
 // MARK: - Helpers
 extension Field {
-    var p: BInt { BBSSettings.ciphersuite.p }
+    var p: BInt {
+
+
+        // TODO: Change it back
+        .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
+
+
+    //    BBSSettings.ciphersuite.p
+
+
+    }
 }

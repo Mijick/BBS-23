@@ -12,23 +12,26 @@
 import BigInt
 
 enum Curve {}
-protocol CurveSuite {
+protocol CurveSuite<F> {
+    associatedtype F: Field
+
+
     // MARK: Attributes
 
     /// Domain separation tag for a curve
     var dst: String { get }
 
     /// Basic curve defined by: y^2 = x^3 + Ax + B
-    var A: ComplexValue { get }
+    var A: F { get }
 
     /// Prime curve defined by: y^2 = x^3 + Aʹx + Bʹ
-    var Aʹ: ComplexValue { get }
+    var Aʹ: F { get }
 
     /// Basic curve defined by: y^2 = x^3 + Ax + B
-    var B: ComplexValue { get }
+    var B: F { get }
 
     /// Prime curve defined by: y^2 = x^3 + Aʹx + Bʹ
-    var Bʹ: ComplexValue { get }
+    var Bʹ: F { get }
 
     /// Characteristic of the field F
     var p: BInt { get }
@@ -117,7 +120,7 @@ extension CurveSuite {
     func getBasePoint() -> CurvePoint { .init(xComplex: BPx, yComplex: BPy, self) }
 
     /// Function that defines the basic curve
-    func f(_ x: ComplexValue) -> ComplexValue { x * x * x + A * x + B }
+    func f(_ x: F) -> F { x * x * x + A * x + B }
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F
