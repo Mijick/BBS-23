@@ -46,23 +46,12 @@ extension Fq12 {
     static func doubleEval(_ p: CurvePoint<Fq1>, _ r: CurvePoint<Fq2>) -> Fq12 {
         let wideR = r.untwist()
         let slope = (3 * (wideR.x * wideR.x)) * (2 * wideR.y).modInverse()
-        let v = wideR.y - slope * wideR.x
 
+        let p1: Fq12 = [p.y.t0]
+        let p2: Fq12 = [p.x.t0] * slope
+        let p3 = wideR.y - slope * wideR.x
 
-
-//        let p1 = Fq12(
-//            .init([[p.y.t0]]),
-//            .init([[0]]),
-//            p.primeField
-//        )
-//        let p2 = createFq12(
-//            createFq6([p.x.t0]),
-//            createFq6([0])
-//        ) * slope
-
-
-
-        fatalError()
+        return p1 - p2 - p3
     }
 }
 
@@ -70,10 +59,17 @@ extension Fq12 {
 // MARK: - Add Eval
 extension Fq12 {
     static func addEval(_ p: CurvePoint<Fq1>, q: CurvePoint<Fq2>, r: CurvePoint<Fq2>) -> Fq12 {
-        fatalError()
+        let wideR = r.untwist()
+        let wideQ = q.untwist()
+
+        if wideR.x == wideQ.x && wideR.y == -wideQ.y { return [p.x.t0] - wideR.x }
+        return addEvalHelper(wideR, wideQ, p)
     }
 }
 private extension Fq12 {
+    static func addEvalHelper(_ p1: CurvePoint<Fq12>, _ p2: CurvePoint<Fq12>, _ p3: CurvePoint<Fq1>) -> Fq12 {
+        fatalError()
+    }
 
 }
 
