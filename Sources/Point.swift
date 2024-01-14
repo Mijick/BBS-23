@@ -67,10 +67,15 @@ extension Fq12 {
     }
 }
 private extension Fq12 {
-    static func addEvalHelper(_ p1: CurvePoint<Fq12>, _ p2: CurvePoint<Fq12>, _ p3: CurvePoint<Fq1>) -> Fq12 {
-        fatalError()
-    }
+    static func addEvalHelper(_ wideR: CurvePoint<Fq12>, _ wideQ: CurvePoint<Fq12>, _ p: CurvePoint<Fq1>) -> Fq12 {
+        let slope = (wideQ.y - wideR.y) * (wideQ.x - wideR.x).modInverse()
 
+        let p1: Fq12 = [p.y.t0]
+        let p2: Fq12 = [p.x.t0] * slope
+        let p3 = (wideQ.y * wideR.x) - (wideR.y * wideQ.x) * (wideR.x - wideQ.x).modInverse()
+
+        return p1 - p2 - p3
+    }
 }
 
 
