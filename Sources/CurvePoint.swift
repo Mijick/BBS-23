@@ -87,6 +87,4 @@ extension CurvePoint {
 // MARK: - Others
 extension CurvePoint {
     func isAtInfinity() -> Bool { y == nil }
-    func isPointOfG1() -> Bool { F.self == Fq1.self }
-    func isPointOfG2() -> Bool { F.self == Fq2.self }
 }
