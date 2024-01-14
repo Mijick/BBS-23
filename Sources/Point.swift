@@ -82,7 +82,38 @@ private extension Fq12 {
 // MARK: - Miller
 extension Fq12 {
     static func miller(_ p: CurvePoint<Fq1>, q: CurvePoint<Fq2>) -> Fq12 {
-        fatalError()
+        var value = BInt(hex: "d201000000010000")
+        var iterations: [Bool] = []
+
+        while value > 0 {
+            iterations.append(value.isOdd)
+            value = value >> 1
+        }
+
+        iterations = Array(iterations.reversed().dropFirst())
+
+        return millerHelper(p, q, q, iterations, 1)
+    }
+}
+private extension Fq12 {
+    static func millerHelper(_ p: CurvePoint<Fq1>, _ q: CurvePoint<Fq2>, _ r: CurvePoint<Fq2>, _ iters: [Bool], _ result: Fq12) -> Fq12 {
+        if iters == [] { return result }
+
+        let i = iters.first!
+        let iters = Array(iters[1..<iters.count])
+
+        let accum = result * result * doubleEval(p, r)
+        let doubleR = r * 2
+
+
+
+        if i {
+            let newR = doubleR + q
+            let newResult = accum * addEval(p, q: q, r: doubleR)
+            return millerHelper(p, q, newR, iters, newResult)
+        }
+
+        return millerHelper(p, q, doubleR, iters, accum)
     }
 }
 
