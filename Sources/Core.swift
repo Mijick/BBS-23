@@ -47,7 +47,7 @@ private extension Core {
     func createPoint(_ secretKey: BInt, _ scalar: BInt, _ generators: [CurvePoint<Fq1>], _ domain: BInt, _ messages: [BInt]) -> CurvePoint<Fq1> {
         let B = getPointB(generators, domain, messages)
         
-        let point = B * (secretKey + scalar).modInverse(ciphersuite.curveG1.r)
+        let point = B * (secretKey + scalar).modInverse(ciphersuite.r)
         return point
     }
 }

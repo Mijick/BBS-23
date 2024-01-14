@@ -18,8 +18,6 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
     let Aʹ: Fq2 = [0, 240]
     let B: Fq2 = [4, 4]
     let Bʹ: Fq2 = [1012, 1012]
-    let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
-    let r: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
     let m: Int = 2
     let L: Int = 64
     let Z: Fq2 = [-2, -1]

@@ -105,7 +105,7 @@ extension Utilities {
         let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
         return uniformBytes
             .toInteger()
-            .mod(ciphersuite.curveG1.r)
+            .mod(ciphersuite.r)
     }
 }
 private extension Utilities {
@@ -223,9 +223,9 @@ private extension Utilities {
 
         let scalar = Array(signatureOctets[startIndex...endIndex])
             .toInteger()
-            .mod(ciphersuite.curveG1.r)
+            .mod(ciphersuite.r)
 
-        if scalar == 0 || scalar >= ciphersuite.curveG1.r { throw Error.OctetsToSignature.invalidScalar }
+        if scalar == 0 || scalar >= ciphersuite.r { throw Error.OctetsToSignature.invalidScalar }
         return scalar
     }
 }

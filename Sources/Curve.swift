@@ -13,7 +13,6 @@ import BigInt
 
 enum Curve {}
 protocol CurveSuite<F> {
-
     // MARK: Attributes
 
     /// Domain separation tag for a curve
@@ -30,12 +29,6 @@ protocol CurveSuite<F> {
 
     /// Prime curve defined by: y^2 = x^3 + Aʹx + Bʹ
     var Bʹ: F { get }
-
-    /// Characteristic of the field F
-    var p: BInt { get }
-
-    /// Order of G1 and G2
-    var r: BInt { get }
 
     /// Extension degree of the field F
     var m: Int { get }
@@ -81,6 +74,7 @@ protocol CurveSuite<F> {
 
 
     // MARK: Associated Types
+
     associatedtype F: Field
 }
 
@@ -128,6 +122,9 @@ extension CurveSuite {
 
     /// Function that defines the basic curve
     func f(_ x: F) -> F { x * x * x + A * x + B }
+
+    /// Characteristic of the field F
+    var p: BInt { BBSSettings.ciphersuite.p }
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F

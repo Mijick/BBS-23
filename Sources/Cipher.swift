@@ -19,12 +19,15 @@ protocol CipherSuite {
     var octetPointLength: Int { get }
     var expandLength: Int { get }
     var hash: HashType { get }
-    var p1: CurvePoint<Fq1> { get }
     var curveG1: any CurveSuite<Fq1> { get }
     var curveG2: any CurveSuite<Fq2> { get }
     var expandMessage: MessageExpander { get }
-}
-extension CipherSuite {
-    var p: BInt { curveG1.p }
-    var r: BInt { curveG1.r }
+
+    /// Characteristic of the field F
+    var p: BInt { get }
+
+    /// Order of G1 and G2
+    var r: BInt { get }
+
+    var p1: CurvePoint<Fq1> { get }
 }
