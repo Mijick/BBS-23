@@ -15,22 +15,50 @@ import BigInt
 extension CurvePoint where F == Fq2 {
     func untwist() -> CurvePoint<Fq12> {
         let root = Fq6(v0: 0, v1: 1, v2: 0)
+        let wideX = Fq12(w0: .init(v0: x, v1: 0, v2: 0), w1: 0) * Fq12(w0: root, w1: 0).modInverse()
+        let wideY = Fq12(w0: .init(v0: y, v1: 0, v2: 0), w1: 0) * Fq12(w0: 0, w1: root).modInverse()
 
-        let ax = Fq12(w0: [[x.u0.t0], [x.u1.t0]], w1: 0)
-        let bx = Fq12(w0: root, w1: 0).modInverse()
-
-        let aY = Fq12(w0: [[y.u0.t0, y.u1.t0]], w1: 0)
-        let bY = Fq12(w0: 0, w1: root).modInverse()
-
-        return .init(x: ax * bx, y: aY * bY)
+        return .init(x: wideX, y: wideY)
     }
 }
 
 
+extension Fq12: CustomStringConvertible {
+    var description: String {
+        """
+        w1: \(w1)
+        w0: \(w0)
+        """
+    }
+}
 
 
+extension Fq6: CustomStringConvertible {
+    var description: String {
+        """
 
+            v2: \(v2)
+            v1: \(v1)
+            v0: \(v0)
+        
+        """
+    }
+}
 
+extension Fq2: CustomStringConvertible {
+    var description: String {
+        """
+        
+                u1: \(u1)
+                u0: \(u0)
+
+        """
+    }
+}
+
+extension Fq1: CustomStringConvertible {
+    var description: String { t0.asString(radix: 10, uppercase: false) }
+}
 
 
 
