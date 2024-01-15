@@ -66,6 +66,20 @@ extension Fq6 {
         v1: v0,
         v2: v1
     )}
-    func exp(_ x: BInt) -> Fq6 { fatalError() }
+    func exp(_ x: BInt) -> Fq6 { pow(self, x, 1) }
     func squareRoot() -> Fq6 { fatalError() }
+}
+
+
+
+private func pow<F: Field>(_ a0: F, _ exp: BInt, _ result: F) -> F {
+    if exp <= 1 {
+        return a0
+    } else if exp % 2 == 0 {
+        let accum = pow(a0, exp >> 1, result)
+        return accum * accum
+    } else {
+        let accum = pow(a0, exp >> 1, result)
+        return accum * accum * a0
+    }
 }
