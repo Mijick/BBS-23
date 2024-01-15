@@ -99,7 +99,7 @@ private extension Fq12 {
 
         let p1: Fq12 = [p.y.t0]
         let p2: Fq12 = [p.x.t0] * slope
-        let p3 = (wideQ.y * wideR.x) - (wideR.y * wideQ.x) * (wideR.x - wideQ.x).modInverse()
+        let p3 = (wideQ.y * wideR.x - wideR.y * wideQ.x) * (wideR.x - wideQ.x).modInverse()
 
         return p1 - p2 - p3
     }
