@@ -73,11 +73,10 @@ extension Fq1: CustomStringConvertible {
 extension Fq12 {
     static func doubleEval(_ p: CurvePoint<Fq1>, _ r: CurvePoint<Fq2>) -> Fq12 {
         let wideR = r.untwist()
-        let slope = (3 * (wideR.x * wideR.x)) * (2 * wideR.y).modInverse()
-
+        let slope = (3 * wideR.x * wideR.x) * (2 * wideR.y).modInverse()
         let p1: Fq12 = [p.y.t0]
         let p2: Fq12 = [p.x.t0] * slope
-        let p3 = wideR.y - slope * wideR.x
+        let p3 = wideR.y - (slope * wideR.x)
 
         return p1 - p2 - p3
     }

@@ -32,7 +32,7 @@ extension Fq12 {
     )}
     static func + (lhs: Fq12, rhs: Fq12) -> Fq12 { .init(
         w0: lhs.w0 + rhs.w0,
-        w1: rhs.w1 + rhs.w1
+        w1: lhs.w1 + rhs.w1
     )}
 }
 extension Fq12 {
