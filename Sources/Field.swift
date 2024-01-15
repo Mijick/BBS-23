@@ -38,4 +38,5 @@ extension Field {
 // MARK: - Helpers
 extension Field {
     var p: BInt { BBSSettings.ciphersuite.p }
+    var r: BInt { BBSSettings.ciphersuite.r }
 }

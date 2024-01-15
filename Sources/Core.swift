@@ -80,11 +80,11 @@ private extension Core {
     func verifyPointsPairing(_ signature: Signature, _ W: CurvePoint<Fq2>, _ B: CurvePoint<Fq1>) throws -> Bool {
         let a1 = signature.A
         let a2 = W + ciphersuite.curveG2.getBasePoint() * signature.e
-        let e1 = Fq12.pair(a1, a2)
+        let e1 = try Fq12.pair(a1, a2)
 
         let b1 = B
         let b2 = -ciphersuite.curveG2.getBasePoint()
-        let e2 = Fq12.pair(b1, b2)
+        let e2 = try Fq12.pair(b1, b2)
 
         let result = e1 * e2
 

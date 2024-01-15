@@ -119,8 +119,18 @@ private extension Fq12 {
 
 // MARK: - Pairing
 extension Fq12 {
-    static func pair(_ pG1: CurvePoint<Fq1>, _ pG2: CurvePoint<Fq2>) -> Fq12 {
-        fatalError()
+    static func pair(_ pG1: CurvePoint<Fq1>, _ pG2: CurvePoint<Fq2>) throws -> Fq12 {
+        if pG1.isAtInfinity() || pG2.isAtInfinity() { fatalError() }
+
+
+        let p = BBSSettings.ciphersuite.p
+        let r = BBSSettings.ciphersuite.r
+        // sprawdź jeszcze czy oba punkty leżą na Curve
+
+        let rr = miller(pG1, q: pG2)
+        let mm = ((p.expMod(12, p) - 1) / r).mod(p)
+
+        return rr.exp(mm)
     }
 }
 
