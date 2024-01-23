@@ -106,9 +106,53 @@ private extension Fq12 {
 }
 
 
+
+
+class BilinearPairing {}
+
+// MARK: - Pair
+extension BilinearPairing {
+
+}
+private extension BilinearPairing {
+
+}
+
+// MARK: - Miller
+private extension BilinearPairing {
+
+}
+private extension BilinearPairing {
+
+}
+
+// MARK: - Double Eval
+private extension BilinearPairing {
+
+}
+private extension BilinearPairing {
+
+}
+
+// MARK: - Add Eval
+private extension BilinearPairing {
+
+}
+private extension BilinearPairing {
+
+}
+
+
+// MARK: - Helpers
+private extension BilinearPairing {
+    var fieldPrime: BInt { BBSSettings.ciphersuite.p }
+    var groupOrder: BInt { BBSSettings.ciphersuite.r }
+}
+
+
 // MARK: - Miller
 extension Fq12 {
-    static func miller(_ p: CurvePoint<Fq1>, q: CurvePoint<Fq2>) -> Fq12 {
+    static func miller(_ p: CurvePoint<Fq1>, _ q: CurvePoint<Fq2>) -> Fq12 {
         var value = BInt(hex: "d201000000010000")
         var iterations: [Bool] = []
 
@@ -154,8 +198,12 @@ extension Fq12 {
         let r = BBSSettings.ciphersuite.r
         // sprawdź jeszcze czy oba punkty leżą na Curve
 
-        let rr = miller(pG1, q: pG2)
-        let mm = ((p.expMod(12, p) - 1) / r).mod(p)
+        let rr = miller(pG1, pG2)
+
+
+        print(rr)
+
+        let mm = ((p.expMod(12, p) - 1) / r)
 
         return rr.exp(mm)
     }
