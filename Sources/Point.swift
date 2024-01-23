@@ -131,7 +131,7 @@ private extension BilinearPairing {
 }
 private extension BilinearPairing {
     func millerCreateIterators() -> [Bool] { .init(
-        sequence(first: BInt(hex: "d201000000010000")) { $0 << 1 }
+        sequence(first: BInt(hex: "d201000000010000")) { let v = $0 >> 1; return v > 0 ? v : nil }
             .map(\.isOdd)
             .reversed()
             .dropFirst()
@@ -140,15 +140,12 @@ private extension BilinearPairing {
         if iters == [] { return result }
         
         let (i, iters) = (iters[0], Array(iters[1..<iters.count]))
-        let accum = result * result * doubleEval(p, r)
         let doubleR = r * 2
+        let accum = result * result * doubleEval(p, r)
 
-        if i {
-            let newR = doubleR + q
-            let newResult = accum * addEval(p, q, doubleR)
-            return millerHelper(p, q, newR, iters, newResult)
-        }
-        return millerHelper(p, q, doubleR, iters, accum)
+        let newR = { i ? doubleR + q: doubleR }()
+        let newAccum = { i ? accum * addEval(p, q, doubleR) : accum }()
+        return millerHelper(p, q, newR, iters, newAccum)
     }
 }
 
