@@ -145,10 +145,20 @@ private extension BilinearPairing {
 
 // MARK: - Add Eval
 private extension BilinearPairing {
-
+    func addEval(_ p: CurvePoint<Fq1>, _ q: CurvePoint<Fq2>, _ r: CurvePoint<Fq2>) -> Fq12 {
+        let wideR = r.untwist(), wideQ = q.untwist()
+        return wideR.x == wideQ.x && wideR.y == -wideQ.y ? [p.x.t0] - wideR.x : addEvalHelper(wideR, wideQ, p)
+    }
 }
 private extension BilinearPairing {
+    func addEvalHelper(_ wideR: CurvePoint<Fq12>, _ wideQ: CurvePoint<Fq12>, _ p: CurvePoint<Fq1>) -> Fq12 {
+        let slope = (wideQ.y - wideR.y) * (wideQ.x - wideR.x).modInverse()
 
+        let p1: Fq12 = [p.y.t0]
+        let p2: Fq12 = [p.x.t0] * slope
+        let p3 = (wideQ.y * wideR.x - wideR.y * wideQ.x) * (wideR.x - wideQ.x).modInverse()
+        return p1 - p2 - p3
+    }
 }
 
 
