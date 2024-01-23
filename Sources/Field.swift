@@ -11,7 +11,7 @@
 
 import BigInt
 
-protocol Field: Equatable, ExpressibleByIntegerLiteral, ExpressibleByArrayLiteral {
+protocol Field: Equatable, ExpressibleByIntegerLiteral, ExpressibleByArrayLiteral, CustomStringConvertible {
     static func + (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: BInt) -> Self

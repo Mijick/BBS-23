@@ -39,3 +39,8 @@ extension Fq1 {
     func exp(_ x: BInt) -> Fq1 { .init(t0: t0.expMod(x, p)) }
     func squareRoot() -> Fq1 { .init(t0: t0.sqrtMod(p)!) }
 }
+
+// MARK: - Printing
+extension Fq1 {
+    var description: String { t0.asString(radix: 10, uppercase: false) }
+}

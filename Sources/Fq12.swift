@@ -63,3 +63,13 @@ private func pow<F: Field>(_ a0: F, _ exp: BInt, _ result: F) -> F {
         return accum * accum * a0
     }
 }
+
+// MARK: - Printing
+extension Fq12 {
+    var description: String {
+        """
+        w1: \(w1)
+        w0: \(w0)
+        """
+    }
+}

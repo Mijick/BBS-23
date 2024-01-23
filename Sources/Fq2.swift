@@ -76,3 +76,15 @@ extension Fq2 {
         }
     }
 }
+
+// MARK: - Printing
+extension Fq2 {
+    var description: String {
+        """
+
+                u1: \(u1)
+                u0: \(u0)
+
+        """
+    }
+}

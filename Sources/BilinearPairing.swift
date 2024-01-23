@@ -23,45 +23,6 @@ extension CurvePoint<Fq2> {
 }
 
 
-extension Fq12: CustomStringConvertible {
-    var description: String {
-        """
-        w1: \(w1)
-        w0: \(w0)
-        """
-    }
-}
-
-
-extension Fq6: CustomStringConvertible {
-    var description: String {
-        """
-
-            v2: \(v2)
-            v1: \(v1)
-            v0: \(v0)
-        
-        """
-    }
-}
-
-extension Fq2: CustomStringConvertible {
-    var description: String {
-        """
-        
-                u1: \(u1)
-                u0: \(u0)
-
-        """
-    }
-}
-
-extension Fq1: CustomStringConvertible {
-    var description: String { t0.asString(radix: 10, uppercase: false) }
-}
-
-
-
 
 
 
