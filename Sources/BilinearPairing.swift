@@ -11,21 +11,6 @@
 
 import BigInt
 
-
-extension CurvePoint<Fq2> {
-    func untwist() -> CurvePoint<Fq12> {
-        let root = Fq6(v0: 0, v1: 1, v2: 0)
-        let wideX = Fq12(w0: .init(v0: x, v1: 0, v2: 0), w1: 0) * Fq12(w0: root, w1: 0).modInverse()
-        let wideY = Fq12(w0: .init(v0: y, v1: 0, v2: 0), w1: 0) * Fq12(w0: 0, w1: root).modInverse()
-
-        return .init(x: wideX, y: wideY)
-    }
-}
-
-
-
-
-
 struct BilinearPairing {
     let pG1: CurvePoint<Fq1>
     let pG2: CurvePoint<Fq2>
@@ -119,23 +104,31 @@ extension BilinearPairing {
 }
 
 
+// MARK: - External Helpers
 
+// MARK: Fq2 Untwist
+fileprivate extension CurvePoint<Fq2> {
+    func untwist() -> CurvePoint<Fq12> {
+        let root = Fq6(v0: 0, v1: 1, v2: 0)
+        let wideX = Fq12(w0: .init(v0: x, v1: 0, v2: 0), w1: 0) * Fq12(w0: root, w1: 0).modInverse()
+        let wideY = Fq12(w0: .init(v0: y, v1: 0, v2: 0), w1: 0) * Fq12(w0: 0, w1: root).modInverse()
+
+        return .init(x: wideX, y: wideY)
+    }
+}
+
+// MARK: Exp
 fileprivate extension BInt {
     func exp(_ exponent: Int) -> BInt {
+        if exponent < 0 { return 0 }
         if exponent == 0 { return 1 }
         if exponent == 1 { return self }
-        if exponent < 0 {
-            precondition(!self.isZero)
-            return self == 1 ? 1 : 0
-        }
+
         if self <= 1 { return self }
-        var result = BInt(1)
-        var b = self
-        var e = exponent
+
+        var result = BInt(1), b = self, e = exponent
         while e > 0 {
-            if e & 1 == 1 {
-                result *= b
-            }
+            if e & 1 == 1 { result *= b }
             e >>= 1
             b *= b
         }
