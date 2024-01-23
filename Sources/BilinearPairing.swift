@@ -105,8 +105,6 @@ extension BilinearPairing {
 
 
 // MARK: - External Helpers
-
-// MARK: Fq2 Untwist
 fileprivate extension CurvePoint<Fq2> {
     func untwist() -> CurvePoint<Fq12> {
         let root = Fq6(v0: 0, v1: 1, v2: 0)
@@ -116,8 +114,6 @@ fileprivate extension CurvePoint<Fq2> {
         return .init(x: wideX, y: wideY)
     }
 }
-
-// MARK: Exp
 fileprivate extension BInt {
     func exp(_ exponent: Int) -> BInt {
         if exponent < 0 { return 0 }
