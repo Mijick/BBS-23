@@ -108,10 +108,14 @@ private extension Fq12 {
 
 
 
-class BilinearPairing {}
+struct BilinearPairing {
+    let pG1: CurvePoint<Fq1>
+    let pG2: CurvePoint<Fq2>
+}
 
 // MARK: - Pair
 extension BilinearPairing {
+
 
 }
 private extension BilinearPairing {
@@ -128,10 +132,15 @@ private extension BilinearPairing {
 
 // MARK: - Double Eval
 private extension BilinearPairing {
+    func doubleEval(_ p: CurvePoint<Fq1>, _ r: CurvePoint<Fq2>) -> Fq12 {
+        let wideR = r.untwist()
+        let slope = (3 * wideR.x * wideR.x) * (2 * wideR.y).modInverse()
 
-}
-private extension BilinearPairing {
-
+        let p1: Fq12 = [p.y.t0]
+        let p2: Fq12 = [p.x.t0] * slope
+        let p3 = wideR.y - slope * wideR.x
+        return p1 - p2 - p3
+    }
 }
 
 // MARK: - Add Eval
