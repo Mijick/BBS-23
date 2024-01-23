@@ -73,15 +73,20 @@ struct BilinearPairing {
 // MARK: - Tate Pairing
 extension BilinearPairing {
     func pair() throws -> Fq12 {
-        if pG1.isAtInfinity() || pG2.isAtInfinity() { fatalError() }
-
-        // sprawdź jeszcze czy oba punkty leżą na Curve
-
-
-
+        try pairCheckPoints()
 
         let exponential = (fieldPrime.exp(12) - 1) / groupOrder
         return miller().exp(exponential)
+    }
+}
+private extension BilinearPairing {
+    func pairCheckPoints() throws {
+        if pG1.isAtInfinity() || pG2.isAtInfinity() { throw Error.pointsAreAtInfinity }
+
+
+
+
+        // sprawdź jeszcze czy oba punkty leżą na Curve
     }
 }
 
@@ -143,11 +148,15 @@ private extension BilinearPairing {
     }
 }
 
-
 // MARK: - Helpers
 private extension BilinearPairing {
     var fieldPrime: BInt { BBSSettings.ciphersuite.p }
     var groupOrder: BInt { BBSSettings.ciphersuite.r }
+}
+
+// MARK: - Errors
+extension BilinearPairing {
+    enum Error: Swift.Error { case pointsAreAtInfinity, pointsAreNotOnSelectedCurve }
 }
 
 
