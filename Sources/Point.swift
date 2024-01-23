@@ -124,10 +124,32 @@ private extension BilinearPairing {
 
 // MARK: - Miller
 private extension BilinearPairing {
-
+    func miller() -> Fq12 {
+        let iterators = millerCreateIterators()
+        return millerHelper(pG1, pG2, pG2, iterators, 1)
+    }
 }
 private extension BilinearPairing {
+    func millerCreateIterators() -> [Bool] { .init(
+        sequence(first: BInt(hex: "d201000000010000")) { $0 << 1 }
+            .map(\.isOdd)
+            .reversed()
+            .dropFirst()
+    )}
+    func millerHelper(_ p: CurvePoint<Fq1>, _ q: CurvePoint<Fq2>, _ r: CurvePoint<Fq2>, _ iters: [Bool], _ result: Fq12) -> Fq12 {
+        if iters == [] { return result }
+        
+        let (i, iters) = (iters[0], Array(iters[1..<iters.count]))
+        let accum = result * result * doubleEval(p, r)
+        let doubleR = r * 2
 
+        if i {
+            let newR = doubleR + q
+            let newResult = accum * addEval(p, q, doubleR)
+            return millerHelper(p, q, newR, iters, newResult)
+        }
+        return millerHelper(p, q, doubleR, iters, accum)
+    }
 }
 
 // MARK: - Double Eval
