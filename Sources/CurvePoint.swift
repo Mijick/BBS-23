@@ -87,4 +87,5 @@ extension CurvePoint {
 // MARK: - Others
 extension CurvePoint {
     func isAtInfinity() -> Bool { y == nil }
+    func isOnCurve(_ f: (_ x: F) -> F) -> Bool { y * y == f(x) }
 }

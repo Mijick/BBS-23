@@ -125,6 +125,9 @@ extension CurveSuite {
 
     /// Characteristic of the field F
     var p: BInt { BBSSettings.ciphersuite.p }
+
+    /// Order of G1 and G2
+    var r: BInt { BBSSettings.ciphersuite.r }
 }
 private extension CurveSuite {
     /// Hashes arbitrary-length byte strings to a list of one or more elements of a finite field F

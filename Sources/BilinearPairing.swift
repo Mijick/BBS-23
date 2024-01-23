@@ -82,11 +82,7 @@ extension BilinearPairing {
 private extension BilinearPairing {
     func pairCheckPoints() throws {
         if pG1.isAtInfinity() || pG2.isAtInfinity() { throw Error.pointsAreAtInfinity }
-
-
-
-
-        // sprawdź jeszcze czy oba punkty leżą na Curve
+        if !pG1.isOnCurve(fG1) || !pG2.isOnCurve(fG2) { throw Error.pointsAreNotOnSelectedCurve }
     }
 }
 
@@ -152,6 +148,8 @@ private extension BilinearPairing {
 private extension BilinearPairing {
     var fieldPrime: BInt { BBSSettings.ciphersuite.p }
     var groupOrder: BInt { BBSSettings.ciphersuite.r }
+    var fG1: (Fq1) -> Fq1 { BBSSettings.ciphersuite.curveG1.f }
+    var fG2: (Fq2) -> Fq2 { BBSSettings.ciphersuite.curveG2.f }
 }
 
 // MARK: - Errors
