@@ -19,16 +19,6 @@ extension [UInt8] {
         for i in 0..<count { array[i] ^= key[i % key.count] }
         return array
     }
-    func and(_ key: [UInt8]) -> [UInt8] {
-        var array = self
-        for i in 0..<count { array[i] &= key[i % key.count] }
-        return array
-    }
-    func or(_ key: [UInt8]) -> [UInt8] {
-        var array = self
-        for i in 0..<count { array[i] |= key[i % key.count] }
-        return array
-    }
     func concatenate(with bytes: [UInt8]) -> [UInt8] {
         let data1 = Data(self), data2 = Data(bytes)
 
@@ -36,15 +26,6 @@ extension [UInt8] {
         mutableData.append(data1)
         mutableData.append(data2)
         return .init(mutableData)
-    }
-}
-
-// MARK: - Converting to Hex
-extension [UInt8] {
-    func toHexRepresentation() -> String {
-        var hexString: String = ""
-        for byte in self { hexString.append(String(format:"%02X", byte)) }
-        return hexString.lowercased()
     }
 }
 
