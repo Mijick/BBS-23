@@ -22,8 +22,8 @@ extension Cipher { struct BLS12_381_SHA_256: CipherSuite {
     let curveG1: any CurveSuite<Fq1>
     let curveG2: any CurveSuite<Fq2>
     let expandMessage: MessageExpander
-    let p: BInt = .init(hex: "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab")
-    let r: BInt = .init(hex: "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001")
+    let p: BInt = "1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab"
+    let r: BInt = "73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001"
 
     init() {
         self.expandMessage = ExpandMessage.XMD(hasher: hash)
