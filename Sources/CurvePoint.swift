@@ -77,6 +77,9 @@ extension CurvePoint {
 // MARK: - Others
 extension CurvePoint {
     func isAtInfinity() -> Bool { y == nil }
-    func isInSubgroup() -> Bool { true }
+    func isInSubgroup() -> Bool {
+        // TODO: Define it later!!!
+        true
+    }
     func isOnCurve(_ f: (_ x: F) -> F) -> Bool { y * y == f(x) }
 }
