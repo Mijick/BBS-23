@@ -253,7 +253,6 @@ extension Utilities {
 
         let points = try deserializePoints(proofOctets)
 
-        var j = 0
         var index = points.count * ciphersuite.octetPointLength
 
         var scalars: [BInt] = []
@@ -265,7 +264,6 @@ extension Utilities {
             scalars.append(sJ)
 
             index += ciphersuite.octetScalarLength
-            j += 1
         }
 
 
