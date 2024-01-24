@@ -36,12 +36,12 @@ extension Curve.BLS12_381_G2 {
 }
 private extension Curve.BLS12_381_G2 {
     func serializePointAtInfinity() throws -> [UInt8] {
-        var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
+        var result = try 0.toBytes(expectedLength: 96)
         result[0] += serializationCompressionFlag
         return result
     }
     func serializeRegularPoint(_ point: CurvePoint<Fq2>) throws -> [UInt8] {
-        var result = try Primitives.integerToBytes(value: 0, expectedLength: 96)
+        var result = try 0.toBytes(expectedLength: 96)
         result.replaceSubrange(0..<48, with: try calculateSerializationLeftSide(point))
         result.replaceSubrange(48..<96, with: try calculateSerializationRightSide(point))
         result[0] += serializationCompressionFlag
