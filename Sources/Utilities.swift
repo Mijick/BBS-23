@@ -274,15 +274,14 @@ private extension Utilities {
         }
     }
     func deserializeScalars(_ proofOctets: [UInt8], pointsSize: Int) throws -> [BInt] {
-        try stride(from: pointsSize, to: proofOctets.count - 1, by: ciphersuite.octetScalarLength)
-            .map {
-                let startIndex = $0, endIndex = startIndex + ciphersuite.octetScalarLength
-                let scalarOctets = Array(proofOctets[startIndex..<endIndex])
+        try stride(from: pointsSize, to: proofOctets.count - 1, by: ciphersuite.octetScalarLength).map {
+            let startIndex = $0, endIndex = startIndex + ciphersuite.octetScalarLength
+            let scalarOctets = Array(proofOctets[startIndex..<endIndex])
 
-                let scalar = scalarOctets.toInteger()
-                try checkScalar(scalar)
-                return scalar
-            }
+            let scalar = scalarOctets.toInteger()
+            try checkScalar(scalar)
+            return scalar
+        }
     }
     func verifyProofOutput(_ proofOctets: [UInt8], pointsSize: Int, scalarsSize: Int) throws {
         if proofOctets.count != pointsSize + scalarsSize { throw Error.OctetsToProof.invalidProofEntry }
@@ -291,7 +290,7 @@ private extension Utilities {
 private extension Utilities {
     func checkPoint(_ A: CurvePoint<Fq1>) throws {
         if A.isAtInfinity() { throw Error.OctetsToProof.invalidPoint }
-        // subgroup check jeszcze
+        if !A.isInSubgroup() { throw Error.OctetsToProof.invalidPoint }
     }
     func checkScalar(_ e: BInt) throws {
         if e == 0 { throw Error.OctetsToProof.invalidScalar }
