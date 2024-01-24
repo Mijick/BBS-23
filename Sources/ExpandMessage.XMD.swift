@@ -21,8 +21,8 @@ extension ExpandMessage.XMD {
         try assertExpandMessageRequirements(expectedLengthInBytes, dst, helperBytesArraySize)
 
         let dstPrime = try calculateDomainSeparationTagPrime(dst)
-        let zPad = try Primitives.integerToBytes(value: 0, expectedLength: hasher.sInBytes)
-        let expectedLengthBytes = try Primitives.integerToBytes(value: .init(expectedLengthInBytes), expectedLength: 2)
+        let zPad = try 0.toBytes(expectedLength: hasher.sInBytes)
+        let expectedLengthBytes = try expectedLengthInBytes.toBytes(expectedLength: 2)
         let messagePrime = try calculateMessageBytesPrime(messageBytes, dstPrime, zPad, expectedLengthBytes)
         let hashedMessagePrime = hasher.hashData(messagePrime)
 
@@ -47,11 +47,11 @@ private extension ExpandMessage.XMD {
         if helperBytesArraySize > 255 { throw Error.helperArrayTooBig }
     }
     func calculateDomainSeparationTagPrime(_ domainSeparationTag: [UInt8]) throws -> [UInt8] {
-        let bytes = try Primitives.integerToBytes(value: .init(domainSeparationTag.count), expectedLength: 1)
+        let bytes = try domainSeparationTag.count.toBytes(expectedLength: 1)
         return domainSeparationTag.concatenate(with: bytes)
     }
     func calculateMessageBytesPrime(_ messageBytes: [UInt8], _ dstPrime: [UInt8], _ zPad: [UInt8], _ expectedLengthBytes: [UInt8]) throws -> [UInt8] {
-        let bytes = try Primitives.integerToBytes(value: 0, expectedLength: 1)
+        let bytes = try 0.toBytes(expectedLength: 1)
         return zPad
             .concatenate(with: messageBytes)
             .concatenate(with: expectedLengthBytes)
@@ -59,7 +59,7 @@ private extension ExpandMessage.XMD {
             .concatenate(with: dstPrime)
     }
     func createHelperBytesArray(_ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws -> [[UInt8]] {
-        let byte = try Primitives.integerToBytes(value: 1, expectedLength: 1)
+        let byte = try 1.toBytes(expectedLength: 1)
         let firstByte = hashedMessagePrime
             .concatenate(with: byte)
             .concatenate(with: dstPrime)
@@ -68,7 +68,7 @@ private extension ExpandMessage.XMD {
         return [hashedFirstByte]
     }
     func populateHelperBytesArray(_ helperBytesArray: inout [[UInt8]], _ expectedSize: Int, _ hashedMessagePrime: [UInt8], _ dstPrime: [UInt8]) throws { for index in 0...expectedSize {
-        let indexBytes = try Primitives.integerToBytes(value: .init(index + 2), expectedLength: 1)
+        let indexBytes = try (index + 2).toBytes(expectedLength: 1)
         let xorResult = hashedMessagePrime.xor(helperBytesArray[index])
         let byte = xorResult
             .concatenate(with: indexBytes)
