@@ -248,10 +248,19 @@ private extension Utilities {
 
 // MARK: - Octets to Proof
 extension Utilities {
+    func octetsToProof(proofOctets: [UInt8]) throws -> Proof {
+        try precheckProofOctets(proofOctets)
+
+
+        fatalError()
+    }
 
 }
 private extension Utilities {
-    
+    func precheckProofOctets(_ proofOctets: [UInt8]) throws {
+        let expectedLength = 3 * ciphersuite.octetPointLength + 4 * ciphersuite.octetScalarLength
+        if proofOctets.count != expectedLength { throw Error.OctetsToProof.invalidProof }
+    }
 }
 
 
@@ -264,4 +273,5 @@ extension Utilities { enum Error {
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyInvalid }
     enum OctetsToSignature: Swift.Error { case invalidSignature, invalidPoint, invalidScalar }
+    enum OctetsToProof: Swift.Error { case invalidProof }
 }}
