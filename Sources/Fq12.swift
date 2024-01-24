@@ -46,22 +46,8 @@ extension Fq12 {
         )
     }
     func mulNonRes() -> Fq12 { fatalError() }
-    func exp(_ x: BInt) -> Fq12 { pow(self, x, 1) }
+    func exp(_ x: BInt) -> Fq12 { pow(x, 1) }
     func squareRoot() -> Fq12 { fatalError() }
-}
-
-
-
-private func pow<F: Field>(_ a0: F, _ exp: BInt, _ result: F) -> F {
-    if exp <= 1 {
-        return a0
-    } else if exp % 2 == 0 {
-        let accum = pow(a0, exp >> 1, result)
-        return accum * accum
-    } else {
-        let accum = pow(a0, exp >> 1, result)
-        return accum * accum * a0
-    }
 }
 
 // MARK: - Printing

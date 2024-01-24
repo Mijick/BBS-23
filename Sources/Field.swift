@@ -34,6 +34,15 @@ extension Field {
     static func - (lhs: Self, rhs: Self) -> Self { lhs + (-rhs) }
     static prefix func - (x: Self) -> Self { x * (-1) }
 }
+extension Field {
+    func pow(_ exp: BInt, _ result: Self) -> Self {
+        if exp <= 1 { return self }
+
+        let accum = pow(exp >> 1, result)
+        let accum² = accum * accum
+        return exp.isEven ? accum² : accum² * self
+    }
+}
 
 // MARK: - Helpers
 extension Field {
