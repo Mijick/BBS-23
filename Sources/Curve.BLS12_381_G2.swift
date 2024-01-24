@@ -21,7 +21,7 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
     let m: Int = 2
     let L: Int = 64
     let Z: Fq2 = [-2, -1]
-    let hEff: BInt = .init(hex: "bc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551")
+    let hEff: BInt = "bc69f08f2ee75b3584c6a0ea91b352888e2a8e9145ad7689986ff031508ffe1329c2f178731db956d82bf015d1212b02ec0ec69d7477c1ae954cbc06689f6a359894c0adebbf6b4e8020005aaa95551"
     let expandMessage: MessageExpander
 }}
 
