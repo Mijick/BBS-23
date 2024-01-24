@@ -13,13 +13,25 @@ import BigInt
 
 enum Cipher {}
 protocol CipherSuite {
-    // MARK: Attributes
+    /// Identifier of the ciphersuite
     var id: String { get }
+
+    /// The length of a scalar octet representation
     var octetScalarLength: Int { get }
+
+    /// The length of a point in G1 octet representation
     var octetPointLength: Int { get }
+
+    /// The length of message expander
     var expandLength: Int { get }
+
+    /// The curve for G1
     var curveG1: any CurveSuite<Fq1> { get }
+
+    /// The curve for G2
     var curveG2: any CurveSuite<Fq2> { get }
+
+    /// Defined by the suite specified by the hash to curve suite parameter of the ciphersuite
     var expandMessage: MessageExpander { get }
 
     /// Characteristic of the field F
