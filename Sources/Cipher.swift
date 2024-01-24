@@ -18,7 +18,6 @@ protocol CipherSuite {
     var octetScalarLength: Int { get }
     var octetPointLength: Int { get }
     var expandLength: Int { get }
-    var hash: HashType { get }
     var curveG1: any CurveSuite<Fq1> { get }
     var curveG2: any CurveSuite<Fq2> { get }
     var expandMessage: MessageExpander { get }
@@ -29,5 +28,6 @@ protocol CipherSuite {
     /// Order of G1 and G2
     var r: BInt { get }
 
+    /// Fixed point of G1
     var p1: CurvePoint<Fq1> { get }
 }
