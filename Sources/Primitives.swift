@@ -44,7 +44,6 @@ private extension Primitives {
 
 
 // MARK: - Errors
-fileprivate typealias Error = PrimitivesError
-enum PrimitivesError {
+extension Primitives { enum Error {
     enum I20SP: Swift.Error { case negativeExpectedLength, tooLargeInteger }
-}
+}}

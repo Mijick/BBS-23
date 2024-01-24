@@ -98,7 +98,6 @@ private extension BBS {
 
 
 // MARK: - Errors
-fileprivate typealias Error = BBSError
-enum BBSError {
+extension BBS { enum Error {
     enum SecretKeyGeneration: Swift.Error { case tooSmallKeyMaterial, tooBigKeyInfo }
-}
+}}

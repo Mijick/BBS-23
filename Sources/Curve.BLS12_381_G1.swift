@@ -191,7 +191,6 @@ extension Curve.BLS12_381_G1 {
 
 
 // MARK: - Errors
-fileprivate typealias Error = BLS12_381_G1Error
-enum BLS12_381_G1Error {
+extension Curve.BLS12_381_G1 { enum Error {
     enum Deserialization: Swift.Error { case invalidSize, invalidPoint }
-}
+}}

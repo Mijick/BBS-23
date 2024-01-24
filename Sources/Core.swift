@@ -240,12 +240,11 @@ private extension Core {
 
 
 // MARK: - Errors
-fileprivate typealias Error = CoreError
-enum CoreError {
+extension Core { enum Error {
     enum CoreSign: Swift.Error { case tooLessGenerators, insufficientRandomness }
     enum CoreSignVerify: Swift.Error { case tooLessGenerators }
     enum CoreProof: Swift.Error { case incorrectDisclosedIndexes }
     enum CoreProofInit: Swift.Error { case tooLessRandomScalars, tooLessGenerators, incorrectUndisclosedIndexes }
     enum Challenge: Swift.Error { case disclosedMessagesMustBeOfTheSameLengthAsDisclosedIndexes, tooManyDisclosedIndexes, tooBigPresentationHeader }
     enum CoreProofFinalize: Swift.Error { case tooLessRandomScalars }
-}
+}}

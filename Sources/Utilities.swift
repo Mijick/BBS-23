@@ -256,8 +256,7 @@ private extension Utilities {
 
 
 // MARK: - Errors
-fileprivate typealias Error = UtilitiesError
-enum UtilitiesError {
+extension Utilities { enum Error {
     enum CalculateDomain: Swift.Error { case tooLessPoints, tooManyPoints, tooBigHeader }
     enum CreateGenerators: Swift.Error { case cannotGenerateThatAmountOfGenerators }
     enum ConvertToScalar: Swift.Error { case invalidDSTLength, invalidMessageLength }
@@ -265,4 +264,4 @@ enum UtilitiesError {
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyInvalid }
     enum OctetsToSignature: Swift.Error { case invalidSignature, invalidPoint, invalidScalar }
-}
+}}

@@ -81,5 +81,6 @@ private extension ExpandMessage.XMD {
 
 
 // MARK: - Errors
-fileprivate typealias Error = ExpandMessageXMDError
-enum ExpandMessageXMDError: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
+extension ExpandMessage.XMD {
+    enum Error: Swift.Error { case expectedLengthMustBePositive, expectedLengthTooLarge, domainSeperationTagTooBig, helperArrayTooBig }
+}

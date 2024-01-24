@@ -19,13 +19,13 @@ final class PrimitivesTests: XCTestCase {}
 extension PrimitivesTests {
     func test_I20SP_error_negativeExpectedLength() {
         XCTAssertThrowsError(try Primitives.integerToBytes(value: 255, expectedLength: -1)) { error in
-            let error = error as! PrimitivesError.I20SP
+            let error = error as! Primitives.Error.I20SP
             XCTAssertEqual(error, .negativeExpectedLength)
         }
     }
     func test_I20SP_error_tooLargeInteger() {
         XCTAssertThrowsError(try Primitives.integerToBytes(value: 1000, expectedLength: 1)) { error in
-            let error = error as! PrimitivesError.I20SP
+            let error = error as! Primitives.Error.I20SP
             XCTAssertEqual(error, .tooLargeInteger)
         }
     }
