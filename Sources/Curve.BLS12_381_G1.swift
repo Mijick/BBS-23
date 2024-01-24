@@ -99,7 +99,7 @@ private extension Curve.BLS12_381_G1 {
         var bytes = bytes
         bytes[0] &= 31
         
-        let x = Fq1(Primitives.bytesToInteger(bytes))
+        let x = Fq1(bytes.toInteger())
         let y = f(x).squareRoot()
         return CurvePoint(x: x, y: y)
     }

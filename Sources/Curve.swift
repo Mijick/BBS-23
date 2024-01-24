@@ -181,8 +181,9 @@ private extension CurveSuite {
 
             for j in 0..<m {
                 let elementOffset = L * (j + i * m)
-                let temp = Array(uniformBytes[elementOffset..<elementOffset + L])
-                let element = Primitives.bytesToInteger(temp) % p
+                let element = Array(uniformBytes[elementOffset..<elementOffset + L])
+                    .toInteger()
+                    .mod(p)
 
                 tempArray.append(element)
             }

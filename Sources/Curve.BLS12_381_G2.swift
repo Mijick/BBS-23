@@ -104,8 +104,8 @@ private extension Curve.BLS12_381_G2 {
         bytes[0] &= 31
 
         let x: Fq2 = [
-            Primitives.bytesToInteger(.init(bytes[48..<96])),
-            Primitives.bytesToInteger(.init(bytes[0..<48]))
+            Array(bytes[48..<96]).toInteger(),
+            Array(bytes[0..<48]).toInteger()
         ]
         let y = f(x).squareRoot()
 
