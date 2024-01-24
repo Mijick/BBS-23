@@ -9,8 +9,8 @@
 //  Copyright ©2023 Mijick. Licensed under MIT License.
 
 
-import Foundation
+import BigInt
 
 extension Int {
-    func toBytes(expectedLength: Int) throws -> [UInt8] { try Primitives.integerToBytes(value: .init(self), expectedLength: expectedLength) }
+    func toBytes(expectedLength: Int) throws -> [UInt8] { try BInt(self).toBytes(expectedLength: expectedLength) }
 }
