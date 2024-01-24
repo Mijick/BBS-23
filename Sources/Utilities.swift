@@ -251,23 +251,10 @@ extension Utilities {
     func octetsToProof(proofOctets: [UInt8]) throws -> Proof {
         try precheckProofOctets(proofOctets)
 
-        var index = 0
-
-        var points: [CurvePoint<Fq1>] = []
-        for i in 0...2 {
-            let endIndex = index + ciphersuite.octetPointLength - 1
-            let Ai = try ciphersuite.curveG1.deserializePoint(Array(proofOctets[index...endIndex]))
-            if Ai.isAtInfinity() { throw Error.OctetsToProof.invalidPoint }
-
-
-            // subgroup check jeszcze
-
-
-            points.append(Ai)
-            index += ciphersuite.octetPointLength
-        }
+        let points = try deserializePoints(proofOctets)
 
         var j = 0
+        var index = points.count * ciphersuite.octetPointLength
 
         var scalars: [BInt] = []
         while index < proofOctets.count {
@@ -294,6 +281,21 @@ private extension Utilities {
         let expectedLength = 3 * ciphersuite.octetPointLength + 4 * ciphersuite.octetScalarLength
         if proofOctets.count < expectedLength { throw Error.OctetsToProof.invalidProof }
     }
+    func deserializePoints(_ proofOctets: [UInt8]) throws -> [CurvePoint<Fq1>] {
+        try (0..<3).map {
+            let startIndex = $0 * ciphersuite.octetPointLength, endIndex = startIndex + ciphersuite.octetPointLength - 1
+            let pointOctets = Array(proofOctets[startIndex...endIndex])
+
+            let A = try ciphersuite.curveG1.deserializePoint(pointOctets)
+            return A
+        }
+    }
+    func deserializeScalars(_ proofOctets: [UInt8]) throws -> [Any] {
+        fatalError()
+    }
+
+
+
 }
 
 
