@@ -35,11 +35,8 @@ extension UtilitiesTest {
             "82701eb98070728e1769525e73abff1783cedc364adb20c05c897a62f2ab2927f86f118dcb7819a7b218d8f3fee4bd7f".asHexToByteRepresentation(),
             "a1f229540474f4d6f1134761b92b788128c7ac8dc9b0c52d59493132679673032ac7db3fb3d79b46b13c1c41ee495bca".asHexToByteRepresentation()
         ]
-        XCTAssertEqual(results.first!, expectedResults.first!)
+        XCTAssertEqual(results, expectedResults)
     }
-}
-private extension UtilitiesTest {
-    
 }
 
 // MARK: - Hash to Scalar
@@ -69,8 +66,8 @@ extension UtilitiesTest {
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar3() {
-        let result = try? utilities.messagesToScalars(messages: [m_4], apiID: apiID)
-        let expectedResult: [BInt] = ["4a196deafee5c23f630156ae13be3e46e53b7e39094d22877b8cba7f14640888"]
+        let result = try? utilities.messagesToScalars(messages: [m_3], apiID: apiID)
+        let expectedResult: [BInt] = ["0c7c4c85cdab32e6fdb0de267b16fa3212733d4e3a3f0d0f751657578b26fe22"]
         XCTAssertEqual(result, expectedResult)
     }
     func test_messagesToScalar4() {
