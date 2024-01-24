@@ -34,18 +34,13 @@ extension CurvePoint {
     static func + (p1: Self, p2: Self) -> Self {
         if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: 0, y: nil) }
 
-        let λ = addCalculateLambda(p1, p2)
-        let x = addCalculateX(p1, p2, λ)
-        let y = addCalculateY(p1, x, λ)
+        let λ = (p2.y - p1.y) * ((p2.x - p1.x).modInverse())
+        let x = (λ * λ) - p1.x - p2.x
+        let y = λ * (p1.x - x) - p1.y
 
         let point = CurvePoint(x: x, y: y)
         return point.modularized()
     }
-}
-private extension CurvePoint {
-    static func addCalculateLambda(_ p1: Self, _ p2: Self) -> F { (p2.y - p1.y) * ((p2.x - p1.x).modInverse()) }
-    static func addCalculateX(_ p1: Self, _ p2: Self, _ λ: F) -> F { (λ * λ) - p1.x - p2.x }
-    static func addCalculateY(_ p1: Self, _ x: F, _ λ: F) -> F { λ * (p1.x - x) - p1.y }
 }
 
 // MARK: - Point x Scalar
@@ -62,18 +57,13 @@ extension CurvePoint {
 }
 private extension CurvePoint {
     func double() -> CurvePoint {
-        let λ = doubleCalculateLambda(x, y)
-        let newX = doubleCalculateX(x, λ)
-        let newY = doubleCalculateY(newX, λ)
+        let λ = (3 * x * x) * ((2 * y).modInverse())
+        let newX = (λ * λ) - 2 * x
+        let newY = λ * (x - newX) - y
 
         let point = CurvePoint(x: newX, y: newY)
         return point.modularized()
     }
-}
-private extension CurvePoint {
-    func doubleCalculateLambda(_ x: F, _ y: F) -> F { (3 * x * x) * ((2 * y).modInverse()) }
-    func doubleCalculateX(_ x: F, _ λ: F) -> F { (λ * λ) - 2 * x }
-    func doubleCalculateY(_ newX: F, _ λ: F) -> F { λ * (x - newX) - y }
 }
 
 // MARK: - Points Substraction
@@ -87,5 +77,6 @@ extension CurvePoint {
 // MARK: - Others
 extension CurvePoint {
     func isAtInfinity() -> Bool { y == nil }
+    func isInSubgroup() -> Bool { true }
     func isOnCurve(_ f: (_ x: F) -> F) -> Bool { y * y == f(x) }
 }
