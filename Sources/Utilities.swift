@@ -251,28 +251,12 @@ extension Utilities {
     func octetsToProof(proofOctets: [UInt8]) throws -> Proof {
         try precheckProofOctets(proofOctets)
 
-        let points = try deserializePoints(proofOctets)
+        let points = try deserializePoints(proofOctets), pointsSize = points.count * ciphersuite.octetPointLength
+        let scalars = try deserializeScalars(proofOctets, pointsSize: pointsSize), scalarsSize = scalars.count * ciphersuite.octetScalarLength
 
-        var index = points.count * ciphersuite.octetPointLength
-
-        var scalars: [BInt] = []
-        while index < proofOctets.count {
-            let endIndex = index + ciphersuite.octetScalarLength - 1
-            let sJ = Array(proofOctets[index...endIndex]).toInteger()
-            if sJ == 0 || sJ >= ciphersuite.r { throw Error.OctetsToProof.invalidScalar }
-
-            scalars.append(sJ)
-
-            index += ciphersuite.octetScalarLength
-        }
-
-
-        if index != proofOctets.count { fatalError() }
-
-
+        try verifyProofOutput(proofOctets, pointsSize: pointsSize, scalarsSize: scalarsSize)
         return (points[0], points[1], points[2], scalars[0], scalars[1], scalars[2], Array(scalars[3..<scalars.count - 1]), scalars.last!)
     }
-
 }
 private extension Utilities {
     func precheckProofOctets(_ proofOctets: [UInt8]) throws {
@@ -281,19 +265,38 @@ private extension Utilities {
     }
     func deserializePoints(_ proofOctets: [UInt8]) throws -> [CurvePoint<Fq1>] {
         try (0..<3).map {
-            let startIndex = $0 * ciphersuite.octetPointLength, endIndex = startIndex + ciphersuite.octetPointLength - 1
-            let pointOctets = Array(proofOctets[startIndex...endIndex])
+            let startIndex = $0 * ciphersuite.octetPointLength, endIndex = startIndex + ciphersuite.octetPointLength
+            let pointOctets = Array(proofOctets[startIndex..<endIndex])
 
             let A = try ciphersuite.curveG1.deserializePoint(pointOctets)
+            try checkPoint(A)
             return A
         }
     }
-    func deserializeScalars(_ proofOctets: [UInt8]) throws -> [Any] {
-        fatalError()
+    func deserializeScalars(_ proofOctets: [UInt8], pointsSize: Int) throws -> [BInt] {
+        try stride(from: pointsSize, to: proofOctets.count - 1, by: ciphersuite.octetScalarLength)
+            .map {
+                let startIndex = $0, endIndex = startIndex + ciphersuite.octetScalarLength
+                let scalarOctets = Array(proofOctets[startIndex..<endIndex])
+
+                let scalar = scalarOctets.toInteger()
+                try checkScalar(scalar)
+                return scalar
+            }
     }
-
-
-
+    func verifyProofOutput(_ proofOctets: [UInt8], pointsSize: Int, scalarsSize: Int) throws {
+        if proofOctets.count != pointsSize + scalarsSize { throw Error.OctetsToProof.invalidProofEntry }
+    }
+}
+private extension Utilities {
+    func checkPoint(_ A: CurvePoint<Fq1>) throws {
+        if A.isAtInfinity() { throw Error.OctetsToProof.invalidPoint }
+        // subgroup check jeszcze
+    }
+    func checkScalar(_ e: BInt) throws {
+        if e == 0 { throw Error.OctetsToProof.invalidScalar }
+        if e >= ciphersuite.r { throw Error.OctetsToProof.invalidScalar }
+    }
 }
 
 
@@ -306,5 +309,5 @@ extension Utilities { enum Error {
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyInvalid }
     enum OctetsToSignature: Swift.Error { case invalidSignature, invalidPoint, invalidScalar }
-    enum OctetsToProof: Swift.Error { case invalidProof, invalidPoint, invalidScalar }
+    enum OctetsToProof: Swift.Error { case invalidProof, invalidPoint, invalidScalar, invalidProofEntry }
 }}
