@@ -251,15 +251,48 @@ extension Utilities {
     func octetsToProof(proofOctets: [UInt8]) throws -> Proof {
         try precheckProofOctets(proofOctets)
 
+        var index = 0
 
-        fatalError()
+        var points: [CurvePoint<Fq1>] = []
+        for i in 0...2 {
+            let endIndex = index + ciphersuite.octetPointLength - 1
+            let Ai = try ciphersuite.curveG1.deserializePoint(Array(proofOctets[index...endIndex]))
+            if Ai.isAtInfinity() { throw Error.OctetsToProof.invalidPoint }
+
+
+            // subgroup check jeszcze
+
+
+            points.append(Ai)
+            index += ciphersuite.octetPointLength
+        }
+
+        var j = 0
+
+        var scalars: [BInt] = []
+        while index < proofOctets.count {
+            let endIndex = index + ciphersuite.octetScalarLength - 1
+            let sJ = Array(proofOctets[index...endIndex]).toInteger()
+            if sJ == 0 || sJ >= ciphersuite.r { throw Error.OctetsToProof.invalidScalar }
+
+            scalars.append(sJ)
+
+            index += ciphersuite.octetScalarLength
+            j += 1
+        }
+
+
+        if index != proofOctets.count { fatalError() }
+
+
+        return (points[0], points[1], points[2], scalars[0], scalars[1], scalars[2], Array(scalars[3..<scalars.count - 1]), scalars.last!)
     }
 
 }
 private extension Utilities {
     func precheckProofOctets(_ proofOctets: [UInt8]) throws {
         let expectedLength = 3 * ciphersuite.octetPointLength + 4 * ciphersuite.octetScalarLength
-        if proofOctets.count != expectedLength { throw Error.OctetsToProof.invalidProof }
+        if proofOctets.count < expectedLength { throw Error.OctetsToProof.invalidProof }
     }
 }
 
@@ -273,5 +306,5 @@ extension Utilities { enum Error {
     enum RandomScalars: Swift.Error { case unexpectedErrorDuringGeneratingRandomScalars }
     enum OctetsToPublicKey: Swift.Error { case publicKeyInvalid }
     enum OctetsToSignature: Swift.Error { case invalidSignature, invalidPoint, invalidScalar }
-    enum OctetsToProof: Swift.Error { case invalidProof }
+    enum OctetsToProof: Swift.Error { case invalidProof, invalidPoint, invalidScalar }
 }}
