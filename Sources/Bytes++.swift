@@ -10,6 +10,7 @@
 
 
 import Foundation
+import BigInt
 
 // MARK: - Operations
 extension [UInt8] {
@@ -28,11 +29,18 @@ extension [UInt8] {
     }
 }
 
-// MARK: - Converting to Hex
-extension Array where Element == UInt8 {
-    func toHexRepresentation() -> String {
-        var hexString: String = ""
-        for byte in self { hexString.append(String(format:"%02X", byte)) }
-        return hexString.lowercased()
+// MARK: - Bytes to Integer
+extension [UInt8] {
+    func toInteger() -> BInt { Primitives.bytesToInteger(self) }
+}
+
+// MARK: - Random Bytes
+extension [UInt8] {
+    static func random(length: Int) -> [UInt8]? {
+        var bytes = [UInt8](repeating: 0, count: length)
+        switch SecRandomCopyBytes(kSecRandomDefault, length, &bytes) {
+            case errSecSuccess: return bytes
+            default: return nil
+        }
     }
 }

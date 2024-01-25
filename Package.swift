@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "MijickBBS-Signature", targets: ["MijickBBS-Signature"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/attaswift/BigInt", branch: "master")
+        .package(url: "https://github.com/leif-ibsen/BigInt", branch: "master")
     ],
     targets: [
         .target(name: "MijickBBS-Signature", dependencies: [.product(name: "BigInt", package: "BigInt")], path: "Sources"),
