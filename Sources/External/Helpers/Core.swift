@@ -19,11 +19,11 @@ extension Core {
     static func coreSign(secretKey: BInt, publicKey: [UInt8], generators: [Point<Fq1>], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> [UInt8] {
         try checkCoreSignInput(generators, messages)
 
-        let domain = try utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
+        let domain = try Utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
 
         let scalar = try createScalar(secretKey, domain, messages, apiID)
         let point = createPoint(secretKey, scalar, generators, domain, messages)
-        let signature = try utilities.signatureToOctets(signature: (point, scalar))
+        let signature = try Utilities.signatureToOctets(signature: (point, scalar))
         return signature
     }
 }
@@ -34,8 +34,8 @@ private extension Core {
     static func createScalar(_ secretKey: BInt, _ domain: BInt, _ messages: [BInt], _ apiID: [UInt8]) throws -> BInt {
         let signatureDst = getSignatureDst(apiID)
 
-        let serializedScalar = try utilities.serialize(input: [secretKey, domain] + messages)
-        let scalar = try utilities.hashToScalar(serializedScalar, signatureDst)
+        let serializedScalar = try Utilities.serialize(input: [secretKey, domain] + messages)
+        let scalar = try Utilities.hashToScalar(serializedScalar, signatureDst)
 
         if secretKey == (-scalar).mod(cipher.curveG1.p) { throw Error.CoreSign.insufficientRandomness }
         return scalar
@@ -59,10 +59,10 @@ extension Core {
     static func coreSignatureVerify(publicKey: [UInt8], signature: [UInt8], generators: [Point<Fq1>], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> Bool {
         try checkSignatureVerifyInput(generators, messages)
 
-        let signatureResult = try utilities.octetsToSignature(signatureOctets: signature)
-        let W = try utilities.octetsToPublicKey(publicKey: publicKey)
+        let signatureResult = try Utilities.octetsToSignature(signatureOctets: signature)
+        let W = try Utilities.octetsToPublicKey(publicKey: publicKey)
 
-        let domain = try utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
+        let domain = try Utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
         let B = getPointB(generators, domain, messages)
 
         let isSignatureValid = try verifyPointsPairing(signatureResult, W, B)
@@ -100,7 +100,7 @@ extension Core {
         let undisclosedIndexes = getUndisclosedIndexes(messages, disclosedIndexes),
             disclosedMessages = getMessages(messages, disclosedIndexes),
             undisclosedMessages = getMessages(messages, undisclosedIndexes),
-            signatureResult = try utilities.octetsToSignature(signatureOctets: signature),
+            signatureResult = try Utilities.octetsToSignature(signatureOctets: signature),
             randomScalars = try getRandomScalars(messages, disclosedIndexes, mocked)
 
         let initRes = try proofInit(publicKey: publicKey, signature: signatureResult, generators: generators, randomScalars: randomScalars, header: header, messages: messages, undisclosedIndexes: undisclosedIndexes, apiID: apiID)
@@ -119,7 +119,7 @@ private extension Core {
     static func getMessages(_ messages: [BInt], _ indexes: [Int]) -> [BInt] { indexes.reduce(into: []) { $0.append(messages[$1]) } }
     static func getRandomScalars(_ messages: [BInt], _ disclosedIndexes: [Int], _ mocked: Bool) throws -> [BInt] {
         let n = 5 + messages.count - disclosedIndexes.count
-        return try mocked ? utilities.calculateMockedRandomScalars(count: n) : utilities.calculateRandomScalars(count: n)
+        return try mocked ? Utilities.calculateMockedRandomScalars(count: n) : Utilities.calculateRandomScalars(count: n)
     }
 }
 
@@ -128,7 +128,7 @@ extension Core {
     static func proofInit(publicKey: [UInt8], signature: Signature, generators: [Point<Fq1>], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> ProofInitVector {
         try checkProofInitEntryData(generators, randomScalars, messages, undisclosedIndexes)
 
-        let domain = try utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
+        let domain = try Utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
         let B = getPointB(generators, domain, messages)
 
         let D = B * randomScalars[1]
@@ -168,7 +168,7 @@ extension Core {
         let cArr = getChallengeArray(initProof, disclosedMessages, disclosedIndexes)
         let cOcts = try getChallengeOcts(cArr, presentationHeader)
 
-        return try utilities.hashToScalar(cOcts, challengeDst)
+        return try Utilities.hashToScalar(cOcts, challengeDst)
     }
 }
 private extension Core {
@@ -184,7 +184,7 @@ private extension Core {
         .appending(disclosedMessages)
         .appending([initProof.domain])
     }
-    static func getChallengeOcts(_ array: [Any], _ presentationHeader: [UInt8]) throws -> [UInt8] { try utilities
+    static func getChallengeOcts(_ array: [Any], _ presentationHeader: [UInt8]) throws -> [UInt8] { try Utilities
         .serialize(input: array)
         .concatenate(with: presentationHeader.count.toBytes(expectedLength: 8))
         .concatenate(with: presentationHeader)
@@ -210,7 +210,7 @@ extension Core {
         let m = getMScalars(challenge, randomScalars, undisclosedMessages)
 
         let proof = (initRes.Abar, initRes.Bbar, initRes.D, e, r1, r3, m, challenge)
-        return try utilities.proofToOctets(proof)
+        return try Utilities.proofToOctets(proof)
     }
 }
 private extension Core {
@@ -231,7 +231,6 @@ private extension Core {
 }
 private extension Core {
     static var cipher: CipherSuite { BBSSettings.ciphersuite }
-    static var utilities: Utilities { .init() }
 }
 
 

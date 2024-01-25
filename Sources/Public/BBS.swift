@@ -28,7 +28,7 @@ extension BBS {
             .concatenate(with: try BInt(keyInfo.count).toBytes(expectedLength: 2))
             .concatenate(with: keyInfo)
 
-        let secretKey = try utilities.hashToScalar(deriveInput, keyDst)
+        let secretKey = try Utilities.hashToScalar(deriveInput, keyDst)
         return secretKey
     }
 }
@@ -54,8 +54,8 @@ extension BBS {
 // MARK: - Signature Generation
 extension BBS {
     static func generateSignature(secretKey: BInt, publicKey: [UInt8], header: [UInt8] = [], messages: [[UInt8]] = []) throws -> [UInt8] {
-        let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID),
-            generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
+        let messageScalars = try Utilities.messagesToScalars(messages: messages, apiID: apiID),
+            generators = try Utilities.createGenerators(count: messages.count + 1, apiID: apiID)
 
         let signature = try Core.coreSign(secretKey: secretKey, publicKey: publicKey, generators: generators, header: header, messages: messageScalars, apiID: apiID)
         return signature
@@ -65,8 +65,8 @@ extension BBS {
 // MARK: - Signature Verification
 extension BBS {
     static func verifySignature(publicKey: [UInt8], signature: [UInt8], header: [UInt8], messages: [[UInt8]]) throws -> Bool {
-        let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID),
-            generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
+        let messageScalars = try Utilities.messagesToScalars(messages: messages, apiID: apiID),
+            generators = try Utilities.createGenerators(count: messages.count + 1, apiID: apiID)
 
         let result = try Core.coreSignatureVerify(publicKey: publicKey, signature: signature, generators: generators, header: header, messages: messageScalars, apiID: apiID)
         return result
@@ -76,8 +76,8 @@ extension BBS {
 // MARK: - Proof Generation
 extension BBS {
     static func generateProof(publicKey: [UInt8], signature: [UInt8], header: [UInt8], presentationHeader: [UInt8], messages: [[UInt8]], disclosedIndexes: [Int], mocked: Bool = false) throws -> [UInt8] {
-        let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID)
-        let generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
+        let messageScalars = try Utilities.messagesToScalars(messages: messages, apiID: apiID)
+        let generators = try Utilities.createGenerators(count: messages.count + 1, apiID: apiID)
 
         let proof = try Core.proofGeneration(publicKey: publicKey, signature: signature, generators: generators, header: header, presentationHeader: presentationHeader, messages: messageScalars, disclosedIndexes: disclosedIndexes, apiID: apiID, mocked: mocked)
         return proof
@@ -93,7 +93,6 @@ private extension BBS {
 }
 private extension BBS {
     static var cipher: CipherSuite { BBSSettings.ciphersuite }
-    static var utilities: Utilities { .init() }
 }
 
 
