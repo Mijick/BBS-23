@@ -11,11 +11,7 @@
 import Foundation
 import BigInt
 
-class Utilities {
-    let ciphersuite: CipherSuite
-
-    init(_ ciphersuite: CipherSuite) { self.ciphersuite = ciphersuite }
-}
+class Utilities {}
 
 // MARK: - Domain Calculation
 extension Utilities {
@@ -296,6 +292,11 @@ private extension Utilities {
         if e == 0 { throw Error.OctetsToProof.invalidScalar }
         if e >= ciphersuite.r { throw Error.OctetsToProof.invalidScalar }
     }
+}
+
+// MARK: - Helpers
+private extension Utilities {
+    var ciphersuite: CipherSuite { BBSSettings.ciphersuite }
 }
 
 

@@ -12,11 +12,7 @@
 import Foundation
 import BigInt
 
-class Core {
-    let ciphersuite: CipherSuite
-
-    init(_ ciphersuite: CipherSuite) { self.ciphersuite = ciphersuite }
-}
+class Core {}
 
 // MARK: - Core Signature
 extension Core {
@@ -41,13 +37,13 @@ private extension Core {
         let serializedScalar = try utilities.serialize(input: [secretKey, domain] + messages)
         let scalar = try utilities.hashToScalar(serializedScalar, signatureDst)
 
-        if secretKey == (-scalar).mod(ciphersuite.curveG1.p) { throw Error.CoreSign.insufficientRandomness }
+        if secretKey == (-scalar).mod(cipher.curveG1.p) { throw Error.CoreSign.insufficientRandomness }
         return scalar
     }
     func createPoint(_ secretKey: BInt, _ scalar: BInt, _ generators: [Point<Fq1>], _ domain: BInt, _ messages: [BInt]) -> Point<Fq1> {
         let B = getPointB(generators, domain, messages)
         
-        let point = B * (secretKey + scalar).modInverse(ciphersuite.r)
+        let point = B * (secretKey + scalar).modInverse(cipher.r)
         return point
     }
 }
@@ -79,11 +75,11 @@ private extension Core {
     }
     func verifyPointsPairing(_ signature: Signature, _ W: Point<Fq2>, _ B: Point<Fq1>) throws -> Bool {
         let a1 = signature.A
-        let a2 = W + ciphersuite.curveG2.getBasePoint() * signature.e
+        let a2 = W + cipher.curveG2.getBasePoint() * signature.e
         let e1 = try BilinearPairing(pG1: a1, pG2: a2).pair()
 
         let b1 = B
-        let b2 = -ciphersuite.curveG2.getBasePoint()
+        let b2 = -cipher.curveG2.getBasePoint()
         let e2 = try BilinearPairing(pG1: b1, pG2: b2).pair()
 
         let result = e1 * e2
@@ -206,17 +202,16 @@ extension Core {
     func proofFinalize(initRes: ProofInitVector, challenge: BInt, e: BInt, randomScalars: [BInt], undisclosedMessages: [BInt]) throws -> [UInt8] {
         try checkProofFinalizeEntryData(randomScalars, undisclosedMessages)
 
-        let tv1 = randomScalars[1].modInverse(ciphersuite.r)
+        let tv1 = randomScalars[1].modInverse(cipher.r)
 
-        let e = (randomScalars[2] + e * challenge).mod(ciphersuite.r)
-        let r1 = (randomScalars[3] - randomScalars[0] * challenge).mod(ciphersuite.r)
-        let r3 = (randomScalars[4] - tv1 * challenge).mod(ciphersuite.r)
+        let e = (randomScalars[2] + e * challenge).mod(cipher.r)
+        let r1 = (randomScalars[3] - randomScalars[0] * challenge).mod(cipher.r)
+        let r3 = (randomScalars[4] - tv1 * challenge).mod(cipher.r)
         let m = getMScalars(challenge, randomScalars, undisclosedMessages)
 
         let proof = (initRes.Abar, initRes.Bbar, initRes.D, e, r1, r3, m, challenge)
         return try utilities.proofToOctets(proof)
     }
-
 }
 private extension Core {
     func checkProofFinalizeEntryData(_ randomScalars: [BInt], _ undisclosedMessages: [BInt]) throws {
@@ -226,16 +221,17 @@ private extension Core {
         if randomScalars.count < 6 { return [] }
 
         let randomScalars = Array(randomScalars[5..<randomScalars.count])
-        return (0..<randomScalars.count).reduce([]) { $0 + [(randomScalars[$1] + undisclosedMessages[$1] * challenge).mod(ciphersuite.r)] }
+        return (0..<randomScalars.count).reduce([]) { $0 + [(randomScalars[$1] + undisclosedMessages[$1] * challenge).mod(cipher.r)] }
     }
 }
 
 // MARK: - Helpers
 private extension Core {
-    func getPointB(_ generators: [Point<Fq1>], _ domain: BInt, _ messages: [BInt]) -> Point<Fq1> { generators.enumerated().reduce(ciphersuite.p1) { $0 + ($1.element * ([domain] + messages)[$1.offset]) } }
+    func getPointB(_ generators: [Point<Fq1>], _ domain: BInt, _ messages: [BInt]) -> Point<Fq1> { generators.enumerated().reduce(cipher.p1) { $0 + ($1.element * ([domain] + messages)[$1.offset]) } }
 }
 private extension Core {
-    var utilities: Utilities { .init(ciphersuite) }
+    var cipher: CipherSuite { BBSSettings.ciphersuite }
+    var utilities: Utilities { .init() }
 }
 
 

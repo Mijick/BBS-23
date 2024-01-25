@@ -153,5 +153,5 @@ extension UtilitiesTest {
 
 // MARK: - Helpers
 private extension UtilitiesTest {
-    var utilities: Utilities { .init(Cipher.BLS12_381_SHA_256()) }
+    var utilities: Utilities { .init() }
 }
