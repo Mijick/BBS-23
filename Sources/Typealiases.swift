@@ -11,6 +11,6 @@
 
 import BigInt
 
-typealias ProofInitVector = (Abar: CurvePoint<Fq1>, Bbar: CurvePoint<Fq1>, D: CurvePoint<Fq1>, T1: CurvePoint<Fq1>, T2: CurvePoint<Fq1>, domain: BInt)
-typealias Proof = (Abar: CurvePoint<Fq1>, Bbar: CurvePoint<Fq1>, D: CurvePoint<Fq1>, e: BInt, r1: BInt, r3: BInt, m: [BInt], challenge: BInt)
-typealias Signature = (A: CurvePoint<Fq1>, e: BInt)
+typealias ProofInitVector = (Abar: Point<Fq1>, Bbar: Point<Fq1>, D: Point<Fq1>, T1: Point<Fq1>, T2: Point<Fq1>, domain: BInt)
+typealias Proof = (Abar: Point<Fq1>, Bbar: Point<Fq1>, D: Point<Fq1>, e: BInt, r1: BInt, r3: BInt, m: [BInt], challenge: BInt)
+typealias Signature = (A: Point<Fq1>, e: BInt)

@@ -27,7 +27,7 @@ extension Curve { struct BLS12_381_G2: CurveSuite {
 
 // MARK: - Point Serialization
 extension Curve.BLS12_381_G2 {
-    func serializePoint(_ point: CurvePoint<Fq2>) throws -> [UInt8] {
+    func serializePoint(_ point: Point<Fq2>) throws -> [UInt8] {
         switch point.isAtInfinity() {
             case true: return try serializePointAtInfinity()
             case false: return try serializeRegularPoint(point)
@@ -40,7 +40,7 @@ private extension Curve.BLS12_381_G2 {
         result[0] += serializationCompressionFlag
         return result
     }
-    func serializeRegularPoint(_ point: CurvePoint<Fq2>) throws -> [UInt8] {
+    func serializeRegularPoint(_ point: Point<Fq2>) throws -> [UInt8] {
         var result = try 0.toBytes(expectedLength: 96)
         result.replaceSubrange(0..<48, with: try calculateSerializationLeftSide(point))
         result.replaceSubrange(48..<96, with: try calculateSerializationRightSide(point))
@@ -50,8 +50,8 @@ private extension Curve.BLS12_381_G2 {
     }
 }
 private extension Curve.BLS12_381_G2 {
-    func calculateSerializationLeftSide(_ point: CurvePoint<Fq2>) throws -> [UInt8] { try point.x.u1.t0.toBytes(expectedLength: 48) }
-    func calculateSerializationRightSide(_ point: CurvePoint<Fq2>) throws -> [UInt8] { try point.x.u0.t0.toBytes(expectedLength: 48) }
+    func calculateSerializationLeftSide(_ point: Point<Fq2>) throws -> [UInt8] { try point.x.u1.t0.toBytes(expectedLength: 48) }
+    func calculateSerializationRightSide(_ point: Point<Fq2>) throws -> [UInt8] { try point.x.u0.t0.toBytes(expectedLength: 48) }
     func calculateSerializationYFlag(_ y: Fq2?) -> UInt8 { isNegative(y) ? serializationYFlag : 0 }
 }
 private extension Curve.BLS12_381_G2 {
@@ -62,7 +62,7 @@ private extension Curve.BLS12_381_G2 {
 
 // MARK: - Point Deserialization
 extension Curve.BLS12_381_G2 {
-    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint<Fq2> {
+    func deserializePoint(_ bytes: [UInt8]) throws -> Point<Fq2> {
         try precheckPoint(bytes)
 
         switch isPointAtInfinity(bytes) {
@@ -72,11 +72,11 @@ extension Curve.BLS12_381_G2 {
     }
 }
 private extension Curve.BLS12_381_G2 {
-    func deserializePointAtInfinity(_ bytes: [UInt8]) throws -> CurvePoint<Fq2> {
+    func deserializePointAtInfinity(_ bytes: [UInt8]) throws -> Point<Fq2> {
         try checkPointAtInfinity(bytes)
         return .init(x: 0, y: nil)
     }
-    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> CurvePoint<Fq2> {
+    func deserializeRegularPoint(_ bytes: [UInt8]) throws -> Point<Fq2> {
         var point = createRegularPoint(bytes)
         try checkRegularPoint(point)
 
@@ -92,14 +92,14 @@ private extension Curve.BLS12_381_G2 {
         if bytes[0] & 63 != 0 { throw Error.Deserialization.invalidPoint }
         for byte in bytes.dropFirst() { if byte != 0 { throw Error.Deserialization.invalidPoint } }
     }
-    func checkRegularPoint(_ point: CurvePoint<Fq2>) throws {
+    func checkRegularPoint(_ point: Point<Fq2>) throws {
         if point.x.u0.t0 >= p || point.x.u1.t0 >= p { throw Error.Deserialization.invalidPoint }
         if point.isAtInfinity() { throw Error.Deserialization.invalidPoint }
     }
 }
 private extension Curve.BLS12_381_G2 {
     func isPointAtInfinity(_ bytes: [UInt8]) -> Bool { bytes[0] & 64 != 0 }
-    func createRegularPoint(_ bytes: [UInt8]) -> CurvePoint<Fq2> {
+    func createRegularPoint(_ bytes: [UInt8]) -> Point<Fq2> {
         var bytes = bytes
         bytes[0] &= 31
 
@@ -111,7 +111,7 @@ private extension Curve.BLS12_381_G2 {
 
         return .init(x: x, y: y)
     }
-    func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout CurvePoint<Fq2>) {
+    func updateRegularPointYCoordinateIfNeeded(_ bytes: [UInt8], _ point: inout Point<Fq2>) {
         let yFlag = (bytes[0] & serializationYFlag) > 0
         let yComparisonFlag = isNegative(point.y)
 
@@ -121,7 +121,7 @@ private extension Curve.BLS12_381_G2 {
 
 // MARK: - Mapping To Curve
 extension Curve.BLS12_381_G2 {
-    func mapToCurve(_ u: Fq2) -> CurvePoint<Fq2> { MapToCurve(curve: self).sswu(u) }
+    func mapToCurve(_ u: Fq2) -> Point<Fq2> { MapToCurve(curve: self).sswu(u) }
 }
 
 // MARK: - Base Point

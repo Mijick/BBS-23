@@ -18,7 +18,7 @@ struct MapToCurve<F: Field> {
 
 // MARK: - Shallue-van de Woestijne method
 extension MapToCurve {
-    func svdw(_ u: F) -> CurvePoint<F> {
+    func svdw(_ u: F) -> Point<F> {
         // MARK: Pre-calculated
         let c1 = f(Z),
             c2 = u * u * c1,
@@ -57,7 +57,7 @@ private extension MapToCurve {
 
 // MARK: - Simplified Shallue-van de Woestijne-Ulas method
 extension MapToCurve {
-    func swu(_ u: F, A: F? = nil, B: F? = nil) -> CurvePoint<F> { let A = A ?? self.A, B = B ?? self.B
+    func swu(_ u: F, A: F? = nil, B: F? = nil) -> Point<F> { let A = A ?? self.A, B = B ?? self.B
         let c1 = u.exp(2),
             c2 = (c1 * c1).mod()
 
@@ -90,7 +90,7 @@ private extension MapToCurve {
 
 // MARK: - Simplified SWU for AB == 0
 extension MapToCurve {
-    func sswu(_ u: F) -> CurvePoint<F> {
+    func sswu(_ u: F) -> Point<F> {
         let curvePointʹ = swu(u, A: Aʹ, B: Bʹ)
         let curvePoint = curve.isoMap(curvePointʹ)
 

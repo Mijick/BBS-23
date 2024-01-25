@@ -123,7 +123,7 @@ private extension UtilitiesTest {
 // MARK: - Signature to Octets
 extension UtilitiesTest {
     func testSignatureToOctets() throws {
-        let point = CurvePoint<Fq1>(
+        let point = Point<Fq1>(
             x: "6b33cb8414e56bdd5d7b4b8a1f07492061d54ab788eba8614dc529578876188b6396eae57e49cb75831def97c5eeb7e",
             y: "187ff356ffe7027e926f0f9e0e917e9d28898fd3eaaaa6670a60e696fad8367110cc03f19043b9c3b8482e435e1892da"
         )

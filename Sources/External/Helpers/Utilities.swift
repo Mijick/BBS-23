@@ -19,7 +19,7 @@ class Utilities {
 
 // MARK: - Domain Calculation
 extension Utilities {
-    func calculateDomain(publicKey: [UInt8], generators: [CurvePoint<Fq1>], header: [UInt8], apiID: [UInt8]) throws -> BInt {
+    func calculateDomain(publicKey: [UInt8], generators: [Point<Fq1>], header: [UInt8], apiID: [UInt8]) throws -> BInt {
         try precheckDomainRequirements(generators, header)
 
         let L = generators.count - 1,
@@ -37,7 +37,7 @@ extension Utilities {
     }
 }
 private extension Utilities {
-    func precheckDomainRequirements(_ points: [CurvePoint<Fq1>], _ header: [UInt8]) throws {
+    func precheckDomainRequirements(_ points: [Point<Fq1>], _ header: [UInt8]) throws {
         if points.count < 2 { throw Error.CalculateDomain.tooLessPoints }
         if points.count > 2 ** 64 - 1 { throw Error.CalculateDomain.tooManyPoints }
         if header.count > 2 ** 64 - 1 { throw Error.CalculateDomain.tooBigHeader }
@@ -52,7 +52,7 @@ private extension Utilities {
 
 // MARK: - Creating Generators
 extension Utilities {
-    func createGenerators(count: BInt, apiID: [UInt8]) throws -> [CurvePoint<Fq1>] {
+    func createGenerators(count: BInt, apiID: [UInt8]) throws -> [Point<Fq1>] {
         if count > BInt(2) ** 64 - 1 { throw Error.CreateGenerators.cannotGenerateThatAmountOfGenerators }
 
         // MARK: Parameters
@@ -61,7 +61,7 @@ extension Utilities {
             generatorSeed = getGeneratorSeed(apiID)
 
         // MARK: Variables
-        var generators: [CurvePoint<Fq1>] = []
+        var generators: [Point<Fq1>] = []
         var v = try ciphersuite.expandMessage.make(generatorSeed, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
 
         // MARK: Creating Generators
@@ -130,8 +130,8 @@ extension Utilities {
 }
 private extension Utilities {
     func serializeElement(_ element: Any) throws -> [UInt8] {
-        if let pointG1 = element as? CurvePoint<Fq1> { return try ciphersuite.curveG1.serializePoint(pointG1) }
-        if let pointG2 = element as? CurvePoint<Fq2> { return try ciphersuite.curveG2.serializePoint(pointG2) }
+        if let pointG1 = element as? Point<Fq1> { return try ciphersuite.curveG1.serializePoint(pointG1) }
+        if let pointG2 = element as? Point<Fq2> { return try ciphersuite.curveG2.serializePoint(pointG2) }
         if let integer = element as? BInt { return try integer.toBytes(expectedLength: ciphersuite.octetScalarLength) }
         if let integer = element as? Int { return try integer.toBytes(expectedLength: 8) }
 
@@ -174,14 +174,14 @@ private extension Utilities {
 
 // MARK: - Octets to Public Key
 extension Utilities {
-    func octetsToPublicKey(publicKey: [UInt8]) throws -> CurvePoint<Fq2> {
+    func octetsToPublicKey(publicKey: [UInt8]) throws -> Point<Fq2> {
         let publicKey = try ciphersuite.curveG2.deserializePoint(publicKey)
         try checkPublicKey(publicKey)
         return publicKey
     }
 }
 private extension Utilities {
-    func checkPublicKey(_ publicKey: CurvePoint<Fq2>) throws {
+    func checkPublicKey(_ publicKey: Point<Fq2>) throws {
         if publicKey.isAtInfinity() { throw Error.OctetsToPublicKey.publicKeyInvalid }
     }
 }
@@ -210,7 +210,7 @@ private extension Utilities {
         let expectedLength = ciphersuite.octetPointLength + ciphersuite.octetScalarLength
         if signatureOctets.count != expectedLength { throw Error.OctetsToSignature.invalidSignature }
     }
-    func deserializePoint(_ signatureOctets: [UInt8]) throws -> CurvePoint<Fq1> {
+    func deserializePoint(_ signatureOctets: [UInt8]) throws -> Point<Fq1> {
         let octets = Array(signatureOctets[0..<ciphersuite.octetPointLength])
         let point = try ciphersuite.curveG1.deserializePoint(octets)
 
@@ -263,7 +263,7 @@ private extension Utilities {
         let expectedLength = 3 * ciphersuite.octetPointLength + 4 * ciphersuite.octetScalarLength
         if proofOctets.count < expectedLength { throw Error.OctetsToProof.invalidProof }
     }
-    func deserializePoints(_ proofOctets: [UInt8]) throws -> [CurvePoint<Fq1>] {
+    func deserializePoints(_ proofOctets: [UInt8]) throws -> [Point<Fq1>] {
         try (0..<3).map {
             let startIndex = $0 * ciphersuite.octetPointLength, endIndex = startIndex + ciphersuite.octetPointLength
             let pointOctets = Array(proofOctets[startIndex..<endIndex])
@@ -288,7 +288,7 @@ private extension Utilities {
     }
 }
 private extension Utilities {
-    func checkPoint(_ A: CurvePoint<Fq1>) throws {
+    func checkPoint(_ A: Point<Fq1>) throws {
         if A.isAtInfinity() { throw Error.OctetsToProof.invalidPoint }
         if !A.isInSubgroup() { throw Error.OctetsToProof.invalidPoint }
     }

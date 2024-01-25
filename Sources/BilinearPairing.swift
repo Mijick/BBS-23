@@ -12,8 +12,8 @@
 import BigInt
 
 struct BilinearPairing {
-    let pG1: CurvePoint<Fq1>
-    let pG2: CurvePoint<Fq2>
+    let pG1: Point<Fq1>
+    let pG2: Point<Fq2>
 }
 
 // MARK: - Tate Pairing
@@ -46,7 +46,7 @@ private extension BilinearPairing {
             .reversed()
             .dropFirst()
     )}
-    func millerHelper(_ p: CurvePoint<Fq1>, _ q: CurvePoint<Fq2>, _ r: CurvePoint<Fq2>, _ iters: [Bool], _ result: Fq12) -> Fq12 {
+    func millerHelper(_ p: Point<Fq1>, _ q: Point<Fq2>, _ r: Point<Fq2>, _ iters: [Bool], _ result: Fq12) -> Fq12 {
         if iters == [] { return result }
         
         let (i, iters) = (iters[0], Array(iters[1..<iters.count]))
@@ -61,7 +61,7 @@ private extension BilinearPairing {
 
 // MARK: - Double Eval
 private extension BilinearPairing {
-    func doubleEval(_ p: CurvePoint<Fq1>, _ r: CurvePoint<Fq2>) -> Fq12 {
+    func doubleEval(_ p: Point<Fq1>, _ r: Point<Fq2>) -> Fq12 {
         let wideR = r.untwist()
         let slope = (3 * wideR.x * wideR.x) * (2 * wideR.y).modInverse()
 
@@ -74,13 +74,13 @@ private extension BilinearPairing {
 
 // MARK: - Add Eval
 private extension BilinearPairing {
-    func addEval(_ p: CurvePoint<Fq1>, _ q: CurvePoint<Fq2>, _ r: CurvePoint<Fq2>) -> Fq12 {
+    func addEval(_ p: Point<Fq1>, _ q: Point<Fq2>, _ r: Point<Fq2>) -> Fq12 {
         let wideR = r.untwist(), wideQ = q.untwist()
         return wideR.x == wideQ.x && wideR.y == -wideQ.y ? [p.x.t0] - wideR.x : addEvalHelper(wideR, wideQ, p)
     }
 }
 private extension BilinearPairing {
-    func addEvalHelper(_ wideR: CurvePoint<Fq12>, _ wideQ: CurvePoint<Fq12>, _ p: CurvePoint<Fq1>) -> Fq12 {
+    func addEvalHelper(_ wideR: Point<Fq12>, _ wideQ: Point<Fq12>, _ p: Point<Fq1>) -> Fq12 {
         let slope = (wideQ.y - wideR.y) * (wideQ.x - wideR.x).modInverse()
 
         let p1: Fq12 = [p.y.t0]
@@ -105,8 +105,8 @@ extension BilinearPairing {
 
 
 // MARK: - External Helpers
-fileprivate extension CurvePoint<Fq2> {
-    func untwist() -> CurvePoint<Fq12> {
+fileprivate extension Point<Fq2> {
+    func untwist() -> Point<Fq12> {
         let root = Fq6(v0: 0, v1: 1, v2: 0)
         let wideX = Fq12(w0: .init(v0: x, v1: 0, v2: 0), w1: 0) * Fq12(w0: root, w1: 0).modInverse()
         let wideY = Fq12(w0: .init(v0: y, v1: 0, v2: 0), w1: 0) * Fq12(w0: 0, w1: root).modInverse()

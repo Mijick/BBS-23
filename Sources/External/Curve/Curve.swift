@@ -55,13 +55,13 @@ protocol CurveSuite<F> {
     // MARK: Methods
 
     /// Returns the canonical representation of the point P for the selected subgroup
-    func serializePoint(_ point: CurvePoint<F>) throws -> [UInt8]
+    func serializePoint(_ point: Point<F>) throws -> [UInt8]
 
     /// Returns the point P in the subgroup corresponding to the canonical representation
-    func deserializePoint(_ bytes: [UInt8]) throws -> CurvePoint<F>
+    func deserializePoint(_ bytes: [UInt8]) throws -> Point<F>
 
     /// Calculates a point on the elliptic curve E from an element of the finite field F over which E is defined
-    func mapToCurve(_ u: F) -> CurvePoint<F>
+    func mapToCurve(_ u: F) -> Point<F>
 
 
     // MARK: Isogeny Map Values
@@ -81,7 +81,7 @@ protocol CurveSuite<F> {
 // MARK: - Helpers
 extension CurveSuite {
     /// Encodes a byte string to a point in G
-    func hashToCurve(_ bytes: [UInt8], dst: [UInt8]? = nil) throws -> CurvePoint<F> {
+    func hashToCurve(_ bytes: [UInt8], dst: [UInt8]? = nil) throws -> Point<F> {
         let fieldElements = try hashToField(bytes, 2, dst)
 
         let point1 = mapToCurve(fieldElements[0])
@@ -93,7 +93,7 @@ extension CurveSuite {
     }
 
     /// Takes as input a point on E' and produces as output a point on E
-    func isoMap(_ point: CurvePoint<F>) -> CurvePoint<F> {
+    func isoMap(_ point: Point<F>) -> Point<F> {
         // MARK: Calculating X
         let xNum = calculateNum(point.x, xNumConstants), xDen = calculateDen(point.x, xDenConstants)
         let x = xNum * xDen.modInverse()
@@ -102,7 +102,7 @@ extension CurveSuite {
         let yNum = calculateNum(point.x, yNumConstants), yDen = calculateDen(point.x, yDenConstants)
         let y = point.y * yNum * yDen.modInverse()
 
-        let point = CurvePoint(x: x, y: y)
+        let point = Point(x: x, y: y)
         return point.modularized()
     }
 
@@ -118,7 +118,7 @@ extension CurveSuite {
     }
 
     /// Returns a base point on the G subgroup
-    func getBasePoint() -> CurvePoint<F> { .init(x: BPx, y: BPy) }
+    func getBasePoint() -> Point<F> { .init(x: BPx, y: BPy) }
 
     /// Function that defines the basic curve
     func f(_ x: F) -> F { x * x * x + A * x + B }
@@ -144,7 +144,7 @@ private extension CurveSuite {
     }
 
     /// Sends any point on the curve E to the subgroup G of E
-    func clearCofactor(_ point: CurvePoint<F>) -> CurvePoint<F> { point * hEff }
+    func clearCofactor(_ point: Point<F>) -> Point<F> { point * hEff }
 }
 
 // MARK: - Iso Map Helpers

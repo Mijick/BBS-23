@@ -32,7 +32,7 @@ protocol CipherSuite {
     var r: BInt { get }
 
     /// Fixed point of G1
-    var p1: CurvePoint<Fq1> { get }
+    var p1: Point<Fq1> { get }
 
     /// Defined by the suite specified by the hash to curve suite parameter of the ciphersuite
     var expandMessage: MessageExpander { get }

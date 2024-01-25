@@ -20,7 +20,7 @@ class Core {
 
 // MARK: - Core Signature
 extension Core {
-    func coreSign(secretKey: BInt, publicKey: [UInt8], generators: [CurvePoint<Fq1>], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> [UInt8] {
+    func coreSign(secretKey: BInt, publicKey: [UInt8], generators: [Point<Fq1>], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> [UInt8] {
         try checkCoreSignInput(generators, messages)
 
         let domain = try utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
@@ -32,7 +32,7 @@ extension Core {
     }
 }
 private extension Core {
-    func checkCoreSignInput(_ generators: [CurvePoint<Fq1>], _ messages: [BInt]) throws {
+    func checkCoreSignInput(_ generators: [Point<Fq1>], _ messages: [BInt]) throws {
         if generators.count < messages.count + 1 { throw Error.CoreSign.tooLessGenerators }
     }
     func createScalar(_ secretKey: BInt, _ domain: BInt, _ messages: [BInt], _ apiID: [UInt8]) throws -> BInt {
@@ -44,7 +44,7 @@ private extension Core {
         if secretKey == (-scalar).mod(ciphersuite.curveG1.p) { throw Error.CoreSign.insufficientRandomness }
         return scalar
     }
-    func createPoint(_ secretKey: BInt, _ scalar: BInt, _ generators: [CurvePoint<Fq1>], _ domain: BInt, _ messages: [BInt]) -> CurvePoint<Fq1> {
+    func createPoint(_ secretKey: BInt, _ scalar: BInt, _ generators: [Point<Fq1>], _ domain: BInt, _ messages: [BInt]) -> Point<Fq1> {
         let B = getPointB(generators, domain, messages)
         
         let point = B * (secretKey + scalar).modInverse(ciphersuite.r)
@@ -60,7 +60,7 @@ private extension Core {
 
 // MARK: - Core Signature Verify
 extension Core {
-    func coreSignatureVerify(publicKey: [UInt8], signature: [UInt8], generators: [CurvePoint<Fq1>], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> Bool {
+    func coreSignatureVerify(publicKey: [UInt8], signature: [UInt8], generators: [Point<Fq1>], header: [UInt8], messages: [BInt], apiID: [UInt8]) throws -> Bool {
         try checkSignatureVerifyInput(generators, messages)
 
         let signatureResult = try utilities.octetsToSignature(signatureOctets: signature)
@@ -74,10 +74,10 @@ extension Core {
     }
 }
 private extension Core {
-    func checkSignatureVerifyInput(_ generators: [CurvePoint<Fq1>], _ messages: [BInt]) throws {
+    func checkSignatureVerifyInput(_ generators: [Point<Fq1>], _ messages: [BInt]) throws {
         if generators.count != messages.count + 1 { throw Error.CoreSignVerify.tooLessGenerators }
     }
-    func verifyPointsPairing(_ signature: Signature, _ W: CurvePoint<Fq2>, _ B: CurvePoint<Fq1>) throws -> Bool {
+    func verifyPointsPairing(_ signature: Signature, _ W: Point<Fq2>, _ B: Point<Fq1>) throws -> Bool {
         let a1 = signature.A
         let a2 = W + ciphersuite.curveG2.getBasePoint() * signature.e
         let e1 = try BilinearPairing(pG1: a1, pG2: a2).pair()
@@ -98,7 +98,7 @@ private extension Core {
 
 // MARK: - Core Proof Generation
 extension Core {
-    func proofGeneration(publicKey: [UInt8], signature: [UInt8], generators: [CurvePoint<Fq1>], header: [UInt8], presentationHeader: [UInt8], messages: [BInt], disclosedIndexes: [Int], apiID: [UInt8], mocked: Bool) throws -> [UInt8] {
+    func proofGeneration(publicKey: [UInt8], signature: [UInt8], generators: [Point<Fq1>], header: [UInt8], presentationHeader: [UInt8], messages: [BInt], disclosedIndexes: [Int], apiID: [UInt8], mocked: Bool) throws -> [UInt8] {
         try checkProofGenerationEntryData(messages, disclosedIndexes)
 
         let undisclosedIndexes = getUndisclosedIndexes(messages, disclosedIndexes),
@@ -129,7 +129,7 @@ private extension Core {
 
 // MARK: - Proof Init
 extension Core {
-    func proofInit(publicKey: [UInt8], signature: Signature, generators: [CurvePoint<Fq1>], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> ProofInitVector {
+    func proofInit(publicKey: [UInt8], signature: Signature, generators: [Point<Fq1>], randomScalars: [BInt], header: [UInt8], messages: [BInt], undisclosedIndexes: [Int], apiID: [UInt8]) throws -> ProofInitVector {
         try checkProofInitEntryData(generators, randomScalars, messages, undisclosedIndexes)
 
         let domain = try utilities.calculateDomain(publicKey: publicKey, generators: generators, header: header, apiID: apiID)
@@ -144,13 +144,13 @@ extension Core {
     }
 }
 private extension Core {
-    func checkProofInitEntryData(_ generators: [CurvePoint<Fq1>], _ randomScalars: [BInt], _ messages: [BInt], _ undisclosedIndexes: [Int]) throws {
+    func checkProofInitEntryData(_ generators: [Point<Fq1>], _ randomScalars: [BInt], _ messages: [BInt], _ undisclosedIndexes: [Int]) throws {
         if randomScalars.count != undisclosedIndexes.count + 5 { throw Error.CoreProofInit.tooLessRandomScalars }
         if generators.count != messages.count + 1 { throw Error.CoreProofInit.tooLessGenerators }
         if undisclosedIndexes.count > messages.count { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
         if undisclosedIndexes.contains(where: { $0 < 0 || $0 >= messages.count }) { throw Error.CoreProofInit.incorrectUndisclosedIndexes }
     }
-    func getPointT2(_ D: CurvePoint<Fq1>, _ generators: [CurvePoint<Fq1>], _ randomScalars: [BInt], _ undisclosedIndexes: [Int]) -> CurvePoint<Fq1> {
+    func getPointT2(_ D: Point<Fq1>, _ generators: [Point<Fq1>], _ randomScalars: [BInt], _ undisclosedIndexes: [Int]) -> Point<Fq1> {
         let generators = [D] + getGeneratorsForUndisclosedMessages(generators, undisclosedIndexes),
             randomScalars = Array(randomScalars[4..<randomScalars.count])
 
@@ -160,7 +160,7 @@ private extension Core {
     }
 }
 private extension Core {
-    func getGeneratorsForUndisclosedMessages(_ generators: [CurvePoint<Fq1>], _ undisclosedIndexes: [Int]) -> [CurvePoint<Fq1>] { undisclosedIndexes.reduce(into: []) { $0.append(Array(generators[1..<generators.count])[$1]) } }
+    func getGeneratorsForUndisclosedMessages(_ generators: [Point<Fq1>], _ undisclosedIndexes: [Int]) -> [Point<Fq1>] { undisclosedIndexes.reduce(into: []) { $0.append(Array(generators[1..<generators.count])[$1]) } }
 }
 
 // MARK: - Proof Challenge Calculation
@@ -232,7 +232,7 @@ private extension Core {
 
 // MARK: - Helpers
 private extension Core {
-    func getPointB(_ generators: [CurvePoint<Fq1>], _ domain: BInt, _ messages: [BInt]) -> CurvePoint<Fq1> { generators.enumerated().reduce(ciphersuite.p1) { $0 + ($1.element * ([domain] + messages)[$1.offset]) } }
+    func getPointB(_ generators: [Point<Fq1>], _ domain: BInt, _ messages: [BInt]) -> Point<Fq1> { generators.enumerated().reduce(ciphersuite.p1) { $0 + ($1.element * ([domain] + messages)[$1.offset]) } }
 }
 private extension Core {
     var utilities: Utilities { .init(ciphersuite) }
