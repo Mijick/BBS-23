@@ -57,7 +57,7 @@ extension BBS {
         let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID),
             generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
 
-        let signature = try core.coreSign(secretKey: secretKey, publicKey: publicKey, generators: generators, header: header, messages: messageScalars, apiID: apiID)
+        let signature = try Core.coreSign(secretKey: secretKey, publicKey: publicKey, generators: generators, header: header, messages: messageScalars, apiID: apiID)
         return signature
     }
 }
@@ -68,7 +68,7 @@ extension BBS {
         let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID),
             generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
 
-        let result = try core.coreSignatureVerify(publicKey: publicKey, signature: signature, generators: generators, header: header, messages: messageScalars, apiID: apiID)
+        let result = try Core.coreSignatureVerify(publicKey: publicKey, signature: signature, generators: generators, header: header, messages: messageScalars, apiID: apiID)
         return result
     }
 }
@@ -79,7 +79,7 @@ extension BBS {
         let messageScalars = try utilities.messagesToScalars(messages: messages, apiID: apiID)
         let generators = try utilities.createGenerators(count: messages.count + 1, apiID: apiID)
 
-        let proof = try core.proofGeneration(publicKey: publicKey, signature: signature, generators: generators, header: header, presentationHeader: presentationHeader, messages: messageScalars, disclosedIndexes: disclosedIndexes, apiID: apiID, mocked: mocked)
+        let proof = try Core.proofGeneration(publicKey: publicKey, signature: signature, generators: generators, header: header, presentationHeader: presentationHeader, messages: messageScalars, disclosedIndexes: disclosedIndexes, apiID: apiID, mocked: mocked)
         return proof
     }
 }
@@ -93,7 +93,6 @@ private extension BBS {
 }
 private extension BBS {
     static var cipher: CipherSuite { BBSSettings.ciphersuite }
-    static var core: Core { .init() }
     static var utilities: Utilities { .init() }
 }
 
