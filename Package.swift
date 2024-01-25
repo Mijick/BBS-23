@@ -4,15 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "BBS-Signature",
+    name: "MijickBBS23",
     products: [
-        .library(name: "MijickBBS-Signature", targets: ["MijickBBS-Signature"]),
+        .library(name: "MijickBBS23", targets: ["MijickBBS23"]),
     ],
     dependencies: [
         .package(url: "https://github.com/leif-ibsen/BigInt", branch: "master")
     ],
     targets: [
-        .target(name: "MijickBBS-Signature", dependencies: [.product(name: "BigInt", package: "BigInt")], path: "Sources"),
-        .testTarget(name: "MijickBBS-SignatureTests", dependencies: ["MijickBBS-Signature", .product(name: "BigInt", package: "BigInt")], path: "Tests")
+        .target(name: "MijickBBS23", dependencies: [.product(name: "BigInt", package: "BigInt")], path: "Sources"),
+        .testTarget(name: "MijickBBS23Tests", dependencies: ["MijickBBS23", .product(name: "BigInt", package: "BigInt")], path: "Tests")
     ]
 )

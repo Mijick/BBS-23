@@ -1,5 +1,5 @@
 //
-//  UtilitiesTest.swift of BBS-Signature
+//  UtilitiesTest.swift of MijickBBS23
 //
 //  Created by Alina Petrovska on 30.11.2023.
 //    - Mail: alina.petrovskaya@mijick.com
@@ -11,7 +11,7 @@ import Foundation
 
 import XCTest
 import BigInt
-@testable import MijickBBS_Signature
+@testable import MijickBBS23
 
 final class UtilitiesTest: XCTestCase {}
 

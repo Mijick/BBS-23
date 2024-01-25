@@ -1,5 +1,5 @@
 //
-//  ExpandMessageTests.swift of BBS-Signature
+//  ExpandMessageTests.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -11,7 +11,7 @@
 
 import XCTest
 import BigInt
-@testable import MijickBBS_Signature
+@testable import MijickBBS23
 
 final class ExpandMessageTests: XCTestCase {}
 

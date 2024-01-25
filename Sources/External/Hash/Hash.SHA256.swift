@@ -1,5 +1,5 @@
 //
-//  Hash.SHA256.swift of BBS-Signature
+//  Hash.SHA256.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik

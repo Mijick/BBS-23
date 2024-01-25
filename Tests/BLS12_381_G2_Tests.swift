@@ -1,5 +1,5 @@
 //
-//  BLS12_381_G2_Tests.swift of BBS-Signature
+//  BLS12_381_G2_Tests.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
@@ -10,7 +10,7 @@
 
 
 import XCTest
-@testable import MijickBBS_Signature
+@testable import MijickBBS23
 
 final class BLS12_381_G2_Tests: XCTestCase {}
 

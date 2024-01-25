@@ -1,5 +1,5 @@
 //
-//  Curve.swift of BBS-Signature
+//  Curve.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik

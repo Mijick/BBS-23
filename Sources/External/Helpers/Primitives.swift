@@ -1,5 +1,5 @@
 //
-//  Primitives.swift of BBS-Signature
+//  Primitives.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik

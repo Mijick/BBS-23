@@ -1,5 +1,5 @@
 //
-//  Cipher.BLS12_381_SHA_256.swift of BBS-Signature
+//  Cipher.BLS12_381_SHA_256.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik

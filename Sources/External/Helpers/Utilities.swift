@@ -1,5 +1,5 @@
 //
-//  Utilities.swift of BBS-Signature
+//  Utilities.swift of MijickBBS23
 //
 //  Created by Alina Petrovska on 30.11.2023.
 //    - Mail: alina.petrovskaya@mijick.com

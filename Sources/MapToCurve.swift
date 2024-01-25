@@ -1,5 +1,5 @@
 //
-//  MapToCurve.swift of BBS-Signature
+//  MapToCurve.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik

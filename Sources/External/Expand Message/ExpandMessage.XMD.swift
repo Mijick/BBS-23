@@ -1,5 +1,5 @@
 //
-//  ExpandMessage.XMD.swift of BBS-Signature
+//  ExpandMessage.XMD.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik

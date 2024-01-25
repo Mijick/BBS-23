@@ -1,5 +1,5 @@
 //
-//  CurvePoint.swift of BBS-Signature
+//  CurvePoint.swift of MijickBBS23
 //
 //  Created by Tomasz Kurylik
 //    - Twitter: https://twitter.com/tkurylik
