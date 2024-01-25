@@ -11,17 +11,17 @@
 
 import BigInt
 
-struct Fq2: Field {
+public struct Fq2: Field {
     let u0: Fq1
     let u1: Fq1
 }
-extension Fq2 {
+public extension Fq2 {
     init(_ v: [BInt]) { self.u0 = .init(t0: v.get(0) ?? 0); self.u1 = .init(t0: v.get(1) ?? 0) }
     init(arrayLiteral elements: BInt...) { self.init(Array(elements)) }
 }
 
 // MARK: - Operations
-extension Fq2 {
+public extension Fq2 {
     static func * (lhs: Fq2, rhs: Fq2) -> Fq2 { .init(
         u0: lhs.u0 * rhs.u0 - lhs.u1 * rhs.u1,
         u1: lhs.u1 * rhs.u0 + lhs.u0 * rhs.u1
@@ -35,7 +35,7 @@ extension Fq2 {
         u1: lhs.u1 + rhs.u1
     )}
 }
-extension Fq2 {
+public extension Fq2 {
     func mod() -> Fq2 { .init(u0: u0.mod(), u1: u1.mod()) }
     func modInverse() -> Fq2 {
         let factor = (u0 * u0 + u1 * u1).modInverse()
@@ -78,7 +78,7 @@ extension Fq2 {
 }
 
 // MARK: - Printing
-extension Fq2 {
+public extension Fq2 {
     var description: String {
         """
 

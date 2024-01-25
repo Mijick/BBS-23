@@ -12,7 +12,7 @@
 import Foundation
 import BigInt
 
-struct Point<F: Field> {
+public struct Point<F: Field> {
     var x: F
     var y: F!
 
@@ -26,7 +26,7 @@ extension Point {
 
 // MARK: - Comparing Points
 extension Point: Equatable {
-    static func == (p1: Point, p2: Point) -> Bool { p1.x == p2.x && p1.y == p2.y }
+    public static func == (p1: Point, p2: Point) -> Bool { p1.x == p2.x && p1.y == p2.y }
 }
 
 // MARK: - Points Addition

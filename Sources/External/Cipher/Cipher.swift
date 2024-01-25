@@ -12,7 +12,7 @@
 import BigInt
 
 enum Cipher {}
-protocol CipherSuite {
+public protocol CipherSuite {
     /// Identifier of the ciphersuite
     var id: String { get }
 

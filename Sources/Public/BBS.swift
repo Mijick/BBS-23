@@ -12,15 +12,15 @@
 import Foundation
 import BigInt
 
-class BBS {}
+public class BBS {}
 
 // MARK: - SDK Setup
-extension BBS {
+public extension BBS {
     static func set(ciphersuite: CipherSuite) { BBSSettings.ciphersuite = ciphersuite }
 }
 
 // MARK: - Secret Key Generation
-extension BBS {
+public extension BBS {
     static func generateSecretKey(keyMaterial: [UInt8], keyInfo: [UInt8]? = nil, keyDst: [UInt8]? = nil) throws -> BInt { let keyInfo = keyInfo ?? defaultKeyInfo, keyDst = keyDst ?? defaultKeyDst
         try checkSecretKeyIngredients(keyMaterial, keyInfo)
 
@@ -44,7 +44,7 @@ private extension BBS {
 }
 
 // MARK: - Public Generation
-extension BBS {
+public extension BBS {
     static func generatePublicKey(_ secretKey: BInt) throws -> [UInt8] { let curve = cipher.curveG2, bp2 = curve.getBasePoint()
         let publicKey = secretKey * bp2
         return try curve.serializePoint(publicKey)
@@ -52,7 +52,7 @@ extension BBS {
 }
 
 // MARK: - Signature Generation
-extension BBS {
+public extension BBS {
     static func generateSignature(secretKey: BInt, publicKey: [UInt8], header: [UInt8] = [], messages: [[UInt8]] = []) throws -> [UInt8] {
         let messageScalars = try Utilities.messagesToScalars(messages: messages, apiID: apiID),
             generators = try Utilities.createGenerators(count: messages.count + 1, apiID: apiID)
@@ -63,7 +63,7 @@ extension BBS {
 }
 
 // MARK: - Signature Verification
-extension BBS {
+public extension BBS {
     static func verifySignature(publicKey: [UInt8], signature: [UInt8], header: [UInt8], messages: [[UInt8]]) throws -> Bool {
         let messageScalars = try Utilities.messagesToScalars(messages: messages, apiID: apiID),
             generators = try Utilities.createGenerators(count: messages.count + 1, apiID: apiID)
@@ -74,7 +74,7 @@ extension BBS {
 }
 
 // MARK: - Proof Generation
-extension BBS {
+public extension BBS {
     static func generateProof(publicKey: [UInt8], signature: [UInt8], header: [UInt8], presentationHeader: [UInt8], messages: [[UInt8]], disclosedIndexes: [Int], mocked: Bool = false) throws -> [UInt8] {
         let messageScalars = try Utilities.messagesToScalars(messages: messages, apiID: apiID)
         let generators = try Utilities.createGenerators(count: messages.count + 1, apiID: apiID)

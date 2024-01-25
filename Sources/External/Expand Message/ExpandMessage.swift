@@ -12,7 +12,7 @@
 import Foundation
 
 enum ExpandMessage {}
-protocol MessageExpander {
+public protocol MessageExpander {
     // MARK: Attributes
     var hasher: HashType { get }
 

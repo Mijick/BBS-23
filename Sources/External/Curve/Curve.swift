@@ -12,7 +12,7 @@
 import BigInt
 
 enum Curve {}
-protocol CurveSuite<F> {
+public protocol CurveSuite<F> {
     // MARK: Attributes
 
     /// Domain separation tag for a curve

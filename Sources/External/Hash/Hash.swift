@@ -12,7 +12,7 @@
 import Foundation
 
 enum Hash {}
-protocol HashType {
+public protocol HashType {
     // MARK: Attributes
 
     /// Output size of hashData in bits. For example, for SHA-256 = 256, size = 32

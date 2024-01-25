@@ -11,7 +11,7 @@
 
 import BigInt
 
-protocol Field: Equatable, ExpressibleByIntegerLiteral, ExpressibleByArrayLiteral, CustomStringConvertible {
+public protocol Field: Equatable, ExpressibleByIntegerLiteral, ExpressibleByArrayLiteral, CustomStringConvertible {
     static func + (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: BInt) -> Self
@@ -27,8 +27,8 @@ protocol Field: Equatable, ExpressibleByIntegerLiteral, ExpressibleByArrayLitera
 
 // MARK: - Other Operations
 extension Field {
-    init(integerLiteral value: Int) { self.init([BInt(value)]) }
-    init(_ v: BInt...) { self.init(Array(v)) }
+    public init(integerLiteral value: Int) { self.init([BInt(value)]) }
+    public init(_ v: BInt...) { self.init(Array(v)) }
 
     static func * (lhs: BInt, rhs: Self) -> Self { rhs * lhs }
     static func - (lhs: Self, rhs: Self) -> Self { lhs + (-rhs) }
