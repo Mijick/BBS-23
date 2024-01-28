@@ -178,6 +178,7 @@ extension Utilities {
 }
 private extension Utilities {
     static func checkPublicKey(_ publicKey: Point<Fq2>) throws {
+        if !publicKey.isInSubgroup() { throw Error.OctetsToPublicKey.publicKeyInvalid }
         if publicKey.isAtInfinity() { throw Error.OctetsToPublicKey.publicKeyInvalid }
     }
 }
