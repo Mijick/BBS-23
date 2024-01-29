@@ -51,16 +51,13 @@ extension Utilities {
     static func createGenerators(count: Int, apiID: [UInt8]) throws -> [Point<Fq1>] {
         if count > BInt(2) ** 64 - 1 { throw Error.CreateGenerators.cannotGenerateThatAmountOfGenerators }
 
-        // MARK: Parameters
         let seedDst = getSeedDst(apiID),
             generatorDst = getGeneratorDst(apiID),
             generatorSeed = getGeneratorSeed(apiID)
 
-        // MARK: Variables
         var generators: [Point<Fq1>] = []
         var v = try ciphersuite.expandMessage.make(generatorSeed, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
 
-        // MARK: Creating Generators
         while generators.count < count {
             let bytes = v.concatenate(with: try (generators.count + 1).toBytes(expectedLength: 8))
             v = try ciphersuite.expandMessage.make(bytes, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
