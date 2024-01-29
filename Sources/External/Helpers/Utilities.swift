@@ -48,7 +48,7 @@ private extension Utilities {
 
 // MARK: - Creating Generators
 extension Utilities {
-    static func createGenerators(count: BInt, apiID: [UInt8]) throws -> [Point<Fq1>] {
+    static func createGenerators(count: Int, apiID: [UInt8]) throws -> [Point<Fq1>] {
         if count > BInt(2) ** 64 - 1 { throw Error.CreateGenerators.cannotGenerateThatAmountOfGenerators }
 
         // MARK: Parameters
@@ -62,7 +62,7 @@ extension Utilities {
 
         // MARK: Creating Generators
         while generators.count < count {
-            let bytes = v.concatenate(with: try BInt(generators.count + 1).toBytes(expectedLength: 8))
+            let bytes = v.concatenate(with: try (generators.count + 1).toBytes(expectedLength: 8))
             v = try ciphersuite.expandMessage.make(bytes, dst: seedDst, expectedLengthInBytes: ciphersuite.expandLength)
 
             let generatorI = try ciphersuite.curveG1.hashToCurve(v, dst: generatorDst)
@@ -98,7 +98,7 @@ extension Utilities {
     static func hashToScalar(_ msg: [UInt8], _ dst: [UInt8]) throws -> BInt {
         if dst.count > 255 { throw Error.ConvertToScalar.invalidDSTLength }
 
-        let uniformBytes = try ciphersuite.curveG1.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
+        let uniformBytes = try ciphersuite.expandMessage.make(msg, dst: dst, expectedLengthInBytes: ciphersuite.expandLength)
         return uniformBytes
             .toInteger()
             .mod(ciphersuite.r)
