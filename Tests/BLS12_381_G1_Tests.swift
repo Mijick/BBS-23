@@ -25,7 +25,7 @@ extension BLS12_381_G1_Tests {
         XCTAssertEqual(bytes, serializedPoint)
     }
     func testSerialization_2() throws {
-        let point = Point<Fq1>(x: 0, y: nil)
+        let point = Point<Fq1>.atInfinity
 
         let serializedPoint = try curve.serializePoint(point)
         let deserializedPoint = try curve.deserializePoint(serializedPoint)

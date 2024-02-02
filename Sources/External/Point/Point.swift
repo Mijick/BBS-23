@@ -14,14 +14,17 @@ import BigInt
 
 public struct Point<F: Field> {
     var x: F
-    var y: F!
+    var y: F
 
-    init(x: F, y: F?) { self.x = x; self.y = y }
+    init(x: F, y: F) { self.x = x; self.y = y }
+}
+extension Point {
+    static var atInfinity: Self { .init(x: 0, y: 0) }
 }
 
 // MARK: - Initializers Helpers
 extension Point {
-    func modularized() -> Point { .init(x: x.mod(), y: y?.mod()) }
+    func modularized() -> Point { .init(x: x.mod(), y: y.mod()) }
 }
 
 // MARK: - Comparing Points
@@ -32,7 +35,7 @@ extension Point: Equatable {
 // MARK: - Points Addition
 extension Point {
     static func + (p1: Self, p2: Self) -> Self {
-        if p1.isAtInfinity() || p2.isAtInfinity() { return .init(x: 0, y: nil) }
+        if p1.isAtInfinity() || p2.isAtInfinity() { return .atInfinity }
 
         let λ = (p2.y - p1.y) * ((p2.x - p1.x).modInverse())
         let x = (λ * λ) - p1.x - p2.x
@@ -46,7 +49,7 @@ extension Point {
 // MARK: - Point x Scalar
 extension Point {
     static func * (point: Self, scalar: BInt) -> Point {
-        if point.isAtInfinity() { return .init(x: 0, y: nil) }
+        if point.isAtInfinity() { return .atInfinity }
         if scalar == 0 { return .init(x: 0, y: 0) }
         if scalar == 1 { return point }
         if scalar % 2 == 1 { return point + point * (scalar - 1) }
@@ -76,7 +79,7 @@ extension Point {
 
 // MARK: - Others
 extension Point {
-    func isAtInfinity() -> Bool { y == nil }
+    func isAtInfinity() -> Bool { self == .atInfinity }
     func isInSubgroup() -> Bool {
         // TODO: Define it later!!!
         true

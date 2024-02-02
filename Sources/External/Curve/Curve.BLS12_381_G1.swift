@@ -70,7 +70,7 @@ extension Curve.BLS12_381_G1 {
 private extension Curve.BLS12_381_G1 {
     func deserializePointAtInfinity(_ bytes: [UInt8]) throws -> Point<Fq1> {
         try checkPointAtInfinity(bytes)
-        return .init(x: 0, y: nil)
+        return .atInfinity
     }
     func deserializeRegularPoint(_ bytes: [UInt8]) throws -> Point<Fq1> {
         var point = createRegularPoint(bytes)
